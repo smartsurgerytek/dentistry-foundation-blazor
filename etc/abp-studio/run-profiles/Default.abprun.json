@@ -1,0 +1,22 @@
+﻿{
+  "applications": {
+    "SST.DentistryFoundation.HttpApi.Host": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44383",
+      "path": "../../../src/SST.DentistryFoundation.HttpApi.Host/SST.DentistryFoundation.HttpApi.Host.csproj",
+      "kubernetesService": ".*-httpapihost$",
+      "execution": {
+        "order": 4
+      }
+    },
+    "SST.DentistryFoundation.Blazor": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44305",
+      "path": "../../../src/SST.DentistryFoundation.Blazor/SST.DentistryFoundation.Blazor.csproj",
+      "kubernetesService": ".*-blazor$",
+      "execution": {
+        "order": 2
+      }
+    }
+  }
+}

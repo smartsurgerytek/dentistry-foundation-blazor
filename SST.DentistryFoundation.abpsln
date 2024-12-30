@@ -1,0 +1,43 @@
+{
+  "id": "802d5e8a-c909-4e96-8364-c920a6e3f6a7",
+  "template": "app",
+  "versions": {
+    "AbpFramework": "9.0.2",
+    "AbpStudio": "0.9.18",
+    "TargetDotnetFramework": "net9.0"
+  },
+  "modules": {
+    "SST.DentistryFoundation": {
+      "path": "SST.DentistryFoundation.abpmdl"
+    }
+  },
+  "runProfiles": {
+    "Default": {
+      "path": "etc/abp-studio/run-profiles/Default.abprun.json"
+    }
+  },
+  "options": {
+    "httpRequests": {
+      "ignoredUrls": [
+        "^/metrics$"
+      ]
+    }
+  },
+  "creatingStudioConfiguration": {
+    "template": "app",
+    "createdAbpStudioVersion": "0.9.18",
+    "tiered": "false",
+    "multiTenancy": "true",
+    "includeTests": "true",
+    "uiFramework": "blazor",
+    "databaseProvider": "ef",
+    "databaseManagementSystem": "postgresql",
+    "separateTenantSchema": "false",
+    "theme": "leptonx-lite",
+    "themeStyle": "",
+    "mobileFramework": "none",
+    "progressiveWebApp": "false",
+    "publicWebsite": "false",
+    "socialLogin": ""
+  }
+}

@@ -1,0 +1,9 @@
+﻿@page "/FileManager"
+<SfFileManager TValue="FileManagerDirectoryContent">
+    <FileManagerAjaxSettings 
+                             Url="/api/FileManager/FileOperations"
+                             UploadUrl="/api/FileManager/Upload"
+                             GetImageUrl="/api/FileManager/GetImage"
+                             DownloadUrl="/api/FileManager/Download">
+    </FileManagerAjaxSettings>
+</SfFileManager>

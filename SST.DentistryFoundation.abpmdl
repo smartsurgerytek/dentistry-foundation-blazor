@@ -1,0 +1,109 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "4.0.3",
+      "isInstalled": true
+    },
+    "Volo.Abp.Account": {
+      "version": "9.0.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "9.0.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity": {
+      "version": "9.0.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "9.0.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "9.0.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "9.0.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "9.0.2",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "SST.DentistryFoundation.Application": {
+      "path": "src/SST.DentistryFoundation.Application/SST.DentistryFoundation.Application.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.Application.Tests": {
+      "path": "test/SST.DentistryFoundation.Application.Tests/SST.DentistryFoundation.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "SST.DentistryFoundation.Domain.Shared": {
+      "path": "src/SST.DentistryFoundation.Domain.Shared/SST.DentistryFoundation.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.Application.Contracts": {
+      "path": "src/SST.DentistryFoundation.Application.Contracts/SST.DentistryFoundation.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.HttpApi": {
+      "path": "src/SST.DentistryFoundation.HttpApi/SST.DentistryFoundation.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.HttpApi.Client": {
+      "path": "src/SST.DentistryFoundation.HttpApi.Client/SST.DentistryFoundation.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.EntityFrameworkCore.Tests": {
+      "path": "test/SST.DentistryFoundation.EntityFrameworkCore.Tests/SST.DentistryFoundation.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "SST.DentistryFoundation.EntityFrameworkCore": {
+      "path": "src/SST.DentistryFoundation.EntityFrameworkCore/SST.DentistryFoundation.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.TestBase": {
+      "path": "test/SST.DentistryFoundation.TestBase/SST.DentistryFoundation.TestBase.abppkg",
+      "folder": "test"
+    },
+    "SST.DentistryFoundation.Domain.Tests": {
+      "path": "test/SST.DentistryFoundation.Domain.Tests/SST.DentistryFoundation.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "SST.DentistryFoundation.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/SST.DentistryFoundation.HttpApi.Client.ConsoleTestApp/SST.DentistryFoundation.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "SST.DentistryFoundation.DbMigrator": {
+      "path": "src/SST.DentistryFoundation.DbMigrator/SST.DentistryFoundation.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.HttpApi.Host": {
+      "path": "src/SST.DentistryFoundation.HttpApi.Host/SST.DentistryFoundation.HttpApi.Host.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.Blazor": {
+      "path": "src/SST.DentistryFoundation.Blazor/SST.DentistryFoundation.Blazor.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.Blazor.Client": {
+      "path": "src/SST.DentistryFoundation.Blazor.Client/SST.DentistryFoundation.Blazor.Client.abppkg",
+      "folder": "src"
+    },
+    "SST.DentistryFoundation.Domain": {
+      "path": "src/SST.DentistryFoundation.Domain/SST.DentistryFoundation.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}
