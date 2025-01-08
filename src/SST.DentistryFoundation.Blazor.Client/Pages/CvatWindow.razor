@@ -1,8 +1,6 @@
-﻿@page "/CvatWindow"
-<h3>Cvat Window</h3>
+﻿@page "/CvatWindowIframe"
+@inject IJSRuntime jsRuntime
+<h3>Cvat Window Iframe - Sample React App</h3>
 
-<iframe src="http://localhost:3000/"></iframe>
-
-@code {
-
-}
+@* // sample react app no cors needed *@
+<iframe src="http://localhost:8000/"></iframe>

@@ -61,10 +61,18 @@ public class DentistryFoundationMenuContributor : IMenuContributor
 
         context.Menu.AddItem(new ApplicationMenuItem(
             DentistryFoundationMenus.CvatWindow,
-            l["CVAT"],
-            "/CvatWindow",
+            l["CvatWindowIframe"],
+            "/CvatWindowIframe",
             icon: "fa fa-external-link-square",
-            order: 2
+            order: 3
+        ));
+
+        context.Menu.AddItem(new ApplicationMenuItem(
+            DentistryFoundationMenus.CvatWindow,
+            l["CvatWindowJSInterop"],
+            "/CvatWindowJSInterop",
+            icon: "fa fa-external-link-square",
+            order: 4
         ));
         if (MultiTenancyConsts.IsEnabled)
         {

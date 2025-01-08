@@ -1,0 +1,36 @@
+﻿@page "/CvatWindowJSInterop"
+@inject IJSRuntime jsRuntime
+<h3>Cvat Window JS Interop - Sample React App</h3>
+<div class="jsInteropCvat"></div>
+
+<script>
+	(function() {
+		function getReactJSInterop() {
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+				   document.getElementsByClassName("jsInteropCvat")[0].innerHTML = xhttp.responseText;
+				}
+			};
+			// sample react app deployed on iis with cors enabled
+			xhttp.open("GET", "http://localhost:8000/", true);
+			xhttp.send();
+		}
+
+		window.myNamespace = window.myNamespace || {};
+		window.myNamespace.onLoad = {
+		getReactJSInterop: getReactJSInterop,
+		};
+	}
+	)();
+</script>
+
+@code {
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await jsRuntime.InvokeVoidAsync("myNamespace.onLoad.getReactJSInterop", null);
+		}
+	}
+}
