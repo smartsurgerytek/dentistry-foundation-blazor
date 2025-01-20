@@ -1,0 +1,18 @@
+## Title
+- Ensure the PR title follows the format: `[Version yy.ww.patch] Brief description of changes`
+
+## Summary
+- Provide a concise summary of the changes and their purpose.
+
+## Changes
+- [ ] List and describe each significant change made.
+
+## Checklist
+- [ ] Code has been tested and functions as intended.
+- [ ] Relevant documentation has been updated.
+- [ ] Version number is correctly included in the PR title.
+
+## Linked Issues (Optional)
+- Closes #[issue-number]
+
+modified by Sulay
