@@ -255,16 +255,16 @@ paket-files/
 **/.abpstudio/
 
 # DentistryFoundation
-src/SST.DentistryFoundation.Web/Logs/*
-src/SST.DentistryFoundation.Web.Host/Logs/*
-src/SST.DentistryFoundation.Web.Public/Logs/*
-src/SST.DentistryFoundation.Web.Public.Host/Logs/*
-src/SST.DentistryFoundation.AuthServer/Logs/*
-src/SST.DentistryFoundation.HttpApi.Host/Logs/*
-src/SST.DentistryFoundation.HttpApi.Host/Logs/*
-src/SST.DentistryFoundation.DbMigrator/Logs/*
-src/SST.DentistryFoundation.Blazor.Server/Logs/*
-src/SST.DentistryFoundation.Blazor.Server.Tiered/Logs/*
+src/SST.DentistryFoundationSSO.Web/Logs/*
+src/SST.DentistryFoundationSSO.Web.Host/Logs/*
+src/SST.DentistryFoundationSSO.Web.Public/Logs/*
+src/SST.DentistryFoundationSSO.Web.Public.Host/Logs/*
+src/SST.DentistryFoundationSSO.AuthServer/Logs/*
+src/SST.DentistryFoundationSSO.HttpApi.Host/Logs/*
+src/SST.DentistryFoundationSSO.HttpApi.Host/Logs/*
+src/SST.DentistryFoundationSSO.DbMigrator/Logs/*
+src/SST.DentistryFoundationSSO.Blazor.Server/Logs/*
+src/SST.DentistryFoundationSSO.Blazor.Server.Tiered/Logs/*
 
 # Use abp install-libs to restore.
 **/wwwroot/libs/*

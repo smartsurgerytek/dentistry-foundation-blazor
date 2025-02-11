@@ -1,0 +1,4 @@
+image:
+  repository: "dentistryfoundationsso/blazor"
+  tag: "latest"
+  pullPolicy: IfNotPresent

@@ -1,0 +1,4 @@
+image:
+  repository: "dentistryfoundationsso/authserver"
+  tag: "latest"
+  pullPolicy: IfNotPresent

@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
+data:
+  appsettings.json: |-
+    {
+    "App": {
+        "SelfUrl": "{{ include "dentistryfoundationsso.hosts.blazor" . }}"
+    },
+    "AuthServer": {
+        "Authority": "{{ include "dentistryfoundationsso.hosts.authserver" . }}",        "ClientId": "DentistryFoundationSSO_Blazor",
+        "ResponseType": "code"
+    },
+    "RemoteServices": {
+        "Default": {
+          "BaseUrl": "{{ include "dentistryfoundationsso.hosts.httpapi" . }}"
+        },
+        "AbpAccountPublic": {
+          "BaseUrl": "{{ include "dentistryfoundationsso.hosts.authserver" . }}"        }
+    },
+    "AbpCli": {
+        "Bundle": {
+        "Mode": "BundleAndMinify", /* Options: None, Bundle, BundleAndMinify */
+        "Name": "global"
+        }
+    }
+    }

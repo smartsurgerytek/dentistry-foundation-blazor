@@ -1,0 +1,9 @@
+﻿using Xunit;
+
+namespace DentistryFoundationSSO.EntityFrameworkCore;
+
+[CollectionDefinition(DentistryFoundationSSOTestConsts.CollectionDefinitionName)]
+public class DentistryFoundationSSOEntityFrameworkCoreCollection : ICollectionFixture<DentistryFoundationSSOEntityFrameworkCoreFixture>
+{
+
+}

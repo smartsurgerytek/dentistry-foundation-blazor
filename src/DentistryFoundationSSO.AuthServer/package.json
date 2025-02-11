@@ -1,0 +1,8 @@
+{
+  "version": "0.1.0",
+  "name": "my-app-authserver",
+  "private": true,
+  "dependencies": {
+    "@volo/account": "~9.0.2"
+  }
+}

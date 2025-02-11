@@ -1,0 +1,9 @@
+﻿using DentistryFoundationSSO.EntityFrameworkCore;
+using Xunit;
+
+namespace DentistryFoundationSSO.EntityFrameworkCore;
+
+public class DentistryFoundationSSOEntityFrameworkCoreCollectionFixtureBase : ICollectionFixture<DentistryFoundationSSOEntityFrameworkCoreFixture>
+{
+
+}

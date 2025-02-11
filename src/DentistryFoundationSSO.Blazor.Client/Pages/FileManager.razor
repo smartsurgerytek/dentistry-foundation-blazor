@@ -1,0 +1,10 @@
+﻿@page "/FileManager"
+
+<SfFileManager TValue="FileManagerDirectoryContent">
+    <FileManagerAjaxSettings 
+                             Url="/api/Default/MinIOFileOperations"
+                             UploadUrl="/api/Default/MinIOUpload"
+                             GetImageUrl="/api/Default/MinIOGetImage"
+                             DownloadUrl="/api/Default/MinIODownload">
+    </FileManagerAjaxSettings>
+</SfFileManager>

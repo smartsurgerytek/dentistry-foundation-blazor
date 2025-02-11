@@ -1,0 +1,13 @@
+global:
+  hosts:
+    dbmigrator: "[RELEASE_NAME]-dbmigrator"
+    httpapi: "[RELEASE_NAME]-httpapihost"
+    blazor: "[RELEASE_NAME]-blazor"
+    authserver: "[RELEASE_NAME]-authserver"
+  connectionStrings:
+    default: "Host=[RELEASE_NAME]-postgresql;Port=5432;Database=DentistryFoundationSSO;User ID=postgres;Password=myPassword;"
+  dotnetEnvironment: "Staging"
+  disablePII: "false"
+  stringEncryptionDefaultPassPhrase: "ASOBZLp8GW80xtGJ"
+  abpStudioClient:
+    isLinkEnabled: "true"

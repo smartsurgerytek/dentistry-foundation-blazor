@@ -1,0 +1,187 @@
+{
+  "id": "9c670895-8151-4725-bd1b-95deb9047338",
+  "template": "app",
+  "versions": {
+    "AbpFramework": "9.0.2",
+    "AbpCommercial": "9.0.2",
+    "AbpStudio": "0.9.18",
+    "TargetDotnetFramework": "net9.0"
+  },
+  "modules": {
+    "DentistryFoundationSSO": {
+      "path": "DentistryFoundationSSO.abpmdl"
+    }
+  },
+  "runProfiles": {
+    "Default": {
+      "path": "etc/abp-studio/run-profiles/Default.abprun.json"
+    }
+  },
+  "k8sProfiles": {
+    "local": {
+      "path": "etc/abp-studio/k8s-profiles/local.abpk8s.json"
+    }
+  },
+  "commands": {
+    "helmBuildDotnetImage": {
+      "triggerTargets": [
+        "HELM_CHARTS_ROOT",
+        "HELM_MAIN_CHART",
+        "HELM_SUB_CHART"
+      ],
+      "executionTargets": [
+        "HELM_MAIN_CHART",
+        "HELM_SUB_CHART"
+      ],
+      "displayName": "Build Docker Image(s)",
+      "workingDirectory": "etc/helm",
+      "terminalCommand": "./build-image.ps1 -ProjectPath {{metadata.projectPath}} -ImageName {{metadata.imageName}} -ProjectType {{metadata.projectType}}",
+      "condition": "{{metadata.projectPath != null && metadata.imageName != null && metadata.projectType != null}}"
+    },
+    "helmInstallChart": {
+      "triggerTargets": [
+        "HELM_CHARTS_ROOT",
+        "HELM_MAIN_CHART"
+      ],
+      "executionTargets": [
+        "HELM_MAIN_CHART"
+      ],
+      "displayName": "Install Chart(s)",
+      "workingDirectory": "etc/helm",
+      "terminalCommand": "./install.ps1 -ChartName {{chart.name}} -Namespace {{profile.namespace}} -ReleaseName {{chart.name}}-{{profile.name}} -DotnetEnvironment {{metadata.dotnetEnvironment}} {{~if metadata.k8ssuffix}} -User {{metadata.k8ssuffix}}{{end}}",
+      "requireConfirmation": "true",
+      "confirmationText": "Are you sure to install the chart(s) for the profile {{ profile.name }}?"
+    },
+    "helmUninstallChart": {
+      "triggerTargets": [
+        "HELM_CHARTS_ROOT",
+        "HELM_MAIN_CHART"
+      ],
+      "executionTargets": [
+        "HELM_MAIN_CHART"
+      ],
+      "displayName": "Uninstall Chart(s)",
+      "workingDirectory": "etc/helm",
+      "terminalCommand": "./uninstall.ps1 -Namespace {{profile.namespace}} -ReleaseName {{chart.name}}-{{profile.name}} {{~if metadata.k8ssuffix}} -User {{metadata.k8ssuffix}}{{end}}",
+      "requireConfirmation": "true",
+      "confirmationText": "Are you sure to uninstall the chart(s) for the profile {{profile.name}}?"
+    },
+    "kubernetesRedeploy": {
+      "triggerTargets": [
+        "KUBERNETES_SERVICE"
+      ],
+      "executionTargets": [
+        "KUBERNETES_SERVICE"
+      ],
+      "displayName": "Redeploy",
+      "workingDirectory": "etc/helm",
+      "terminalCommand": "./build-image.ps1 -ProjectPath {{chart.metadata.projectPath}} -ImageName {{chart.metadata.imageName}} -ProjectType {{chart.metadata.projectType}} &&& ./install.ps1 -ChartName {{mainChart.name}} -Namespace {{profile.namespace}} -ReleaseName {{mainChart.name}}-{{profile.name}} -DotnetEnvironment {{mainChart.metadata.dotnetEnvironment}} {{~if metadata.k8ssuffix}} -User {{metadata.k8ssuffix}}{{end}}",
+      "requireConfirmation": "true",
+      "confirmationText": "Are you sure to redeploy the related chart '{{chart.name}}' for the service '{{name}}'?",
+      "condition": "{{chart != null && chart.metadata.projectPath != null && chart.metadata.imageName != null && chart.metadata.projectType != null}}"
+    },
+    "createTlsSecret": {
+      "triggerTargets": [
+        "HELM_CHARTS_ROOT"
+      ],
+      "executionTargets": [
+        "HELM_CHARTS_ROOT"
+      ],
+      "displayName": "Create Self-Signed TLS secret",
+      "workingDirectory": "etc/helm",
+      "terminalCommand": "./create-tls-secrets.ps1 -Namespace {{profile.namespace}} {{~if metadata.k8ssuffix}} -User {{metadata.k8ssuffix}}{{end}}"
+    }
+  },
+  "helm": {
+    "charts": {
+      "dentistryfoundationsso": {
+        "name": "dentistryfoundationsso",
+        "path": "etc/helm/dentistryfoundationsso",
+        "charts": {
+          "authserver": {
+            "name": "authserver",
+            "path": "etc/helm/dentistryfoundationsso/charts/authserver",
+            "metadata": {
+              "projectPath": "../../src/DentistryFoundationSSO.AuthServer/DentistryFoundationSSO.AuthServer.csproj",
+              "imageName": "dentistryfoundationsso/authserver",
+              "projectType": "dotnet"
+            },
+            "services": [
+              ".*-authserver"
+            ]
+          },
+          "blazor": {
+            "name": "blazor",
+            "path": "etc/helm/dentistryfoundationsso/charts/blazor",
+            "metadata": {
+              "projectPath": "../../src/DentistryFoundationSSO.Blazor/DentistryFoundationSSO.Blazor.csproj",
+              "imageName": "dentistryfoundationsso/blazor",
+              "projectType": "dotnet"
+            },
+            "services": [
+              ".*-blazor"
+            ]
+          },
+          "dbmigrator": {
+            "name": "dbmigrator",
+            "path": "etc/helm/dentistryfoundationsso/charts/dbmigrator",
+            "metadata": {
+              "projectPath": "../../src/DentistryFoundationSSO.DbMigrator/DentistryFoundationSSO.DbMigrator.csproj",
+              "imageName": "dentistryfoundationsso/dbmigrator",
+              "projectType": "dotnet"
+            },
+            "services": [
+              ".*-dbmigrator"
+            ]
+          },
+          "httpapihost": {
+            "name": "httpapihost",
+            "path": "etc/helm/dentistryfoundationsso/charts/httpapihost",
+            "metadata": {
+              "projectPath": "../../src/DentistryFoundationSSO.HttpApi.Host/DentistryFoundationSSO.HttpApi.Host.csproj",
+              "imageName": "dentistryfoundationsso/httpapihost",
+              "projectType": "dotnet"
+            },
+            "services": [
+              ".*-httpapihost"
+            ]
+          },
+          "postgresql": {
+            "name": "postgresql",
+            "path": "etc/helm/dentistryfoundationsso/charts/postgresql"
+          },
+          "redis": {
+            "name": "redis",
+            "path": "etc/helm/dentistryfoundationsso/charts/redis"
+          },
+        },
+        "metadata": {}
+      }
+    }
+  },
+  "options": {
+    "httpRequests": {
+      "ignoredUrls": [
+        "^/metrics$"
+      ]
+    }
+  },
+  "creatingStudioConfiguration": {
+    "template": "app",
+    "createdAbpStudioVersion": "0.9.18",
+    "tiered": "true",
+    "multiTenancy": "true",
+    "includeTests": "true",
+    "uiFramework": "blazor",
+    "databaseProvider": "ef",
+    "databaseManagementSystem": "postgresql",
+    "separateTenantSchema": "false",
+    "theme": "leptonx-lite",
+    "themeStyle": "",
+    "mobileFramework": "none",
+    "progressiveWebApp": "false",
+    "publicWebsite": "false",
+    "optionalModules": "GDPR TextTemplateManagement LanguageManagement AuditLogging OpenIddictAdmin",
+    "socialLogin": ""
+  }
+}

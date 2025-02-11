@@ -1,0 +1,4 @@
+image:
+  repository: "dentistryfoundationsso/httpapihost"
+  tag: "latest"
+  pullPolicy: IfNotPresent
