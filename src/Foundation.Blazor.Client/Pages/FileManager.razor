@@ -1,0 +1,9 @@
+﻿@page "/FileManager"
+
+<SfFileManager TValue="FileManagerDirectoryContent">
+    <FileManagerAjaxSettings Url="/api/AmazonS3Provider/AmazonS3FileOperations"
+                             UploadUrl="/api/AmazonS3Provider/AmazonS3Upload"
+                             GetImageUrl="/api/AmazonS3Provider/AmazonS3GetImage"
+                             DownloadUrl="/api/AmazonS3Provider/AmazonS3Download">
+    </FileManagerAjaxSettings>
+</SfFileManager>
