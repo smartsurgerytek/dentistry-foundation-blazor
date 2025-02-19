@@ -1,0 +1,4 @@
+image:
+  repository: "foundation/authserver"
+  tag: "latest"
+  pullPolicy: IfNotPresent

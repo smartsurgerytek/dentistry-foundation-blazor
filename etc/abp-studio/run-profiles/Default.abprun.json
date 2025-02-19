@@ -1,0 +1,41 @@
+﻿{
+  "applications": {
+    "Docker-Dependencies": {
+      "type": "cli",
+      "startCommand": "./up.ps1",
+      "stopCommand": "./down.ps1",
+      "workingDirectory": "../../docker",
+      "folder": "infrastructure",
+      "execution": {
+        "order": 5
+      }
+    },
+    "Foundation.AuthServer": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44353",
+      "path": "../../../src/Foundation.AuthServer/Foundation.AuthServer.csproj",
+      "kubernetesService": ".*-authserver$",
+      "execution": {
+        "order": 3
+      }
+    },
+    "Foundation.HttpApi.Host": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44337",
+      "path": "../../../src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj",
+      "kubernetesService": ".*-httpapihost$",
+      "execution": {
+        "order": 4
+      }
+    },
+    "Foundation.Blazor": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44355",
+      "path": "../../../src/Foundation.Blazor/Foundation.Blazor.csproj",
+      "kubernetesService": ".*-blazor$",
+      "execution": {
+        "order": 2
+      }
+    }
+  }
+}
