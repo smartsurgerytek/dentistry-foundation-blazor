@@ -294,7 +294,6 @@ public class FoundationAuthServerModule : AbpModule
         {
             OnAppendCookie = cookieContext =>
             {
-                //cookieContext.CookieOptions.
                 cookieContext.CookieOptions.SameSite = SameSiteMode.None;
                 cookieContext.CookieOptions.Secure = true;
             }
@@ -322,7 +321,7 @@ public class FoundationAuthServerModule : AbpModule
         app.UseRouting();
         app.UseAbpSecurityHeaders();
         app.UseCors();
-        // configuring cookie middleware
+        // configuring cookie middleware with the cookie policy options
         app.UseCookiePolicy(cookiePolicyOptions);
 
         app.UseAuthentication();
