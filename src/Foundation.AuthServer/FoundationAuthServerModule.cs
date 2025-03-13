@@ -55,6 +55,8 @@ using Microsoft.Extensions.Configuration;
 using Volo.Abp.Account.Localization;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.Studio.Client.AspNetCore;
+using Volo.Abp.AspNetCore.Security;
+using Microsoft.AspNetCore.Http;
 
 namespace Foundation;
 
@@ -273,10 +275,30 @@ public class FoundationAuthServerModule : AbpModule
             options.ImpersonationTenantPermission = SaasHostPermissions.Tenants.Impersonation;
             options.ImpersonationUserPermission = IdentityPermissions.Users.Impersonation;
         });
+
+        // Configure CORS for frontend applications
+        // allowed origins are configured in appsettings.json
+        // below code allows auth server rendering within iframes for mentioned domains
+        context.Services.Configure<AbpSecurityHeadersOptions>(options =>
+        {
+            options.UseContentSecurityPolicyHeader = true; //false by default
+            options.ContentSecurityPolicyValue = "frame-ancestors https://localhost:44355 http://localhost:3000"; //default value
+        });
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
     {
+        // cookie settings to allow cross-site cookie sharing
+        // need this for react app to send identity cookie to auth server
+        var cookiePolicyOptions = new CookiePolicyOptions
+        {
+            OnAppendCookie = cookieContext =>
+            {
+                //cookieContext.CookieOptions.
+                cookieContext.CookieOptions.SameSite = SameSiteMode.None;
+                cookieContext.CookieOptions.Secure = true;
+            }
+        };
 
         var app = context.GetApplicationBuilder();
         var env = context.GetEnvironment();
@@ -294,13 +316,15 @@ public class FoundationAuthServerModule : AbpModule
         {
             app.UseErrorPage();
         }
-
         app.UseCorrelationId();
         app.UseStaticFiles();
         app.UseAbpStudioLink();
         app.UseRouting();
         app.UseAbpSecurityHeaders();
         app.UseCors();
+        // configuring cookie middleware
+        app.UseCookiePolicy(cookiePolicyOptions);
+
         app.UseAuthentication();
         app.UseAbpOpenIddictValidation();
 

@@ -39,7 +39,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Foundation.DbMigrator", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Foundation.Blazor", "src\Foundation.Blazor\Foundation.Blazor.csproj", "{2DC842B5-1705-4097-AD37-E889C1B97950}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Foundation.Blazor.Client", "src\Foundation.Blazor.Client\Foundation.Blazor.Client.csproj", "{9df63919-581a-488b-bfe3-0622a500a56c}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Foundation.Blazor.Client", "src\Foundation.Blazor.Client\Foundation.Blazor.Client.csproj", "{9DF63919-581A-488B-BFE3-0622A500A56C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,10 +111,10 @@ Global
 		{2DC842B5-1705-4097-AD37-E889C1B97950}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DC842B5-1705-4097-AD37-E889C1B97950}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DC842B5-1705-4097-AD37-E889C1B97950}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9df63919-581a-488b-bfe3-0622a500a56c}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9df63919-581a-488b-bfe3-0622a500a56c}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9df63919-581a-488b-bfe3-0622a500a56c}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9df63919-581a-488b-bfe3-0622a500a56c}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DF63919-581A-488B-BFE3-0622A500A56C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DF63919-581A-488B-BFE3-0622A500A56C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DF63919-581A-488B-BFE3-0622A500A56C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DF63919-581A-488B-BFE3-0622A500A56C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,7 +136,7 @@ Global
 		{EF480016-9127-4916-8735-D2466BDBC582} = {04DBDB01-70F4-4E06-B468-8F87850B22BE}
 		{70680696-BB1E-4383-BCB2-42C3767171FB} = {CA9AC87F-097E-4F15-8393-4BC07735A5B0}
 		{2DC842B5-1705-4097-AD37-E889C1B97950} = {CA9AC87F-097E-4F15-8393-4BC07735A5B0}
-		{9df63919-581a-488b-bfe3-0622a500a56c} = {CA9AC87F-097E-4F15-8393-4BC07735A5B0}
+		{9DF63919-581A-488B-BFE3-0622A500A56C} = {CA9AC87F-097E-4F15-8393-4BC07735A5B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {28315BFD-90E7-4E14-A2EA-F3D23AF4126F}
