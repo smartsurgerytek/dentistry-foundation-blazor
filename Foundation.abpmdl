@@ -1,0 +1,137 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "3.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.TextTemplateManagement": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Chat": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.LanguageManagement": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.FileManagement": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict.Pro": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.Gdpr": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.AuditLogging.Pro": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Saas": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity.Pro": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.Account.Pro": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "8.3.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "8.3.4",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "Foundation.Application": {
+      "path": "src/Foundation.Application/Foundation.Application.abppkg",
+      "folder": "src"
+    },
+    "Foundation.Application.Tests": {
+      "path": "test/Foundation.Application.Tests/Foundation.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "Foundation.Domain.Shared": {
+      "path": "src/Foundation.Domain.Shared/Foundation.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "Foundation.Application.Contracts": {
+      "path": "src/Foundation.Application.Contracts/Foundation.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "Foundation.HttpApi": {
+      "path": "src/Foundation.HttpApi/Foundation.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "Foundation.HttpApi.Client": {
+      "path": "src/Foundation.HttpApi.Client/Foundation.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "Foundation.AuthServer": {
+      "path": "src/Foundation.AuthServer/Foundation.AuthServer.abppkg",
+      "folder": "src"
+    },
+    "Foundation.HttpApi.Host": {
+    "path": "src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.abppkg",
+    "folder": "src"
+    },
+    "Foundation.EntityFrameworkCore.Tests": {
+      "path": "test/Foundation.EntityFrameworkCore.Tests/Foundation.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "Foundation.EntityFrameworkCore": {
+      "path": "src/Foundation.EntityFrameworkCore/Foundation.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "Foundation.TestBase": {
+      "path": "test/Foundation.TestBase/Foundation.TestBase.abppkg",
+      "folder": "test"
+    },
+    "Foundation.Domain.Tests": {
+      "path": "test/Foundation.Domain.Tests/Foundation.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "Foundation.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/Foundation.HttpApi.Client.ConsoleTestApp/Foundation.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "Foundation.DbMigrator": {
+      "path": "src/Foundation.DbMigrator/Foundation.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "Foundation.Blazor": {
+      "path": "src/Foundation.Blazor/Foundation.Blazor.abppkg",
+      "folder": "src"
+    },
+    "Foundation.Blazor.Client": {
+      "path": "src/Foundation.Blazor.Client/Foundation.Blazor.Client.abppkg",
+      "folder": "src"
+    },
+    "Foundation.Domain": {
+      "path": "src/Foundation.Domain/Foundation.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}

@@ -272,3 +272,5 @@ src/SST.DentistryFoundation.Blazor.Server.Tiered/Logs/*
 # IdentityServer temp files
 tempkey.rsa
 tempkey.jwk
+/src/Foundation.HttpApi.Host/Logs
+/src/Foundation.AuthServer/Logs

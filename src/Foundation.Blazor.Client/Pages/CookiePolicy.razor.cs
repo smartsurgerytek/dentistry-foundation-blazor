@@ -1,0 +1,5 @@
+﻿namespace Foundation.Blazor.Client.Pages;
+
+public partial class CookiePolicy
+{
+}

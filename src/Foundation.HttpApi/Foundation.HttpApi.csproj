@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Foundation</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foundation.Application.Contracts\Foundation.Application.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.PermissionManagement.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.SettingManagement.HttpApi" Version="8.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Identity.Pro.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.Account.Pro.Admin.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.Account.Pro.Public.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.AuditLogging.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.OpenIddict.Pro.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.LanguageManagement.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.FileManagement.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Saas.Host.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Chat.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.TextTemplateManagement.HttpApi" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.Gdpr.HttpApi" Version="8.3.4" />
+  </ItemGroup>
+
+</Project>

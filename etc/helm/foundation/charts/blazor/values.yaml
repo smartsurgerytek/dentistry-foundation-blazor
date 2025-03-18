@@ -1,0 +1,4 @@
+image:
+  repository: "foundation/blazor"
+  tag: "latest"
+  pullPolicy: IfNotPresent
