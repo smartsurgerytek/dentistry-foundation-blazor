@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Foundation.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,6 +22,7 @@ public class Program
         {
             Log.Information("Starting Foundation.HttpApi.Host.");
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddScoped<IOrganizationAppService, OrganizationAppService>();
             builder.Host
                 .AddAppSettingsSecretsJson()
                 .UseAutofac()

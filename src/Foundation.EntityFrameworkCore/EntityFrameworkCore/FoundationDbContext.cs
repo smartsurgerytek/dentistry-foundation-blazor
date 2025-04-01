@@ -20,6 +20,8 @@ using Volo.Saas.EntityFrameworkCore;
 using Volo.Saas.Editions;
 using Volo.Saas.Tenants;
 using Volo.Abp.Gdpr;
+using Foundation.Entities;
+using System.Reflection.Emit;
 
 namespace Foundation.EntityFrameworkCore;
 
@@ -56,6 +58,14 @@ public class FoundationDbContext :
     public DbSet<IdentityLinkUser> LinkUsers { get; set; }
     public DbSet<IdentityUserDelegation> UserDelegations { get; set; }
     public DbSet<IdentitySession> Sessions { get; set; }
+    public DbSet<Organization> Organizations { get; set; }
+    public DbSet<Department> Departments { get; set; }
+    public DbSet<Doctor> Doctors { get; set; }
+    public DbSet<Patient> Patients { get; set; }
+    public DbSet<Record> Records { get; set; }
+
+
+
 
     // SaaS
     public DbSet<Tenant> Tenants { get; set; }
@@ -90,7 +100,7 @@ public class FoundationDbContext :
         builder.ConfigureTextTemplateManagement();
         builder.ConfigureGdpr();
         builder.ConfigureBlobStoring();
-        
+
         /* Configure your own tables/entities inside here */
 
         //builder.Entity<YourEntity>(b =>
@@ -99,5 +109,37 @@ public class FoundationDbContext :
         //    b.ConfigureByConvention(); //auto configure for the base class props
         //    //...
         //});
+        builder.Entity<Department>(b =>
+        {
+            b.HasOne(d => d.Organization)
+             .WithMany(o => o.Departments)
+             .HasForeignKey(d => d.OrganizationId)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Doctor>(b =>
+        {
+            b.HasOne(d => d.Department)
+             .WithMany(dep => dep.Doctors)
+             .HasForeignKey(d => d.DepartmentId)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Patient>(b =>
+        {
+            b.HasOne(p => p.Doctor)
+             .WithMany(d => d.Patients)
+             .HasForeignKey(p => p.DoctorId)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Record>(b =>
+        {
+            b.HasOne(r => r.Patient)
+             .WithMany(p => p.Records)
+             .HasForeignKey(r => r.PatientId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
     }
 }

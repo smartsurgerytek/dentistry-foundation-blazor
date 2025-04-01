@@ -1,0 +1,148 @@
+﻿@page "/Doctor"
+@using Foundation.Dtos
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Popups
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Doctors</h3>
+
+<SfGrid DataSource="@Doctors" @ref="DoctorGrid" AllowPaging="true" AllowSorting="true" Toolbar=@ToolbarItems>
+    <GridEvents OnToolbarClick="OnToolbarClick" TValue="DoctorDto"></GridEvents>
+    <GridColumns>
+        <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
+        <GridColumn Field="Name" HeaderText="Doctor Name" Width="200"></GridColumn>
+        <GridColumn Field="Specialty" HeaderText="Specialty" Width="200"></GridColumn>
+        <GridColumn HeaderText="Manage Patient" Width="120">
+            <Template>
+                @{
+                    var Patient = (context as DoctorDto);
+                    <Button @onclick="@(() => NavigatePatient(Patient))">Doctor</Button>
+                }
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
+
+<SfDialog @ref="Dialog" Width="400px" ShowCloseIcon="true" Header="@DialogTitle" Visible="false">
+    <DialogTemplates>
+        <Content>
+            <SfTextBox TValue="string" Value="@CurrentDoctor.Name"
+                       ValueChanged="@((string value) => CurrentDoctor.Name = value)"
+                       Placeholder="Enter Doctor Name" FloatLabelType="FloatLabelType.Auto">
+            </SfTextBox>
+            <SfTextBox TValue="string" Value="@CurrentDoctor.Specialty"
+                       ValueChanged="@((string value) => CurrentDoctor.Specialty = value)"
+                       Placeholder="Enter Specialty" FloatLabelType="FloatLabelType.Auto">
+            </SfTextBox>
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="Save" IsPrimary="true" OnClick="SaveDoctor"></DialogButton>
+        <DialogButton Content="Cancel" OnClick="CloseDialog"></DialogButton>
+    </DialogButtons>
+</SfDialog>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string DepartmentId { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string DepartmentName { get; set; }
+
+    private SfGrid<DoctorDto> DoctorGrid;
+    private SfDialog Dialog;
+    private List<DoctorDto> Doctors = new();
+    private CreateUpdateDoctorDto CurrentDoctor = new();
+    private string DialogTitle = "";
+    private bool IsNew = true;
+    private List<ItemModel> ToolbarItems = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDoctors();
+        ToolbarItems.Add(new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" });
+        ToolbarItems.Add(new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" });
+        ToolbarItems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
+    }
+
+    private async Task LoadDoctors()
+    {
+        if (!string.IsNullOrEmpty(DepartmentId))
+        {
+            Doctors = await Http.GetFromJsonAsync<List<DoctorDto>>(
+                $"https://localhost:44337/api/doctors/by-department/{DepartmentId}"
+            ) ?? new();
+        }
+    }
+
+    private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        var selectedRow = await DoctorGrid.GetSelectedRecordsAsync();
+
+        if (args.Item.Text == "Add")
+        {
+            IsNew = true;
+            DialogTitle = "Add Doctor";
+            CurrentDoctor = new CreateUpdateDoctorDto { DepartmentId = Guid.Parse(DepartmentId) };
+            await Dialog.ShowAsync();
+        }
+        else if (args.Item.Text == "Edit" && selectedRow.Any())
+        {
+            IsNew = false;
+            DialogTitle = "Edit Doctor";
+            var selected = selectedRow.First();
+            CurrentDoctor = new CreateUpdateDoctorDto
+                {
+                    Id = selected.Id,
+                    Name = selected.Name,
+                    Specialty = selected.Specialty,
+                    DepartmentId = selected.DepartmentId
+                };
+            await Dialog.ShowAsync();
+        }
+        else if (args.Item.Text == "Delete" && selectedRow.Any())
+        {
+            await DeleteDoctor(selectedRow.First().Id);
+        }
+        else if (args.Item.Text == "Refresh")
+        {
+            await LoadDoctors();
+        }
+    }
+
+    private async Task SaveDoctor()
+    {
+        if (IsNew)
+        {
+            await Http.PostAsJsonAsync("https://localhost:44337/api/doctors", CurrentDoctor);
+        }
+        else
+        {
+            await Http.PutAsJsonAsync($"https://localhost:44337/api/doctors/{CurrentDoctor.Id}", CurrentDoctor);
+        }
+        await LoadDoctors();
+        await Dialog.HideAsync();
+    }
+
+    private async Task DeleteDoctor(Guid id)
+    {
+        await Http.DeleteAsync($"https://localhost:44337/api/doctors/{id}");
+        await LoadDoctors();
+    }
+
+    private async Task CloseDialog()
+    {
+        await Dialog.HideAsync();
+    }
+
+    private void NavigatePatient(DoctorDto doctorDto)
+    {
+        NavigationManager.NavigateTo($"Patient?DoctorId=" + doctorDto.Id);
+    }
+}

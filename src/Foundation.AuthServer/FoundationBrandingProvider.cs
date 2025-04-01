@@ -15,5 +15,5 @@ public class FoundationBrandingProvider : DefaultBrandingProvider
         _localizer = localizer;
     }
 
-    public override string AppName => _localizer["AppName"];
+    public override string AppName => "iDental";
 }
