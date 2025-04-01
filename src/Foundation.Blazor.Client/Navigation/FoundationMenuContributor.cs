@@ -63,6 +63,38 @@ public class FoundationMenuContributor : IMenuContributor
             order: 2
         ));
 
+        context.Menu.AddItem(new ApplicationMenuItem(
+            FoundationMenus.WordProcessor,
+            "WordProcessor",
+            "/WordProcessor",
+            icon: "fa-solid fa-folder-open",
+            order: 3
+        ));
+
+        context.Menu.AddItem(new ApplicationMenuItem(
+            FoundationMenus.ReportViewer,
+            "ReportViewer",
+            "/ReportViewer",
+            icon: "fa-solid fa-file-lines",
+            order: 4
+        ));
+
+        context.Menu.AddItem(new ApplicationMenuItem(
+            FoundationMenus.Organization,
+            "Organization",
+            "/Organization",
+            icon: "fa-solid fa-university",
+            order: 5
+        ));
+
+        //context.Menu.AddItem(new ApplicationMenuItem(
+        //    FoundationMenus.Department,
+        //    "Department",
+        //    "/Department",
+        //    icon: "fa-solid fa-university",
+        //    order: 5
+        //));
+
         //HostDashboard
         context.Menu.AddItem(
             new ApplicationMenuItem(

@@ -1,6 +1,7 @@
 using Foundation.Blazor;
 using Foundation.Blazor.Client;
 using Foundation.Blazor.Components;
+using Foundation.Services;
 using Syncfusion.Blazor;
 using Volo.Abp.AspNetCore.Components.WebAssembly.WebApp;
 
@@ -18,11 +19,23 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddControllers();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
-
 var syncFusionAPIKey = Environment.GetEnvironmentVariable("SyncFusionAPIKey");
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncFusionAPIKey);
+
+
+app.MapGet("/environment", (IWebHostEnvironment env) =>
+{
+    return Results.Ok(new
+    {
+        EnvironmentName = env.EnvironmentName,
+        WebRootPath = env.WebRootPath,
+        ContentRootPath = env.ContentRootPath
+    });
+});
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

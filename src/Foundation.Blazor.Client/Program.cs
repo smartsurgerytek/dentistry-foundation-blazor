@@ -11,13 +11,14 @@ public class Program
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
         builder.Services.AddSyncfusionBlazor();
 
+
         var application = await builder.AddApplicationAsync<FoundationBlazorClientModule>(options =>
         {
             options.UseAutofac();
         });
 
-        var host = builder.Build();
-        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzY0MjIzMEAzMjM4MmUzMDJlMzBDWGVhMGYreWNZTlJQYkdNWjRFczkxZkdxSFh5UW1wNHpiaVRaRFFBT1cwPQ==");
+        var host = builder.Build();        
+        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzc4Mjg0MkAzMjM4MmUzMDJlMzBtWTVJL051ZTkrbnlLVkQvOTlseTIvQ29QNlRVM2M4UWRNbWtYWmhwTUVJPQ==");        
 
         await application.InitializeApplicationAsync(host.Services);
 
