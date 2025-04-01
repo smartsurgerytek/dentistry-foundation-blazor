@@ -11,4 +11,13 @@ public class FoundationMenus
     public const string TenantDashboard = Prefix + ".TenantDashboard";
 
     public const string FileManager = Prefix + ".FileManager";
+
+    public const string WordProcessor = Prefix + ".WordProcessor";
+
+    public const string ReportViewer = Prefix + ".ReportViewer";
+
+    public const string Organization = Prefix + ".Organization";
+
+    public const string Department = Prefix + ".Department";
+
 }

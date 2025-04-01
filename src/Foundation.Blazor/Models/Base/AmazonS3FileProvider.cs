@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using System.Text.Json;
 using ErrorDetails = Syncfusion.EJ2.FileManager.Base.ErrorDetails;
+using System.Net;
 
 namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
 {
@@ -1231,5 +1232,19 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
             filePermission.Message = string.IsNullOrEmpty(fileRule.Message) ? string.Empty : fileRule.Message;
             return filePermission;
         }
+        public async Task<bool> UploadAsync(string path, Stream stream)
+        {
+            var s3Client = new AmazonS3Client("AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", RegionEndpoint.USWest2);
+
+            var putRequest = new PutObjectRequest
+            {
+                BucketName = "smartsurgerytek.foundation",
+                Key = path,
+                InputStream = stream
+            };
+            var response = await s3Client.PutObjectAsync(putRequest);
+            return response.HttpStatusCode == HttpStatusCode.OK;
+        }
+
     }
 }

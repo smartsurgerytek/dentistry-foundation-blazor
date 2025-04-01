@@ -9,6 +9,11 @@ using System.Collections.Generic;
 using Syncfusion.EJ2.FileManager.Base;
 using Amazon;
 using System.Text.Json;
+using System.IO;
+using Syncfusion.DocIO;
+using Syncfusion.DocIO.DLS;
+using Syncfusion.Pdf;
+using Syncfusion.DocIORenderer;
 
 namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 {
@@ -17,15 +22,17 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
     [EnableCors("AllowAllOrigins")]
     public class AmazonS3ProviderController : Controller
     {
+        private readonly ILogger<AmazonS3ProviderController> _logger;
         public AmazonS3FileProvider operation;
         public string basePath;
         protected RegionEndpoint bucketRegion;
-        public AmazonS3ProviderController(IWebHostEnvironment hostingEnvironment)
+        public AmazonS3ProviderController(IWebHostEnvironment hostingEnvironment, ILogger<AmazonS3ProviderController> logger)
         {
             this.basePath = hostingEnvironment.ContentRootPath;
             this.basePath = basePath.Replace("../", "");
             this.operation = new AmazonS3FileProvider();
             this.operation.RegisterAmazonS3("smartsurgerytek.foundation", "AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", "us-west-2");
+            _logger = logger;
         }
         [Route("AmazonS3FileOperations")]
         public object AmazonS3FileOperations([FromBody] FileManagerDirectoryContent args)
@@ -132,6 +139,69 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         {
             return operation.GetImage(args.Path, args.Id, false, null, args.Data);
         }
-    }
 
+        //save the document
+        //[HttpPost("SaveDocument")]
+        //public async Task<IActionResult> SaveDocument([FromBody] SaveDocumentRequest request)
+        //{
+        //    bool uploadSuccess = false;
+        //    try
+        //    {
+        //        byte[] documentBytes = Convert.FromBase64String(request.Content);
+        //        using (var memoryStream = new MemoryStream(documentBytes))
+        //        {
+        //            string filepath = "foundation/documents/" + request.FileName;
+        //            uploadSuccess = await operation.UploadAsync(filepath, memoryStream);
+        //        }
+        //        return Ok(uploadSuccess);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError($"Error in SaveDocument: {ex.Message}");
+        //        return StatusCode(500, new { message = "Error saving the document", error = ex.Message });
+        //    }
+        //}
+
+        [HttpPost("SaveDocument")]
+        public async Task<IActionResult> SaveDocument([FromBody] SaveDocumentRequest request)
+        {
+            try
+            {
+                byte[] documentBytes = Convert.FromBase64String(request.Content);
+
+                using (var docxStream = new MemoryStream(documentBytes))
+                {
+                    using (WordDocument wordDocument = new WordDocument(docxStream, Syncfusion.DocIO.FormatType.Docx))
+                    {
+                        DocIORenderer renderer = new DocIORenderer();
+                        PdfDocument pdfDocument = renderer.ConvertToPDF(wordDocument);
+
+                        using (var pdfMemoryStream = new MemoryStream())
+                        {
+                            pdfDocument.Save(pdfMemoryStream);
+                            pdfMemoryStream.Position = 0;
+                            string pdfS3Path = "foundation/documents/" + request.FileName;
+                            bool uploadSuccess = await operation.UploadAsync(pdfS3Path, pdfMemoryStream);
+                            renderer.Dispose();
+                            pdfDocument.Close(true);
+                            return Ok(uploadSuccess);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in SaveDocument: {ex.Message}");
+                return StatusCode(500, new { message = "Error saving the document", error = ex.Message });
+            }
+        }
+
+
+
+        public class SaveDocumentRequest
+        {
+            public string Content { get; set; }
+            public string FileName { get; set; }
+        }
+    }
 }
