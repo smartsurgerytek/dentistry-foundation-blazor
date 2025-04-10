@@ -274,3 +274,5 @@ tempkey.rsa
 tempkey.jwk
 /src/Foundation.HttpApi.Host/Logs
 /src/Foundation.AuthServer/Logs
+/src/Foundation.AuthServer/Logs
+/src/Foundation.HttpApi.Host/Logs

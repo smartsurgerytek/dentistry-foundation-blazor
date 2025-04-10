@@ -23,17 +23,20 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
     public class AmazonS3ProviderController : Controller
     {
         private readonly ILogger<AmazonS3ProviderController> _logger;
+        private readonly HttpClient _httpClient;
         public AmazonS3FileProvider operation;
         public string basePath;
         protected RegionEndpoint bucketRegion;
-        public AmazonS3ProviderController(IWebHostEnvironment hostingEnvironment, ILogger<AmazonS3ProviderController> logger)
+
+        public AmazonS3ProviderController(IWebHostEnvironment hostingEnvironment, ILogger<AmazonS3ProviderController> logger, AmazonS3FileProvider s3provider)
         {
             this.basePath = hostingEnvironment.ContentRootPath;
             this.basePath = basePath.Replace("../", "");
-            this.operation = new AmazonS3FileProvider();
+            this.operation = s3provider;
             this.operation.RegisterAmazonS3("smartsurgerytek.foundation", "AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", "us-west-2");
             _logger = logger;
         }
+
         [Route("AmazonS3FileOperations")]
         public object AmazonS3FileOperations([FromBody] FileManagerDirectoryContent args)
         {
@@ -82,6 +85,9 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         }
 
         // uploads the file(s) into a specified path
+        // when upload happens, call the dentistry ai api
+        // the response returned will be an image
+        // upload this image into aws bucket
         [Route("AmazonS3Upload")]
         public IActionResult AmazonS3Upload(string path, IList<IFormFile> uploadFiles, string action, string data)
         {
