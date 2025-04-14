@@ -6,14 +6,3 @@
     </FileManagerAjaxSettings>
     <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
 </SfFileManager>
-@code
-{
-    private async void OpenFilePreview(FileOpenEventArgs<FileManagerDirectoryContent> args)
-    {
-        if (args.FileDetails.Type?.ToLower() == ".pdf")
-        {
-            await Task.Delay(50);
-            NavigationManager.NavigateTo("/ReportViewer?fileName=" + args.FileDetails.Name);
-        }
-    }
-}

@@ -13,6 +13,7 @@ namespace Foundation.Services
 {
     public interface IImageEnhancerAppService : IRemoteService, IApplicationService
     {
-        public Task<SegmentationApiResponseDto> PostSegmentedImageAsync(SegmentationApiRequestDto imageRequest);
+        public Task<SegmentationApiResponseDto> PostSegmentedImageAsync(SegmentationApiRequestDtoWrapper imageRequest);
+        public Task<PaPanoClassificationResponseDto> PostPaPanoClassificationAsync(PaPanoClassificationRequestDto imageRequest);
     }
 }

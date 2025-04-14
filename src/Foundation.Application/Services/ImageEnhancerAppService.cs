@@ -38,37 +38,45 @@ namespace Foundation.Services
 
         public ImageEnhancerAppService(IConfiguration configuration)
         {
-            // ApiUrl = "https://dentistry-inference-core-2514-298229070754.asia-east1.run.app/v1";
-            // ApiUrl = "https://api.smartsurgerytek.net/dentistry-stg/v1";
-            // ApiKey = "Rul20gm69fj1TQ5TJIyULCd5iyQEPW8YHz2lS7cUD7A7jhBV";
-
             ApiUrl = configuration["ApiUrl"];
             ApiKey = configuration["ApiKey"];
         }
 
-        public async Task<SegmentationApiResponseDto> PostSegmentedImageAsync(SegmentationApiRequestDto imageRequest)
+        public async Task<PaPanoClassificationResponseDto> PostPaPanoClassificationAsync(PaPanoClassificationRequestDto imageRequest)
         {
             try
             {
                 return await circuitBreakerPolicy.ExecuteAsync(async () =>
                 {
                     _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ApiKey);
-                    var response = await _httpClient.PostAsJsonAsync(ConfigurationPath.Combine(ApiUrl + $"/pa_measure_image?apikey={ApiKey}"), imageRequest);
-                    // response.EnsureSuccessStatusCode();
-                    return JsonConvert.DeserializeObject<SegmentationApiResponseDto>(await response.Content.ReadAsStringAsync());
-                    // return (await response.Content.ReadAsStringAsync()).As<SegmentationApiResponseDto>();
+
+                    var response = await _httpClient.PostAsJsonAsync(ConfigurationPath.Combine(ApiUrl + $"/pa_pano_classification_dict?apikey={ApiKey}"), imageRequest);
+                    return JsonConvert.DeserializeObject<PaPanoClassificationResponseDto>(await response.Content.ReadAsStringAsync());
                 });
             }
-            catch (BrokenCircuitException ex)
+            catch (Exception ex)
             {
-                var samleImgBytes = File.ReadAllBytes("~/Temp Images/sample-xray.png");
-                return new SegmentationApiResponseDto {
-                    Image = Convert.ToBase64String(samleImgBytes)
-                };
+                throw;
             }
-            catch(Exception ex)
+        }
+
+        public async Task<SegmentationApiResponseDto> PostSegmentedImageAsync(SegmentationApiRequestDtoWrapper imageRequest)
+        {
+            try
             {
-                return null;
+                return await circuitBreakerPolicy.ExecuteAsync(async () =>
+                {
+                    _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ApiKey);
+
+                    var apiEndpoint = imageRequest.IsPeriapicalImage ? "pa_measure_image" : "pano_fdi_segmentation_image";
+                    var response = await _httpClient.PostAsJsonAsync(ConfigurationPath.Combine(ApiUrl + $"/{apiEndpoint}?apikey={ApiKey}"), imageRequest.SegmentationApiRequest);
+
+                    return JsonConvert.DeserializeObject<SegmentationApiResponseDto>(await response.Content.ReadAsStringAsync());
+                });
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

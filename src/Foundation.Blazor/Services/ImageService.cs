@@ -22,15 +22,27 @@ namespace Foundation.Blazor.Services
             return allowedExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase);
         }
 
+        public async Task<bool> IsPeriapicalImage(string base64Img)
+        {
+            var imageRequest = new PaPanoClassificationRequestDto { Image = base64Img };
+            var httpResponse = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrlInternal, "image-enhancer/pa-pano-classification"), imageRequest);
+
+            httpResponse.EnsureSuccessStatusCode();
+            var paPanoClassification = await httpResponse.Content.ReadAsAsync<PaPanoClassificationResponseDto>();
+
+            return paPanoClassification?.Predicted_Class?.Contains("periapical", StringComparison.OrdinalIgnoreCase) ?? false;
+        }
+
         public async Task<SegmentationApiResponseDto> GetEnhancedImage(IFormFile file)
         {
             using (var memoryStream = new MemoryStream())
             {
                 file.CopyTo(memoryStream);
-                // call the api
                 var base64Img = Convert.ToBase64String(memoryStream.ToArray());
                 var imageRequest = new SegmentationApiRequestDto { Image = base64Img };
-                var httpResponse = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrlInternal, "image-enhancer/segmented-image"), imageRequest);
+
+                var isPeriapicalImage = await IsPeriapicalImage(base64Img);
+                var httpResponse = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrlInternal, $"image-enhancer/segmented-image?isPeriapicalImage={IsPeriapicalImage}"), new SegmentationApiRequestDtoWrapper {  IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
 
                 httpResponse.EnsureSuccessStatusCode();
                 return await httpResponse.Content.ReadAsAsync<SegmentationApiResponseDto>();
