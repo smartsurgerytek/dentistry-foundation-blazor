@@ -1,5 +1,8 @@
 using System.Threading.Tasks;
+using Blazored.SessionStorage;
+using Foundation.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Syncfusion.Blazor;
 
 namespace Foundation.Blazor.Client;
@@ -10,6 +13,7 @@ public class Program
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
         builder.Services.AddSyncfusionBlazor();
+        builder.Services.AddBlazoredSessionStorage();
 
 
         var application = await builder.AddApplicationAsync<FoundationBlazorClientModule>(options =>
@@ -18,7 +22,7 @@ public class Program
         });
 
         var host = builder.Build();        
-        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzc4Mjg0MkAzMjM4MmUzMDJlMzBtWTVJL051ZTkrbnlLVkQvOTlseTIvQ29QNlRVM2M4UWRNbWtYWmhwTUVJPQ==");        
+        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzY0MjIzMEAzMjM4MmUzMDJlMzBDWGVhMGYreWNZTlJQYkdNWjRFczkxZkdxSFh5UW1wNHpiaVRaRFFBT1cwPQ==");        
 
         await application.InitializeApplicationAsync(host.Services);
 

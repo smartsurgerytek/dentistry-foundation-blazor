@@ -87,6 +87,14 @@ public class FoundationMenuContributor : IMenuContributor
             order: 5
         ));
 
+        context.Menu.AddItem(new ApplicationMenuItem(
+            FoundationMenus.Record,
+            "Records",
+            "/Records",
+            icon: "fa-solid fa-file",
+            order: 6
+        ));
+
         //context.Menu.AddItem(new ApplicationMenuItem(
         //    FoundationMenus.Department,
         //    "Department",

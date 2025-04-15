@@ -1,9 +1,24 @@
 ﻿@page "/WordProcessor"
+@inject IJSRuntime JS
+
+@using DocumentFormat.OpenXml.Wordprocessing;
+@using Blazored.SessionStorage
+@using DocumentFormat.OpenXml
+@using DocumentFormat.OpenXml.Drawing
+@using DocumentFormat.OpenXml.Office2010.Word
+@using DocumentFormat.OpenXml.Packaging
+@using DocumentFormat.OpenXml.Wordprocessing
+@using Foundation.Dtos
+@using Foundation.Services
 @using Syncfusion.Blazor.Buttons;
 @using System.Net.Http.Json
 @using Syncfusion.Blazor.Spinner
 @using System.IO
+@using System.Text
+@using System.Security.Cryptography
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject ISessionStorageService SessionStorage
 
 <div class="control-section">
     <div>
@@ -13,7 +28,7 @@
             </div>
             <div class="single-line" id="documenteditor_title_contentEditor" style="border: 1px solid transparent;" title="Document Status." contenteditable="false">
                 <label style="color: white;" class="doc-edit-title"> @StatusMessage</label>
-            </div>          
+            </div>
             <div style="float: right">
                 <SfButton IconCss="e-de-icon-Save" CssClass="title-bar-btn" @onclick="SaveDocument">Save</SfButton>
             </div>
@@ -38,13 +53,29 @@
 </div>
 @code {
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string PatientId { get; set; }
+    private PatientRecordDto Records = new();
     private SfSpinner spinnerObj;
     private string StatusMessage = "";
     private SfDocumentEditorContainer _containerRef;
     private readonly DocumentEditorSettingsModel _settings = new() { ShowRuler = true };
     private string DocumentName { get; set; } = "Default Report";
+    private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345678";
     private bool ReadOnly { get; set; } = false;
-    private bool ShowProperties { get; set; } = true;    
+    private bool ShowProperties { get; set; } = true;
+
+    private PatientExaminationRecordDto Report;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(PatientId))
+        {
+            Records = await Http.GetFromJsonAsync<PatientRecordDto>(
+                $"https://localhost:44337/api/app/patient/patient-report-record-by/{PatientId}");
+        }
+    }
 
     private async Task OnExport()
     {
@@ -58,27 +89,58 @@
     {
         spinnerObj.ShowAsync();
         SfDocumentEditor editor = _containerRef.DocumentEditor;
+
+        string fileName = GenerateSecureCode() + ".pdf";
         string base64Data = await editor.SaveAsBlobAsync(FormatType.Docx);
         var documentData = new
         {
             Content = base64Data,
-            FileName = DateTime.Now.ToString("ddHHmmss") + ".Pdf"
+            FileName = fileName
         };
-        var response = await Http.PostAsJsonAsync("api/AmazonS3Provider/SaveDocument", documentData);
 
+        var response = await Http.PostAsJsonAsync("api/AmazonS3Provider/SaveDocument", documentData);
         spinnerObj.HideAsync();
+
         if (response.IsSuccessStatusCode)
         {
             bool result = await response.Content.ReadFromJsonAsync<bool>();
-                     
+
             if (result)
-                StatusMessage = "Document saved successfully!";
+            {
+                StatusMessage = "Document saved successfully!";                
+                await SaveRecordToDatabase(fileName);
+            }
             else
+            {
                 StatusMessage = "Failed to save document.";
+            }
         }
         else
         {
             StatusMessage = "Server error while saving document.";
+        }
+    }
+
+    private async Task SaveRecordToDatabase(string fileName)
+    {
+        var recordData = new
+        {
+            PatientId = Records.PatientId,
+            CreatedDate = DateTime.UtcNow,
+            FileName = fileName
+        };
+
+        var recordResponse = await Http.PostAsJsonAsync("https://localhost:44337/api/app/record/record", recordData);
+
+        if (recordResponse.IsSuccessStatusCode)
+        {
+            StatusMessage = "Record saved successfully!";
+            await Task.Delay(3000);
+            NavigationManager.NavigateTo("Records");
+        }
+        else
+        {
+            StatusMessage = "Failed to save record.";
         }
     }
 
@@ -89,18 +151,182 @@
             await _containerRef.DocumentEditor.PrintAsync();
         }
     }
-   
+
     private async Task OnCreated(object args)
     {
-        if (_containerRef?.DocumentEditor == null) return;        
-        var fileBytes = await Http.GetByteArrayAsync("Reports/Doc2.docx");
-        using var stream = new MemoryStream(fileBytes);        
-        await _containerRef.DocumentEditor.OpenAsync(stream, ImportFormatType.Docx);
-        await _containerRef.DocumentEditor.FitPageAsync(PageFitType.FitPageWidth);
+        if (_containerRef?.DocumentEditor == null) return;
+
+        var fileBytes = await Http.GetByteArrayAsync("Reports/DefaultReport3.docx");
+        await Task.Delay(500);
+
+        using (var stream = new MemoryStream(fileBytes))
+        {
+            using (WordprocessingDocument wordDocument = WordprocessingDocument.Open(stream, true))
+            {
+                foreach (var headerPart in wordDocument.MainDocumentPart.HeaderParts)
+                {
+                    var header = headerPart.Header;
+
+                    var tablesHeader = header.Elements<DocumentFormat.OpenXml.Wordprocessing.Table>().ToList();
+                    if (tablesHeader.Count > 0)
+                    {
+                        var headerTable = tablesHeader[0];
+
+                        var firstRow = headerTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAtOrDefault(0);
+                        if (firstRow != null)
+                        {
+                            var firstCell = firstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAtOrDefault(0);
+                            if (firstCell != null)
+                            {
+                                firstCell.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+                                firstCell.Append(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                                    new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Date: "+DateTime.Now.ToShortDateString()))
+                                ));
+                            }
+                        }
+                    }
+                    header.Save();
+                }
+
+                var body = wordDocument.MainDocumentPart.Document.Body;
+                var tables = body.Elements<DocumentFormat.OpenXml.Wordprocessing.Table>().ToList();
+
+                if (tables.Count == 0) return;
 
 
-        string todayDate = DateTime.Now.ToString("dd/MM/yyyy");
-        await _containerRef.DocumentEditor.Editor.InsertFieldAsync("{{TodayDate}}", todayDate);
+                var firstTable = tables[0];
+                DocumentFormat.OpenXml.Wordprocessing.TableRow tbFirstRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(0);
+                DocumentFormat.OpenXml.Wordprocessing.TableRow tbSecondRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(1);
+                DocumentFormat.OpenXml.Wordprocessing.TableCell cellName = tbFirstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
+                DocumentFormat.OpenXml.Wordprocessing.TableCell cellDoctorName = tbFirstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(1);
+                DocumentFormat.OpenXml.Wordprocessing.TableCell cellDob = tbSecondRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
+
+                cellName.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+                cellDoctorName.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+                cellDob.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+
+
+                var paraName = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                    new DocumentFormat.OpenXml.Wordprocessing.Run(
+                        new DocumentFormat.OpenXml.Wordprocessing.Text("Name: " + Records.PatientName)
+                    )
+                );
+                var paraDentist = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                    new DocumentFormat.OpenXml.Wordprocessing.Run(
+                        new DocumentFormat.OpenXml.Wordprocessing.Text("Dentist: " + Records.DoctorName)
+                    )
+                );
+
+                var paraDob = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                    new DocumentFormat.OpenXml.Wordprocessing.Run(
+                        new DocumentFormat.OpenXml.Wordprocessing.Text("Date Of Birth: " + Records.PatientDob.ToString())
+                    )
+                );
+
+                cellName.Append(paraName);
+                cellDoctorName.Append(paraDentist);
+                cellDob.Append(paraDob);
+
+
+                var rows = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ToList();
+
+                if (rows.Count < 12) return;
+
+                var rowMaxilla = rows[4];
+                var rowMaxillaCarries = rows[5];
+                var rowMandible = rows[11];
+                var rowMandibleCarries = rows[10];
+
+                Report = await SessionStorage.GetItemAsync<PatientExaminationRecordDto>("PatientExaminationRecord");
+                if (Report == null) return;
+
+                var maxillaToothMap = new Dictionary<int, int>
+            {
+                { 18, 1 }, { 17, 2 }, { 16, 3 }, { 15, 4 },
+                { 14, 5 }, { 13, 6 }, { 12, 7 }, { 11, 8 },
+                { 21, 9 }, { 22, 10 }, { 23, 11 }, { 24, 12 },
+                { 25, 13 }, { 26, 14 }, { 27, 15 }, { 28, 16 },
+            };
+
+                var mandibleToothMap = new Dictionary<int, int>
+            {
+                { 48, 1 }, { 47, 2 }, { 46, 3 }, { 45, 4 },
+                { 44, 5 }, { 43, 6 }, { 42, 7 }, { 41, 8 },
+                { 31, 9 }, { 32, 10 }, { 33, 11 }, { 34, 12 },
+                { 35, 13 }, { 36, 14 }, { 37, 15 }, { 38, 16 },
+            };
+                
+                foreach (var tooth in Report.MaxillaTeeth)
+                {
+                    if (tooth.CariesYes == true && maxillaToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
+                    {
+                        var cells = rowMaxilla.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
+                        var cellsCarries = rowMaxillaCarries.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
+
+                        if (cells.Count > cellIndex)
+                        {
+                            var cell = cells[cellIndex];
+                            var cellCarries = cellsCarries[cellIndex];
+
+                            cell.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+                            var para = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                                new DocumentFormat.OpenXml.Wordprocessing.Run(
+                                    new DocumentFormat.OpenXml.Wordprocessing.Text(tooth.SelectedPE ?? string.Empty)
+                                )
+                            );
+                            cell.Append(para);                            
+                            CheckLegacyCheckbox(cellCarries);
+                        }
+                    }
+                }
+                
+                foreach (var tooth in Report.MandibleTeeth)
+                {
+                    if (tooth.CariesYes == true && mandibleToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
+                    {
+                        var cells = rowMandible.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
+                        var cellsManCarries = rowMandibleCarries.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
+                        if (cells.Count > cellIndex)
+                        {
+                            var cell = cells[cellIndex];
+                            var cellManCarries = cellsManCarries[cellIndex];
+                            cell.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+
+                            var para = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                                new DocumentFormat.OpenXml.Wordprocessing.Run(
+                                    new DocumentFormat.OpenXml.Wordprocessing.Text(tooth.SelectedPE ?? string.Empty)
+                                )
+                            );
+                            cell.Append(para);
+                            CheckLegacyCheckbox(cellManCarries);
+                        }
+                    }
+                }
+                wordDocument.MainDocumentPart.Document.Save();
+            }
+
+            fileBytes = stream.ToArray();
+            stream.Position = 0;
+
+            await _containerRef.DocumentEditor.OpenAsync(stream, ImportFormatType.Docx);
+            await _containerRef.DocumentEditor.FitPageAsync(PageFitType.FitPageWidth);
+        }
+    }
+
+    private void CheckLegacyCheckbox(OpenXmlElement tableCell)
+    {
+        var checkBoxRun = tableCell
+                .Descendants<DocumentFormat.OpenXml.Wordprocessing.Run>()
+            .FirstOrDefault(r => r.Descendants<CheckBox>().Any());
+
+        if (checkBoxRun == null) return;
+
+        var checkBox = checkBoxRun.Descendants<CheckBox>().FirstOrDefault();
+        if (checkBox == null) return;
+        
+        checkBox.Elements<DocumentFormat.OpenXml.Wordprocessing.Checked>().ToList().ForEach(c => c.Remove());
+        
+        checkBox.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Checked { Val = OnOffValue.FromBoolean(true) });
     }
 
     private async Task OnDocumentChange()
@@ -114,6 +340,22 @@
                 await InvokeAsync(StateHasChanged);
             }
         }
+    }
+
+    public static string GenerateSecureCode(int length = 16)
+    {
+        StringBuilder result = new StringBuilder();
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            byte[] buffer = new byte[length];
+            rng.GetBytes(buffer);
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                result.Append(Chars[buffer[i] % Chars.Length]);
+            }
+        }
+        return result.ToString();
     }
 }
 
@@ -175,8 +417,8 @@
         outline: none;
     }
     /*.single-line:hover, .single-line:focus {
-                        border-color: #e4e4e4 !important;
-                    }*/
+                                                                                        border-color: #e4e4e4 !important;
+                                                                                    }*/
     [contenteditable="true"].single-line {
         white-space: nowrap;
         border-color: #e4e4e4 !important;

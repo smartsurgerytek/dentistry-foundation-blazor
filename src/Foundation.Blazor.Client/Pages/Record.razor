@@ -1,0 +1,84 @@
+﻿@page "/Records"
+
+@using Foundation.Dtos
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Popups
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+<h3>Records</h3>
+
+<SfGrid DataSource="@Records" @ref="RecordGrid" AllowPaging="true" AllowSorting="true" Toolbar=@Toolbaritems>
+    <GridEvents OnToolbarClick="OnToolbarClick" TValue="RecordDto"></GridEvents>
+    <GridColumns>
+        <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"  Width="10"></GridColumn>
+        <GridColumn Field="OrganizationName" HeaderText="Organization" Width="15"></GridColumn>
+        <GridColumn Field="DepartmentName" HeaderText="Department" Width="15"></GridColumn>
+        <GridColumn Field="PatientName" HeaderText="Patient" Width="15"></GridColumn>
+        <GridColumn Field="DoctorName" HeaderText="Doctor" Width="15"></GridColumn>
+        <GridColumn Field="CreatedDate" HeaderText="Date" Width="15" Format="yyyy-MM-dd"></GridColumn>
+        <GridColumn HeaderText="File" Width="15">
+            <Template>
+                @{
+                    var record = (context as RecordDto);
+                    <Button @onclick="@(() => NavigateFile(record))">View</Button>
+                }
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
+
+
+@code {
+    private SfGrid<RecordDto> RecordGrid;
+    private List<RecordDto> Records = new();
+    private List<ItemModel> Toolbaritems = new List<ItemModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRecords();
+        Toolbaritems.Add(new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" });
+        Toolbaritems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
+    }
+
+
+    private async Task LoadRecords()
+    {
+        Records = await Http.GetFromJsonAsync<List<RecordDto>>("https://localhost:44337/api/app/record/records") ?? new();
+    }
+
+    private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Text == "Refresh")
+        {
+            await LoadRecords();
+        }
+        else if (args.Item.Text == "Delete")
+        {
+            var selectedRecords = await RecordGrid.GetSelectedRecordsAsync();
+            if (selectedRecords.Any())
+            {
+                var recordToDelete = selectedRecords.First();
+                await DeleteRecord(recordToDelete.Id);
+            }
+        }
+    }
+
+
+    private async Task DeleteRecord(Guid id)
+    {
+        await Http.DeleteAsync($"https://localhost:44337/api/app/record/record/{id}");
+        await LoadRecords();
+    }
+
+
+    private void NavigateFile(RecordDto recordDto)
+    {
+        NavigationManager.NavigateTo("/ReportViewer?fileName=" + recordDto.FileName);
+    }
+
+}
