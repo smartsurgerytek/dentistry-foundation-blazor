@@ -13,6 +13,10 @@ using Volo.Abp.OpenIddict;
 using Volo.Abp.TextTemplateManagement;
 using Volo.Saas.Host;
 using Volo.Chat;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace Foundation;
 
@@ -42,5 +46,13 @@ public class FoundationApplicationModule : AbpModule
         {
             options.AddMaps<FoundationApplicationModule>();
         });
+
+        context.Services.AddSingleton<HttpClient>();
+        // IConfiguration configuration = new ConfigurationBuilder()
+        //                                 .SetBasePath(Directory.GetCurrentDirectory())
+        //                                 .AddJsonFile("appsettings.json", false)
+        //                                 .Build();
+            
+        // context.Services.AddSingleton<IConfiguration>(configuration);
     }
 }

@@ -14,6 +14,10 @@ using System.IO.Compression;
 using System.Text.Json;
 using ErrorDetails = Syncfusion.EJ2.FileManager.Base.ErrorDetails;
 using System.Net;
+using Foundation.Dtos;
+using System.Net.Http.Formatting;
+using Foundation.Blazor.Services;
+using System.Drawing;
 
 namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
 {
@@ -32,6 +36,14 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
         TransferUtility fileTransferUtility = new TransferUtility(client);
         private static List<PartETag> partETags;
         private static string uploadId;
+        private readonly HttpClient _httpClient;
+        private readonly ImageService _imageService;
+
+        public AmazonS3FileProvider(HttpClient httpClient, ImageService imageService)
+        {
+            _httpClient = httpClient;
+            _imageService = imageService;
+        }
 
         // Register the amazon client details
         public void RegisterAmazonS3(string name, string awsAccessKeyId, string awsSecretAccessKey, string region)
@@ -794,9 +806,20 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
 
         private async Task PerformDefaultUpload(IFormFile file, string fileName, string path)
         {
-            using (var stream = file.OpenReadStream())
+            try
             {
-                await fileTransferUtility.UploadAsync(stream, bucketName, RootName.Replace("/", "") + path + fileName);
+                using var stream = file.OpenReadStream();
+                // upload the first/original image
+                await UploadFileToS3(stream, fileName, path);
+
+                if (_imageService.IsImageFile(file))
+                {
+                    await ProcessAndUploadEnhancedImage(file, path);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw;
             }
         }
 
@@ -843,12 +866,45 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                         await client.CompleteMultipartUploadAsync(completeRequest);
                     }
                 }
+
+                if (_imageService.IsImageFile(file))
+                {
+                    await ProcessAndUploadEnhancedImage(file, keyName);
+                }
             }
             catch (Exception)
             {
                 throw;
             }
         }
+
+        #region X-Ray Image Uploading/Processing
+        private async Task ProcessAndUploadEnhancedImage(IFormFile file, string path)
+        {
+            using var originalImageStream = file.OpenReadStream();
+            var orignialImageBytes = await originalImageStream.GetAllBytesAsync();
+
+            var enhancedImage = await _imageService.GetEnhancedImage(file);
+            if (enhancedImage == null) return;
+
+            var enhancedImageBytes = Convert.FromBase64String(enhancedImage.Image);
+            using var enhancedImageStream = new MemoryStream(enhancedImageBytes);
+
+            var combinedImageStream = _imageService.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
+
+            var enhancedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai." + enhancedImage.Content_Type?.Split("/")[1]??".png";
+            var combinedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ab." + "png";
+
+            await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
+            await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
+        }
+
+        private async Task UploadFileToS3(Stream stream, string fileName, string path)
+        {
+            var s3Path = RootName.Replace("/", "") + path + fileName;
+            await fileTransferUtility.UploadAsync(stream, bucketName, s3Path);
+        }
+        #endregion X-Ray Image Uploading/Processing
 
         // Returns the image
         public virtual FileStreamResult GetImage(string path, string id, bool allowCompress, ImageSize size, params FileManagerDirectoryContent[] data)

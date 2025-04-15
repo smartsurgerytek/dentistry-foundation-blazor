@@ -2,8 +2,14 @@ using Blazored.SessionStorage;
 using Foundation.Blazor;
 using Foundation.Blazor.Client;
 using Foundation.Blazor.Components;
+using Foundation.Blazor.Services;
+using Foundation.Dtos;
 using Foundation.Services;
+
+
+// using Foundation.Services;
 using Syncfusion.Blazor;
+using Syncfusion.EJ2.FileManager.AmazonS3FileProvider;
 using Volo.Abp.AspNetCore.Components.WebAssembly.WebApp;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,12 +27,15 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<AmazonS3FileProvider>();
+
+builder.Services.AddScoped<ImageService>();
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Services.AddBlazoredSessionStorage();
 
 var app = builder.Build();
 var syncFusionAPIKey = Environment.GetEnvironmentVariable("SyncFusionAPIKey");
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncFusionAPIKey);
-
 
 app.MapGet("/environment", (IWebHostEnvironment env) =>
 {

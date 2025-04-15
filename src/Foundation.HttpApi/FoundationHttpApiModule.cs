@@ -15,6 +15,8 @@ using Volo.Abp.TextTemplateManagement;
 using Volo.Abp.Gdpr;
 using Volo.Abp.OpenIddict;
 using Volo.Chat;
+using Microsoft.Extensions.DependencyInjection;
+using Foundation.Services;
 
 namespace Foundation;
 

@@ -1,19 +1,8 @@
 ﻿@page "/FileManager"
 @inject NavigationManager NavigationManager
 
-<SfFileManager TValue="FileManagerDirectoryContent">
+<SfFileManager TValue="FileManagerDirectoryContent" Height="90vh">
     <FileManagerAjaxSettings Url="/api/AmazonS3Provider/AmazonS3FileOperations" UploadUrl="/api/AmazonS3Provider/AmazonS3Upload" GetImageUrl="/api/AmazonS3Provider/AmazonS3GetImage" DownloadUrl="/api/AmazonS3Provider/AmazonS3Download">
     </FileManagerAjaxSettings>
     <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
 </SfFileManager>
-@code
-{
-    private async void OpenFilePreview(FileOpenEventArgs<FileManagerDirectoryContent> args)
-    {
-        if (args.FileDetails.Type?.ToLower() == ".pdf")
-        {
-            await Task.Delay(50);
-            NavigationManager.NavigateTo("/ReportViewer?fileName=" + args.FileDetails.Name);
-        }
-    }
-}

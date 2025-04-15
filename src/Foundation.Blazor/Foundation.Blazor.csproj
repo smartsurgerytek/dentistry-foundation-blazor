@@ -4,13 +4,14 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 		<BlazorEnableDebugging>true</BlazorEnableDebugging>
 	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.7.415.1" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
     <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.10" />
@@ -23,6 +24,7 @@
     <PackageReference Include="Syncfusion.Blazor.Themes" Version="28.2.11" />
     <PackageReference Include="Syncfusion.Blazor.WordProcessor" Version="28.2.11" />
     <PackageReference Include="Syncfusion.DocIORenderer.Net.Core" Version="28.2.11" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.2.25163.9" />
     <ProjectReference Include="..\Foundation.Blazor.Client\Foundation.Blazor.Client.csproj" />
   </ItemGroup>
 
