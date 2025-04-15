@@ -1,5 +1,8 @@
 using System.Threading.Tasks;
+using Blazored.SessionStorage;
+using Foundation.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Syncfusion.Blazor;
 
 namespace Foundation.Blazor.Client;
@@ -10,6 +13,7 @@ public class Program
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
         builder.Services.AddSyncfusionBlazor();
+        builder.Services.AddBlazoredSessionStorage();
 
 
         var application = await builder.AddApplicationAsync<FoundationBlazorClientModule>(options =>

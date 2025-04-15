@@ -1,0 +1,217 @@
+﻿@page "/Patient"
+@using Foundation.Dtos
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Calendars
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Patients</h3>
+
+
+
+<SfGrid DataSource="@Patients" @ref="PatientGrid" AllowPaging="true" AllowSorting="true" Toolbar="@ToolbarItems">
+    <GridEvents OnToolbarClick="OnToolbarClick" TValue="PatientDto"></GridEvents>
+    <GridColumns>
+        <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
+        <GridColumn Field="Name" HeaderText="Patient Name" Width="200"></GridColumn>
+        <GridColumn Field="DateOfBirth" HeaderText="Date of Birth" Width="200"></GridColumn>
+        <GridColumn Field="Gender" HeaderText="Gender" Width="150"></GridColumn>
+        <GridColumn HeaderText="Manage Records" Width="150">
+            <Template>
+                @{
+                    var Patient = (context as PatientDto);
+                }
+                <Button @onclick="@(() => NavigateRecord(Patient))">Records</Button>
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
+
+<SfDialog @ref="Dialog" Width="400px" ShowCloseIcon="true" Header="@DialogTitle" Visible="false">
+    <DialogTemplates>
+        <Content>
+            <EditForm Model="@CurrentPatient" OnValidSubmit="HandleValidSubmit" @ref="EditFormRef">
+                <DataAnnotationsValidator />
+
+                <div class="m-2">
+                    <SfTextBox TValue="string"
+                               Placeholder="Enter Patient Name"
+                               FloatLabelType="FloatLabelType.Auto"
+                               @bind-Value="CurrentPatient.Name" />
+                    <ValidationMessage For="@(() => CurrentPatient.Name)" />
+                </div>
+
+                <div class="m-2">
+                    <SfDropDownList TItem="GenderList"
+                                    TValue="string"
+                                    Placeholder="Select a gender"
+                                    DataSource="@LocalData"
+                                    @bind-Value="CurrentPatient.Gender">
+                        <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
+                    </SfDropDownList>
+                    <ValidationMessage For="@(() => CurrentPatient.Gender)" />
+                </div>
+
+                <div class="m-2">
+                    <SfDatePicker TValue="DateTime?"
+                                  Placeholder="Select Date of Birth"
+                                  FloatLabelType="FloatLabelType.Auto"
+                                  @bind-Value="SelectedDate" />
+                    <ValidationMessage For="@(() => CurrentPatient.DateOfBirth)" />
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+
+    <DialogButtons>
+        <DialogButton Content="Save" IsPrimary="true" OnClick="TriggerFormSubmit"></DialogButton>
+        <DialogButton Content="Cancel" OnClick="CloseDialog"></DialogButton>
+    </DialogButtons>
+</SfDialog>
+
+@code {
+    private SfGrid<PatientDto> PatientGrid;
+    private SfDialog Dialog;
+    private EditForm EditFormRef;
+    private List<PatientDto> Patients = new();
+    private CreateUpdatePatientDto CurrentPatient = new();
+    private string DialogTitle = "";
+    private bool IsNew = true;
+    private List<ItemModel> ToolbarItems = new();
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string DoctorId { get; set; }
+
+    private DateTime? SelectedDate
+    {
+        get => CurrentPatient.DateOfBirth == default
+            ? DateTime.Today
+            : CurrentPatient.DateOfBirth.ToDateTime(TimeOnly.MinValue);
+
+        set => CurrentPatient.DateOfBirth = value.HasValue
+            ? DateOnly.FromDateTime(value.Value)
+            : default;
+    }
+
+    public class GenderList
+    {
+        public string ID { get; set; }
+        public string Text { get; set; }
+    }
+
+    List<GenderList> LocalData = new List<GenderList> {
+        new GenderList() { ID = "Male", Text = "Male" },
+        new GenderList() { ID = "Female", Text = "Female" }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPatients();
+
+        ToolbarItems.Add(new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" });
+        ToolbarItems.Add(new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" });
+        ToolbarItems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
+        ToolbarItems.Add(new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" });
+    }
+
+    private async Task LoadPatients()
+    {
+        if (!string.IsNullOrEmpty(DoctorId))
+        {
+            Patients = await Http.GetFromJsonAsync<List<PatientDto>>(
+                $"https://localhost:44337/api/app/patient/patient-by/{DoctorId}"
+            ) ?? new();
+        }
+    }
+
+    private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        var selectedRow = await PatientGrid.GetSelectedRecordsAsync();
+        if (args.Item.Text == "Add")
+        {
+            IsNew = true;
+            DialogTitle = "Add Patient";
+            CurrentPatient = new CreateUpdatePatientDto
+                {
+                    DoctorId = Guid.Parse(DoctorId),
+                    DateOfBirth = DateOnly.FromDateTime(DateTime.Today)
+                };
+            await Dialog.ShowAsync();
+        }
+        else if (args.Item.Text == "Edit" && selectedRow.Any())
+        {
+            IsNew = false;
+            DialogTitle = "Edit Patient";
+            var selected = selectedRow.First();
+            CurrentPatient = new CreateUpdatePatientDto
+                {
+                    Id = selected.Id,
+                    Name = selected.Name,
+                    DateOfBirth = selected.DateOfBirth,
+                    Gender = selected.Gender,
+                    DoctorId = selected.DoctorId
+                };
+            await Dialog.ShowAsync();
+        }
+        else if (args.Item.Text == "Delete" && selectedRow.Any())
+        {
+            await DeletePatient(selectedRow.First().Id);
+        }
+        else if (args.Item.Text == "Refresh")
+        {
+            await LoadPatients();
+        }
+    }
+
+    private async Task TriggerFormSubmit()
+    {
+        if (EditFormRef?.EditContext != null && EditFormRef.EditContext.Validate())
+        {
+            await HandleValidSubmit();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            if (IsNew)
+            {
+                await Http.PostAsJsonAsync("https://localhost:44337/api/app/patient/patient", CurrentPatient);
+            }
+            else
+            {
+                await Http.PutAsJsonAsync($"https://localhost:44337/api/app/patient/patient/{CurrentPatient.Id}", CurrentPatient);
+            }
+
+            await LoadPatients();
+            await Dialog.HideAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving patient: {ex.Message}");
+        }
+    }
+
+    private async Task DeletePatient(Guid id)
+    {
+        await Http.DeleteAsync($"https://localhost:44337/api/app/patient/patient/{id}");
+        await LoadPatients();
+    }
+
+    private async Task CloseDialog()
+    {
+        await Dialog.HideAsync();
+    }
+
+    private void NavigateRecord(PatientDto patientDto)
+    {        
+        NavigationManager.NavigateTo($"ExaminationRecord?PatientId={patientDto.Id}");
+    }
+}

@@ -255,16 +255,16 @@ paket-files/
 **/.abpstudio/
 
 # DentistryFoundation
-src/SST.DentistryFoundation.Web/Logs/*
-src/SST.DentistryFoundation.Web.Host/Logs/*
-src/SST.DentistryFoundation.Web.Public/Logs/*
-src/SST.DentistryFoundation.Web.Public.Host/Logs/*
-src/SST.DentistryFoundation.AuthServer/Logs/*
-src/SST.DentistryFoundation.HttpApi.Host/Logs/*
-src/SST.DentistryFoundation.HttpApi.Host/Logs/*
-src/SST.DentistryFoundation.DbMigrator/Logs/*
-src/SST.DentistryFoundation.Blazor.Server/Logs/*
-src/SST.DentistryFoundation.Blazor.Server.Tiered/Logs/*
+src/Foundation.Web/Logs/*
+src/Foundation.Web.Host/Logs/*
+src/Foundation.Web.Public/Logs/*
+src/Foundation.Web.Public.Host/Logs/*
+src/Foundation.AuthServer/Logs/*
+src/Foundation.HttpApi.Host/Logs/*
+src/Foundation.HttpApi.Host/Logs/*
+src/Foundation.DbMigrator/Logs/*
+src/Foundation.Blazor.Server/Logs/*
+src/Foundation.Blazor.Server.Tiered/Logs/*
 
 # Use abp install-libs to restore.
 **/wwwroot/libs/*
@@ -274,6 +274,4 @@ tempkey.rsa
 tempkey.jwk
 /src/Foundation.HttpApi.Host/Logs
 /src/Foundation.AuthServer/Logs
-/src/Foundation.AuthServer/Logs
-/src/Foundation.HttpApi.Host/Logs
 /src/Foundation.HttpApi.Host/Logs

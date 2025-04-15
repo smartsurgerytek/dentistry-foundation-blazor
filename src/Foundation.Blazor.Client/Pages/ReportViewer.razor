@@ -1,0 +1,39 @@
+﻿@page "/ReportViewer"
+@inject NavigationManager NavigationManager
+@using Syncfusion.Blazor.SfPdfViewer
+@using Microsoft.AspNetCore.Components
+
+<h1>PDF Viewer</h1>
+
+@if (!string.IsNullOrEmpty(decodedFileUrl))
+{
+    <div class="control-section" style="height: 100vh;">
+        <SfPdfViewer2 DocumentPath="@decodedFileUrl" Height="100%" Width="100%">
+        </SfPdfViewer2>
+    </div>
+}
+else
+{
+    <p>Loading PDF or invalid file name...</p>
+}
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string fileName { get; set; }
+
+    public string decodedFileUrl;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(fileName))
+        {
+            decodedFileUrl = $"https://smartsurgerytek.foundation.s3.amazonaws.com/foundation/documents/{fileName}";
+        }
+        else
+        {
+            decodedFileUrl = null;
+        }
+        await Task.CompletedTask;
+    }
+}

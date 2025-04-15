@@ -1,3 +1,4 @@
+using Blazored.SessionStorage;
 using Foundation.Blazor;
 using Foundation.Blazor.Client;
 using Foundation.Blazor.Components;
@@ -30,6 +31,7 @@ builder.Services.AddScoped<AmazonS3FileProvider>();
 
 builder.Services.AddScoped<ImageService>();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+builder.Services.AddBlazoredSessionStorage();
 
 var app = builder.Build();
 var syncFusionAPIKey = Environment.GetEnvironmentVariable("SyncFusionAPIKey");
