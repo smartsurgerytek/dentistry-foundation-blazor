@@ -74,5 +74,4 @@ namespace Foundation.Services
             return ObjectMapper.Map<List<Department>, List<DepartmentDto>>(departments);
         }
     }
-
 }

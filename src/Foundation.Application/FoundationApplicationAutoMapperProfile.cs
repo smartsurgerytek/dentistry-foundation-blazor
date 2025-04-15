@@ -21,13 +21,15 @@ public class FoundationApplicationAutoMapperProfile : Profile
         CreateMap<Doctor, DoctorDto>().ReverseMap();
         CreateMap<CreateUpdateDoctorDto, Doctor>().ReverseMap();
 
-        //CreateMap<Patient, PatientDto>()
-        //    .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.Name))
-        //    .ReverseMap();
-        
         CreateMap<Patient, PatientDto>().ReverseMap();
         CreateMap<CreateUpdatePatientDto, Patient>().ReverseMap();
 
-        CreateMap<Record, RecordDto>().ReverseMap();
+
+        CreateMap<Record, RecordDto>()
+         .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.Name));
+
+        CreateMap<CreateUpdateRecordDto, Record>().ReverseMap();
+
+
     }
 }

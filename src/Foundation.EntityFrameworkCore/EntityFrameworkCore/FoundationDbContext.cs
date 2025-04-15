@@ -139,6 +139,12 @@ public class FoundationDbContext :
              .WithMany(p => p.Records)
              .HasForeignKey(r => r.PatientId)
              .OnDelete(DeleteBehavior.Cascade);
+
+
+            b.Property(r => r.FileName)
+             .HasMaxLength(200)
+             .IsRequired(false);
+
         });
 
     }

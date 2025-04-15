@@ -1,12 +1,14 @@
 ﻿using AutoMapper.Internal.Mappers;
 using Foundation.Dtos;
 using Foundation.Entities;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
@@ -14,6 +16,8 @@ using Volo.Abp.Domain.Repositories;
 
 namespace Foundation.Services
 {
+    [RemoteService(Name = "Doctor")]
+    [Route("api/doctor")]
     public class DoctorAppService : ApplicationService, IDoctorAppService, ITransientDependency
     {
         private readonly IRepository<Doctor, Guid> _doctorRepository;

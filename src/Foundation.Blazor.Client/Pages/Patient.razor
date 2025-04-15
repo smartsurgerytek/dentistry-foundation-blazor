@@ -4,13 +4,17 @@
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.Navigations
 @using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Calendars
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
 <h3>Patients</h3>
 
-<SfGrid DataSource="@Patients" @ref="PatientGrid" AllowPaging="true" AllowSorting="true" Toolbar=@ToolbarItems>
+
+
+<SfGrid DataSource="@Patients" @ref="PatientGrid" AllowPaging="true" AllowSorting="true" Toolbar="@ToolbarItems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="PatientDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
@@ -21,8 +25,8 @@
             <Template>
                 @{
                     var Patient = (context as PatientDto);
-                    <Button @onclick="@(() => NavigateRecord(Patient))">Records</Button>
                 }
+                <Button @onclick="@(() => NavigateRecord(Patient))">Records</Button>
             </Template>
         </GridColumn>
     </GridColumns>
@@ -31,27 +35,41 @@
 <SfDialog @ref="Dialog" Width="400px" ShowCloseIcon="true" Header="@DialogTitle" Visible="false">
     <DialogTemplates>
         <Content>
+            <EditForm Model="@CurrentPatient" OnValidSubmit="HandleValidSubmit" @ref="EditFormRef">
+                <DataAnnotationsValidator />
 
+                <div class="m-2">
+                    <SfTextBox TValue="string"
+                               Placeholder="Enter Patient Name"
+                               FloatLabelType="FloatLabelType.Auto"
+                               @bind-Value="CurrentPatient.Name" />
+                    <ValidationMessage For="@(() => CurrentPatient.Name)" />
+                </div>
 
-            <SfTextBox TValue="string" Value="@CurrentPatient.Name"
-                       ValueChanged="@((string value) => CurrentPatient.Name = value)"
-                       Placeholder="Enter Patient Name" FloatLabelType="FloatLabelType.Auto">
-            </SfTextBox>
+                <div class="m-2">
+                    <SfDropDownList TItem="GenderList"
+                                    TValue="string"
+                                    Placeholder="Select a gender"
+                                    DataSource="@LocalData"
+                                    @bind-Value="CurrentPatient.Gender">
+                        <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
+                    </SfDropDownList>
+                    <ValidationMessage For="@(() => CurrentPatient.Gender)" />
+                </div>
 
-            <SfTextBox TValue="string" Value="@CurrentPatient.Gender"
-                       ValueChanged="@((string value) => CurrentPatient.Gender = value)"
-                       Placeholder="Enter Patient Gender" FloatLabelType="FloatLabelType.Auto">
-            </SfTextBox>
-
-            <SfTextBox TValue="string" Value="@CurrentPatient.DateOfBirth"
-                       ValueChanged="@((string value) => CurrentPatient.DateOfBirth = value)"
-                       Placeholder="Enter Patient DateOfBirth" FloatLabelType="FloatLabelType.Auto">
-            </SfTextBox>
-
+                <div class="m-2">
+                    <SfDatePicker TValue="DateTime?"
+                                  Placeholder="Select Date of Birth"
+                                  FloatLabelType="FloatLabelType.Auto"
+                                  @bind-Value="SelectedDate" />
+                    <ValidationMessage For="@(() => CurrentPatient.DateOfBirth)" />
+                </div>
+            </EditForm>
         </Content>
     </DialogTemplates>
+
     <DialogButtons>
-        <DialogButton Content="Save" IsPrimary="true" OnClick="SavePatient"></DialogButton>
+        <DialogButton Content="Save" IsPrimary="true" OnClick="TriggerFormSubmit"></DialogButton>
         <DialogButton Content="Cancel" OnClick="CloseDialog"></DialogButton>
     </DialogButtons>
 </SfDialog>
@@ -59,31 +77,47 @@
 @code {
     private SfGrid<PatientDto> PatientGrid;
     private SfDialog Dialog;
+    private EditForm EditFormRef;
     private List<PatientDto> Patients = new();
     private CreateUpdatePatientDto CurrentPatient = new();
     private string DialogTitle = "";
     private bool IsNew = true;
     private List<ItemModel> ToolbarItems = new();
-    private List<DoctorDto> DoctorList = new();
-    private List<string> GenderList = new() { "Male", "Female", "Other" };
 
     [Parameter]
     [SupplyParameterFromQuery]
     public string DoctorId { get; set; }
 
+    private DateTime? SelectedDate
+    {
+        get => CurrentPatient.DateOfBirth == default
+            ? DateTime.Today
+            : CurrentPatient.DateOfBirth.ToDateTime(TimeOnly.MinValue);
+
+        set => CurrentPatient.DateOfBirth = value.HasValue
+            ? DateOnly.FromDateTime(value.Value)
+            : default;
+    }
+
+    public class GenderList
+    {
+        public string ID { get; set; }
+        public string Text { get; set; }
+    }
+
+    List<GenderList> LocalData = new List<GenderList> {
+        new GenderList() { ID = "Male", Text = "Male" },
+        new GenderList() { ID = "Female", Text = "Female" }
+    };
+
     protected override async Task OnInitializedAsync()
     {
         await LoadPatients();
-        await LoadDoctors();
 
         ToolbarItems.Add(new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" });
         ToolbarItems.Add(new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" });
         ToolbarItems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
-    }
-
-    private async Task LoadDoctors()
-    {
-        DoctorList = await Http.GetFromJsonAsync<List<DoctorDto>>("https://localhost:44337/api/doctors") ?? new List<DoctorDto>();
+        ToolbarItems.Add(new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" });
     }
 
     private async Task LoadPatients()
@@ -91,7 +125,7 @@
         if (!string.IsNullOrEmpty(DoctorId))
         {
             Patients = await Http.GetFromJsonAsync<List<PatientDto>>(
-                $"https://localhost:44337/api/patients/by-doctor/{DoctorId}"
+                $"https://localhost:44337/api/app/patient/patient-by/{DoctorId}"
             ) ?? new();
         }
     }
@@ -103,7 +137,11 @@
         {
             IsNew = true;
             DialogTitle = "Add Patient";
-            CurrentPatient = new CreateUpdatePatientDto { DoctorId = Guid.Parse(DoctorId) };
+            CurrentPatient = new CreateUpdatePatientDto
+                {
+                    DoctorId = Guid.Parse(DoctorId),
+                    DateOfBirth = DateOnly.FromDateTime(DateTime.Today)
+                };
             await Dialog.ShowAsync();
         }
         else if (args.Item.Text == "Edit" && selectedRow.Any())
@@ -115,7 +153,7 @@
                 {
                     Id = selected.Id,
                     Name = selected.Name,
-                    DateOfBirth = selected.DateOfBirth.ToString(),
+                    DateOfBirth = selected.DateOfBirth,
                     Gender = selected.Gender,
                     DoctorId = selected.DoctorId
                 };
@@ -131,18 +169,27 @@
         }
     }
 
-    private async Task SavePatient()
+    private async Task TriggerFormSubmit()
+    {
+        if (EditFormRef?.EditContext != null && EditFormRef.EditContext.Validate())
+        {
+            await HandleValidSubmit();
+        }
+    }
+
+    private async Task HandleValidSubmit()
     {
         try
         {
             if (IsNew)
             {
-                await Http.PostAsJsonAsync("https://localhost:44337/api/patients", CurrentPatient);
+                await Http.PostAsJsonAsync("https://localhost:44337/api/app/patient/patient", CurrentPatient);
             }
             else
             {
-                await Http.PutAsJsonAsync($"https://localhost:44337/api/patients/{CurrentPatient.Id}", CurrentPatient);
+                await Http.PutAsJsonAsync($"https://localhost:44337/api/app/patient/patient/{CurrentPatient.Id}", CurrentPatient);
             }
+
             await LoadPatients();
             await Dialog.HideAsync();
         }
@@ -154,7 +201,7 @@
 
     private async Task DeletePatient(Guid id)
     {
-        await Http.DeleteAsync($"https://localhost:44337/api/patients/{id}");
+        await Http.DeleteAsync($"https://localhost:44337/api/app/patient/patient/{id}");
         await LoadPatients();
     }
 
@@ -164,7 +211,7 @@
     }
 
     private void NavigateRecord(PatientDto patientDto)
-    {
-        NavigationManager.NavigateTo($"PatientRecords?PatientId=" + patientDto.Id);
+    {        
+        NavigationManager.NavigateTo($"ExaminationRecord?PatientId={patientDto.Id}");
     }
 }

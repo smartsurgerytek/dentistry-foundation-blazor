@@ -1,26 +1,29 @@
 ﻿@page "/Department"
 
+@using Microsoft.AspNetCore.Components.Forms
 @using Foundation.Dtos
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.Navigations
 @using Syncfusion.Blazor.Popups
 @using System.Net.Http.Json
+@using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
-<h3>Department</h3>
-<SfGrid DataSource="@Departments" @ref="DepartmentGrid" AllowPaging="true" AllowSorting="true" Toolbar=@Toolbaritems>
+<h3>Department - @OrganizationName</h3>
+
+<SfGrid DataSource="@Departments" @ref="DepartmentGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="DepartmentDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
-        <GridColumn Field="Name" HeaderText="Department Name" Width="200"></GridColumn>
-        <GridColumn HeaderText="Manage Doctor" Width="120">
+        <GridColumn Field="Name" HeaderText="Department Name" Width="250"></GridColumn>
+        <GridColumn HeaderText="Manage Doctor" Width="150">
             <Template>
                 @{
-                    var Doctor = (context as DepartmentDto);
-                    <Button @onclick="@(() => NavigateDoctor(Doctor))">Doctor</Button>
+                    var department = (context as DepartmentDto);
                 }
+                <button class="e-btn" @onclick="@(() => NavigateDoctor(department))">Doctor</button>
             </Template>
         </GridColumn>
     </GridColumns>
@@ -29,16 +32,22 @@
 <SfDialog @ref="Dialog" Width="400px" ShowCloseIcon="true" Header="@DialogTitle" Visible="false">
     <DialogTemplates>
         <Content>
-            <SfTextBox TValue="string" Value="@CurrentDepartment.Name"
-                       ValueChanged="@((string value) => CurrentDepartment.Name = value)"
-                       Placeholder="Enter Department Name" FloatLabelType="FloatLabelType.Auto">
-            </SfTextBox>
+            <EditForm Model="@CurrentDepartment" OnValidSubmit="SaveDepartment">                
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                    <SfTextBox TValue="string" @bind-Value="CurrentDepartment.Name"
+                               Placeholder="Enter Department Name" FloatLabelType="FloatLabelType.Auto" />
+                    <ValidationMessage For="@(() => CurrentDepartment.Name)" />
+                </div>
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="e-btn e-primary">Save</button>
+                    <button type="button" class="e-btn" @onclick="CloseDialog">Cancel</button>
+                </div>
+            </EditForm>
         </Content>
     </DialogTemplates>
-    <DialogButtons>
-        <DialogButton Content="Save" IsPrimary="true" OnClick="SaveDepartment"></DialogButton>
-        <DialogButton Content="Cancel" OnClick="CloseDialog"></DialogButton>
-    </DialogButtons>
 </SfDialog>
 
 @code {
@@ -52,18 +61,23 @@
 
     private SfGrid<DepartmentDto> DepartmentGrid;
     private SfDialog Dialog;
+
     private List<DepartmentDto> Departments = new();
     private CreateUpdateDepartmentDto CurrentDepartment = new();
     private string DialogTitle = "";
     private bool IsNew = true;
-    private List<ItemModel> Toolbaritems = new();
+
+    private List<ItemModel> Toolbaritems = new()
+    {
+        new ItemModel() { Text = "Add", TooltipText = "Add Department", PrefixIcon = "e-add" },
+        new ItemModel() { Text = "Edit", TooltipText = "Edit Department", PrefixIcon = "e-edit" },
+        new ItemModel() { Text = "Delete", TooltipText = "Delete Department", PrefixIcon = "e-delete" },
+        new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" }
+    };
 
     protected override async Task OnInitializedAsync()
     {
         await LoadDepartments();
-        Toolbaritems.Add(new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" });
-        Toolbaritems.Add(new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" });
-        Toolbaritems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
     }
 
     private async Task LoadDepartments()
@@ -71,11 +85,10 @@
         if (!string.IsNullOrEmpty(OrganizationId))
         {
             Departments = await Http.GetFromJsonAsync<List<DepartmentDto>>(
-                $"https://localhost:44337/api/departments/by-organization/{OrganizationId}"
+                $"https://localhost:44337/api/app/department/departments-by/{OrganizationId}"
             ) ?? new();
         }
     }
-
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
     {
@@ -94,14 +107,13 @@
             DialogTitle = "Edit Department";
             var selected = selectedRow.First();
             CurrentDepartment = new CreateUpdateDepartmentDto
-                {
-                    Id = selected.Id,
-                    Name = selected.Name,
-                    OrganizationId = selected.OrganizationId
-                };
+            {
+                Id = selected.Id,
+                Name = selected.Name,
+                OrganizationId = selected.OrganizationId
+            };
             await Dialog.ShowAsync();
         }
-
         else if (args.Item.Text == "Delete" && selectedRow.Any())
         {
             await DeleteDepartment(selectedRow.First().Id);
@@ -116,19 +128,23 @@
     {
         if (IsNew)
         {
-            await Http.PostAsJsonAsync("https://localhost:44337/api/departments", CurrentDepartment);
+            await Http.PostAsJsonAsync("https://localhost:44337/api/app/department/department", CurrentDepartment);
         }
         else
         {
-            await Http.PutAsJsonAsync($"https://localhost:44337/api/departments/{CurrentDepartment.Id}", CurrentDepartment);
+            await Http.PutAsJsonAsync(
+                $"https://localhost:44337/api/app/department/department/{CurrentDepartment.Id}", 
+                CurrentDepartment
+            );
         }
+
         await LoadDepartments();
         await Dialog.HideAsync();
     }
 
     private async Task DeleteDepartment(Guid id)
     {
-        await Http.DeleteAsync($"https://localhost:44337/api/departments/{id}");
+        await Http.DeleteAsync($"https://localhost:44337/api/app/department/department/{id}");
         await LoadDepartments();
     }
 
@@ -137,8 +153,8 @@
         await Dialog.HideAsync();
     }
 
-    private void NavigateDoctor(DepartmentDto departmentDto)
+    private void NavigateDoctor(DepartmentDto department)
     {
-        NavigationManager.NavigateTo($"Doctor?DepartmentId=" + departmentDto.Id);
+        NavigationManager.NavigateTo($"Doctor?DepartmentId={department.Id}&DepartmentName={department.Name}");
     }
 }

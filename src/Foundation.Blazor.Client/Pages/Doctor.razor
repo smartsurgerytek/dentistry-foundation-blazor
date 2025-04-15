@@ -1,10 +1,13 @@
 ﻿@page "/Doctor"
+
+@using Microsoft.AspNetCore.Components.Forms
 @using Foundation.Dtos
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.Navigations
 @using Syncfusion.Blazor.Popups
 @using System.Net.Http.Json
+@using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
@@ -30,18 +33,30 @@
 <SfDialog @ref="Dialog" Width="400px" ShowCloseIcon="true" Header="@DialogTitle" Visible="false">
     <DialogTemplates>
         <Content>
-            <SfTextBox TValue="string" Value="@CurrentDoctor.Name"
-                       ValueChanged="@((string value) => CurrentDoctor.Name = value)"
-                       Placeholder="Enter Doctor Name" FloatLabelType="FloatLabelType.Auto">
-            </SfTextBox>
-            <SfTextBox TValue="string" Value="@CurrentDoctor.Specialty"
-                       ValueChanged="@((string value) => CurrentDoctor.Specialty = value)"
-                       Placeholder="Enter Specialty" FloatLabelType="FloatLabelType.Auto">
-            </SfTextBox>
+            <EditForm Model="@CurrentDoctor" OnValidSubmit="SaveDoctor" @ref="DoctorForm">
+                <DataAnnotationsValidator />
+                
+
+                <div class="mb-3">
+                    <SfTextBox TValue="string" Value="@CurrentDoctor.Name"
+                               ValueChanged="@((string value) => CurrentDoctor.Name = value)"
+                               Placeholder="Enter Doctor Name" FloatLabelType="FloatLabelType.Auto">
+                    </SfTextBox>
+                    <ValidationMessage For="@(() => CurrentDoctor.Name)" />
+                </div>
+
+                <div class="mb-3">
+                    <SfTextBox TValue="string" Value="@CurrentDoctor.Specialty"
+                               ValueChanged="@((string value) => CurrentDoctor.Specialty = value)"
+                               Placeholder="Enter Specialty" FloatLabelType="FloatLabelType.Auto">
+                    </SfTextBox>
+                    <ValidationMessage For="@(() => CurrentDoctor.Specialty)" />
+                </div>
+            </EditForm>
         </Content>
     </DialogTemplates>
     <DialogButtons>
-        <DialogButton Content="Save" IsPrimary="true" OnClick="SaveDoctor"></DialogButton>
+        <DialogButton Content="Save" IsPrimary="true" OnClick="SubmitForm"></DialogButton>
         <DialogButton Content="Cancel" OnClick="CloseDialog"></DialogButton>
     </DialogButtons>
 </SfDialog>
@@ -57,6 +72,7 @@
 
     private SfGrid<DoctorDto> DoctorGrid;
     private SfDialog Dialog;
+    private EditForm DoctorForm;
     private List<DoctorDto> Doctors = new();
     private CreateUpdateDoctorDto CurrentDoctor = new();
     private string DialogTitle = "";
@@ -76,7 +92,7 @@
         if (!string.IsNullOrEmpty(DepartmentId))
         {
             Doctors = await Http.GetFromJsonAsync<List<DoctorDto>>(
-                $"https://localhost:44337/api/doctors/by-department/{DepartmentId}"
+                $"https://localhost:44337/api/app/doctor/doctors-by/{DepartmentId}"
             ) ?? new();
         }
     }
@@ -98,12 +114,12 @@
             DialogTitle = "Edit Doctor";
             var selected = selectedRow.First();
             CurrentDoctor = new CreateUpdateDoctorDto
-                {
-                    Id = selected.Id,
-                    Name = selected.Name,
-                    Specialty = selected.Specialty,
-                    DepartmentId = selected.DepartmentId
-                };
+            {
+                Id = selected.Id,
+                Name = selected.Name,
+                Specialty = selected.Specialty,
+                DepartmentId = selected.DepartmentId
+            };
             await Dialog.ShowAsync();
         }
         else if (args.Item.Text == "Delete" && selectedRow.Any())
@@ -116,23 +132,32 @@
         }
     }
 
+    private async Task SubmitForm()
+    {
+        if (DoctorForm.EditContext.Validate())
+        {
+            await SaveDoctor();
+        }
+    }
+
     private async Task SaveDoctor()
     {
         if (IsNew)
         {
-            await Http.PostAsJsonAsync("https://localhost:44337/api/doctors", CurrentDoctor);
+            await Http.PostAsJsonAsync("https://localhost:44337/api/app/doctor/doctor", CurrentDoctor);
         }
         else
         {
-            await Http.PutAsJsonAsync($"https://localhost:44337/api/doctors/{CurrentDoctor.Id}", CurrentDoctor);
+            await Http.PutAsJsonAsync($"https://localhost:44337/api/app/doctor/doctor/{CurrentDoctor.Id}", CurrentDoctor);
         }
+
         await LoadDoctors();
         await Dialog.HideAsync();
     }
 
     private async Task DeleteDoctor(Guid id)
     {
-        await Http.DeleteAsync($"https://localhost:44337/api/doctors/{id}");
+        await Http.DeleteAsync($"https://localhost:44337/api/app/doctor/doctor/{id}");
         await LoadDoctors();
     }
 

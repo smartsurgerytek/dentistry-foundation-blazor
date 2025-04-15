@@ -6,14 +6,16 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Volo.Abp;
 using Volo.Abp.Application.Services;
+using Volo.Abp.AspNetCore.Controllers;
+using Volo.Abp.AspNetCore.Mvc.ApplicationConfigurations;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 
 namespace Foundation.Services
-{
-
+{        
     public class OrganizationAppService : ApplicationService, IOrganizationAppService, ITransientDependency
     {
         private readonly IRepository<Organization, Guid> _organizationRepository;

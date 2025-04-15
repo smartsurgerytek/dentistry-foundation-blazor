@@ -14,8 +14,9 @@ namespace Foundation.Entities
     public class Record : AuditedAggregateRoot<Guid>
     {
         public Guid PatientId { get; set; }
-        public Patient Patient { get; set; }  // Navigation property
+        public Patient Patient { get; set; }
 
         public DateTime CreatedDate { get; set; }
+        public string FileName { get; set; }
     }
 }

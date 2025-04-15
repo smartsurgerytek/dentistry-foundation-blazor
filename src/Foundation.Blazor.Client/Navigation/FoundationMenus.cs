@@ -18,6 +18,6 @@ public class FoundationMenus
 
     public const string Organization = Prefix + ".Organization";
 
-    public const string Department = Prefix + ".Department";
+    public const string Record = Prefix + ".Record";
 
 }

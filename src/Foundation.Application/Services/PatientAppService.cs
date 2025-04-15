@@ -1,10 +1,12 @@
 ﻿using Foundation.Dtos;
 using Foundation.Entities;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
@@ -13,6 +15,8 @@ using Volo.Abp.ObjectMapping;
 
 namespace Foundation.Services
 {
+    [RemoteService(Name = "Patient")]
+    [Route("api/patient")]
     public class PatientAppService : ApplicationService, IPatientAppService, ITransientDependency
     {
         private readonly IRepository<Patient, Guid> _patientRepository;
@@ -71,8 +75,32 @@ namespace Foundation.Services
 
         public async Task<List<PatientDto>> GetPatientByAsync(Guid doctorId)
         {
-            var patient = await _patientRepository.GetListAsync(x => x.DoctorId == doctorId);            
-            return ObjectMapper.Map<List<Patient>,List<PatientDto>>(patient);
+            var patient = await _patientRepository.GetListAsync(x => x.DoctorId == doctorId);
+            return ObjectMapper.Map<List<Patient>, List<PatientDto>>(patient);
+        }
+
+        public async Task<PatientRecordDto> GetPatientReportRecordByAsync(Guid patientId)
+        {
+            var queryable = await _patientRepository.GetQueryableAsync();
+
+            var patient =  queryable
+                .Where(p => p.Id == patientId)
+                .Select(p => new PatientRecordDto
+                {
+                    PatientId = p.Id,
+                    PatientName = p.Name,
+                    DoctorName = p.Doctor != null ? p.Doctor.Name : "N/A",
+                    PatientDob = p.DateOfBirth
+                })
+                .FirstOrDefault();
+
+            if (patient == null)
+            {
+                throw new BusinessException("Patient not found!");
+            }
+
+            return patient;
+
         }
     }
 

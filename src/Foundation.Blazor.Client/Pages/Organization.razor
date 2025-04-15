@@ -1,6 +1,6 @@
 ﻿@page "/Organization"
 
-
+@using Microsoft.AspNetCore.Components.Forms
 @using Foundation.Dtos
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Inputs
@@ -12,54 +12,61 @@
 
 <h3>Organization</h3>
 
-<SfGrid DataSource="@Organizations" @ref="OrganizationGrid" AllowPaging="true" AllowSorting="true" Toolbar=@Toolbaritems>
-
+<SfGrid DataSource="@Organizations" @ref="OrganizationGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="OrganizationDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
         <GridColumn Field="Name" HeaderText="Name" Width="200"></GridColumn>
-        <GridColumn Field="Address" HeaderText="Address" Width="300"></GridColumn>       
-        <GridColumn HeaderText="Manage Department" Width="120">
+        <GridColumn Field="Address" HeaderText="Address" Width="300"></GridColumn>
+        <GridColumn HeaderText="Manage Department" Width="150">
             <Template>
                 @{
-                    var Organization = (context as OrganizationDto);
-                    <Button @onclick="@(() => NavigateDepartment(Organization))">Department</Button>                   
+                    var organization = (context as OrganizationDto);
                 }
+                <button class="e-btn" @onclick="@(() => NavigateDepartment(organization))">Department</button>
             </Template>
         </GridColumn>
-
     </GridColumns>
 </SfGrid>
-<SfDialog @ref="Dialog" Width="400px" ShowCloseIcon="true" Header="@DialogTitle" Visible="false">
+
+<SfDialog @ref="DialogRef" Width="400px" ShowCloseIcon="true" Header="@DialogTitle" Visible="false">
     <DialogTemplates>
         <Content>
-            <SfTextBox TValue="string" Value="@CurrentOrganization.Name"
-                       ValueChanged="@((string value) => CurrentOrganization.Name = value)"
-                       Placeholder="Enter Name" FloatLabelType="FloatLabelType.Auto">
-            </SfTextBox>
+            <EditForm Model="@CurrentOrganization" OnValidSubmit="SaveOrganization">
+                <DataAnnotationsValidator />
+                @* <Microsoft.AspNetCore.Components.Forms.ValidationSummary /> *@
 
-            <SfTextBox TValue="string" Value="@CurrentOrganization.Address"
-                       ValueChanged="@((string value) => CurrentOrganization.Address = value)"
-                       Placeholder="Enter Address" FloatLabelType="FloatLabelType.Auto">
-            </SfTextBox>
+                <div class="mb-3">
+                    <SfTextBox TValue="string" @bind-Value="CurrentOrganization.Name"
+                               Placeholder="Enter Name" FloatLabelType="FloatLabelType.Auto" />
+                    <ValidationMessage For="@(() => CurrentOrganization.Name)" />
+                </div>
+
+                <div class="mb-3">
+                    <SfTextBox TValue="string" @bind-Value="CurrentOrganization.Address"
+                               Placeholder="Enter Address" FloatLabelType="FloatLabelType.Auto" />
+                    <ValidationMessage For="@(() => CurrentOrganization.Address)" />
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="e-btn e-primary">Save</button>
+                    <button type="button" class="e-btn" @onclick="CloseDialog">Cancel</button>
+                </div>
+            </EditForm>
         </Content>
     </DialogTemplates>
-    <DialogButtons>
-        <DialogButton Content="Save" IsPrimary="true" OnClick="SaveOrganization"></DialogButton>
-        <DialogButton Content="Cancel" OnClick="CloseDialog"></DialogButton>
-    </DialogButtons>
 </SfDialog>
 
 @code {
-
     private SfGrid<OrganizationDto> OrganizationGrid;
-    private SfDialog Dialog;
+    private SfDialog DialogRef;
+
     private List<OrganizationDto> Organizations = new();
     private CreateUpdateOrganizationDto CurrentOrganization = new();
     private string DialogTitle = "";
     private bool IsNew = true;
 
-    private List<ItemModel> Toolbaritems = new List<ItemModel>();
+    private List<ItemModel> Toolbaritems = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -67,46 +74,41 @@
         Toolbaritems.Add(new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" });
         Toolbaritems.Add(new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" });
         Toolbaritems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
+        Toolbaritems.Add(new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" });
     }
 
     private async Task LoadOrganizations()
     {
-        Organizations = await Http.GetFromJsonAsync<List<OrganizationDto>>("https://localhost:44337/api/organizations");
+        Organizations = await Http.GetFromJsonAsync<List<OrganizationDto>>("https://localhost:44337/api/app/organization/organizations");
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
     {
+        var selectedRow = await OrganizationGrid.GetSelectedRecordsAsync();
+
         if (args.Item.Text == "Add")
         {
             IsNew = true;
             DialogTitle = "Add Organization";
             CurrentOrganization = new CreateUpdateOrganizationDto();
-            await Dialog.ShowAsync();
+            await DialogRef.ShowAsync();
         }
-        else if (args.Item.Text == "Edit")
+        else if (args.Item.Text == "Edit" && selectedRow.Count > 0)
         {
-            var selectedRow = await OrganizationGrid.GetSelectedRecordsAsync();
-            if (selectedRow.Count > 0)
-            {
-                IsNew = false;
-                DialogTitle = "Edit Organization";
-                var selected = selectedRow.FirstOrDefault();
-                CurrentOrganization = new CreateUpdateOrganizationDto
-                    {
-                        Id = selected.Id,
-                        Name = selected.Name,
-                        Address = selected.Address
-                    };
-                await Dialog.ShowAsync();
-            }
+            IsNew = false;
+            DialogTitle = "Edit Organization";
+            var selected = selectedRow.First();
+            CurrentOrganization = new CreateUpdateOrganizationDto
+                {
+                    Id = selected.Id,
+                    Name = selected.Name,
+                    Address = selected.Address
+                };
+            await DialogRef.ShowAsync();
         }
-        else if (args.Item.Text == "Delete")
+        else if (args.Item.Text == "Delete" && selectedRow.Count > 0)
         {
-            var selectedRow = await OrganizationGrid.GetSelectedRecordsAsync();
-            if (selectedRow.Count > 0)
-            {
-                await DeleteOrganization(selectedRow.FirstOrDefault().Id);
-            }
+            await DeleteOrganization(selectedRow.First().Id);
         }
         else if (args.Item.Text == "Refresh")
         {
@@ -118,29 +120,30 @@
     {
         if (IsNew)
         {
-            await Http.PostAsJsonAsync("https://localhost:44337/api/organizations", CurrentOrganization);
+            await Http.PostAsJsonAsync("https://localhost:44337/api/app/organization/organization", CurrentOrganization);
         }
         else
         {
-            await Http.PutAsJsonAsync($"https://localhost:44337/api/organizations/{CurrentOrganization.Id}", CurrentOrganization);
+            await Http.PutAsJsonAsync($"https://localhost:44337/api/app/organization/organization/{CurrentOrganization.Id}", CurrentOrganization);
         }
+
         await LoadOrganizations();
-        await Dialog.HideAsync();
+        await DialogRef.HideAsync();
     }
 
     private async Task DeleteOrganization(Guid id)
     {
-        await Http.DeleteAsync($"https://localhost:44337/api/organizations/{id}");
+        await Http.DeleteAsync($"https://localhost:44337/api/app/organization/organization/{id}");
         await LoadOrganizations();
     }
 
     private async Task CloseDialog()
     {
-        await Dialog.HideAsync();
+        await DialogRef.HideAsync();
     }
 
     private void NavigateDepartment(OrganizationDto organizationDto)
     {
-        NavigationManager.NavigateTo($"Department?OrganizationId=" + organizationDto.Id);
+        NavigationManager.NavigateTo($"Department?OrganizationId={organizationDto.Id}");
     }
 }
