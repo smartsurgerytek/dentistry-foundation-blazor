@@ -9,7 +9,7 @@ namespace Foundation.Services
 {
     public interface IPatientAppService
     {
-        Task<PatientRecordDto> GetPatientReportRecordByAsync(Guid patientId);
+        Task<PatientRecordDto> GetPatientRecordByAsync(Guid patientId);
         Task<List<PatientDto>> GetPatientsAsync();
         Task<PatientDto> GetPatientAsync(Guid patientId);        
         Task<List<PatientDto>> GetPatientByAsync(Guid doctorId);

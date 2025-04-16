@@ -61,19 +61,19 @@
     private string StatusMessage = "";
     private SfDocumentEditorContainer _containerRef;
     private readonly DocumentEditorSettingsModel _settings = new() { ShowRuler = true };
-    private string DocumentName { get; set; } = "Default Report";
+    private string DocumentName { get; set; } = "Default Record";
     private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345678";
     private bool ReadOnly { get; set; } = false;
     private bool ShowProperties { get; set; } = true;
 
-    private PatientExaminationRecordDto Report;
+    private PatientExaminationRecordDto Record;
 
     protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(PatientId))
         {
             Records = await Http.GetFromJsonAsync<PatientRecordDto>(
-                $"https://localhost:44337/api/app/patient/patient-report-record-by/{PatientId}");
+                $"https://localhost:44337/api/app/patient/patient-record-by/{PatientId}");
         }
     }
 
@@ -156,9 +156,8 @@
     {
         if (_containerRef?.DocumentEditor == null) return;
 
-        var fileBytes = await Http.GetByteArrayAsync("Reports/DefaultReport3.docx");
-        await Task.Delay(500);
-
+        var fileBytes = await Http.GetByteArrayAsync("FileData/DefaultFile.docx");
+        
         using (var stream = new MemoryStream(fileBytes))
         {
             using (WordprocessingDocument wordDocument = WordprocessingDocument.Open(stream, true))
@@ -197,6 +196,7 @@
                 var firstTable = tables[0];
                 DocumentFormat.OpenXml.Wordprocessing.TableRow tbFirstRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(0);
                 DocumentFormat.OpenXml.Wordprocessing.TableRow tbSecondRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(1);
+                DocumentFormat.OpenXml.Wordprocessing.TableRow tbFourRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(3);
                 DocumentFormat.OpenXml.Wordprocessing.TableCell cellName = tbFirstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
                 DocumentFormat.OpenXml.Wordprocessing.TableCell cellDoctorName = tbFirstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(1);
                 DocumentFormat.OpenXml.Wordprocessing.TableCell cellDob = tbSecondRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
@@ -237,8 +237,8 @@
                 var rowMandible = rows[11];
                 var rowMandibleCarries = rows[10];
 
-                Report = await SessionStorage.GetItemAsync<PatientExaminationRecordDto>("PatientExaminationRecord");
-                if (Report == null) return;
+                Record = await SessionStorage.GetItemAsync<PatientExaminationRecordDto>("PatientExaminationRecord");
+                if (Record == null) return;
 
                 var maxillaToothMap = new Dictionary<int, int>
             {
@@ -256,7 +256,7 @@
                 { 35, 13 }, { 36, 14 }, { 37, 15 }, { 38, 16 },
             };
                 
-                foreach (var tooth in Report.MaxillaTeeth)
+                foreach (var tooth in Record.MaxillaTeeth)
                 {
                     if (tooth.CariesYes == true && maxillaToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
                     {
@@ -280,7 +280,7 @@
                     }
                 }
                 
-                foreach (var tooth in Report.MandibleTeeth)
+                foreach (var tooth in Record.MandibleTeeth)
                 {
                     if (tooth.CariesYes == true && mandibleToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
                     {

@@ -79,7 +79,7 @@ namespace Foundation.Services
             return ObjectMapper.Map<List<Patient>, List<PatientDto>>(patient);
         }
 
-        public async Task<PatientRecordDto> GetPatientReportRecordByAsync(Guid patientId)
+        public async Task<PatientRecordDto> GetPatientRecordByAsync(Guid patientId)
         {
             var queryable = await _patientRepository.GetQueryableAsync();
 
