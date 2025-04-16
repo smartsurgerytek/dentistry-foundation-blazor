@@ -14,7 +14,7 @@ public class FoundationMenus
 
     public const string WordProcessor = Prefix + ".WordProcessor";
 
-    public const string ReportViewer = Prefix + ".ReportViewer";
+    public const string RecordViewer = Prefix + ".RecordViewer";
 
     public const string Organization = Prefix + ".Organization";
 

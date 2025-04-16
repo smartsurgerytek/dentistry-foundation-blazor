@@ -17,7 +17,7 @@ public partial class FileManager : IDistributedEventHandler<ImageUploadEto>
         if (args.FileDetails.Type?.ToLower() == ".pdf")
         {
             await Task.Delay(50);
-            NavigationManager.NavigateTo("/ReportViewer?fileName=" + args.FileDetails.Name);
+            NavigationManager.NavigateTo("/RecordViewer?fileName=" + args.FileDetails.Name);
         }
     }
 }

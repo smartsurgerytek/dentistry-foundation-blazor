@@ -100,7 +100,7 @@ else if (SelectedJaw == "Mandible")
 }
 
 <div class="text-center mt-4">
-    <SfButton CssClass="e-primary" OnClick="SubmitReport">Submit Report</SfButton>
+    <SfButton CssClass="e-primary" OnClick="SubmitRecord">Submit Record</SfButton>
 </div>
 
 @code { 
@@ -157,15 +157,15 @@ else if (SelectedJaw == "Mandible")
         tooth.CariesNo = !isYes;
     }
 
-    private async Task SubmitReport()
+    private async Task SubmitRecord()
     {
-        var report = new PatientExaminationRecordDto
+        var record = new PatientExaminationRecordDto
             {
                 MaxillaTeeth = TeethMaxilla,
                 MandibleTeeth = TeethMandible,
                 PatientId = PatientId
             };
-        await SessionStorage.SetItemAsync("PatientExaminationRecord", report);
+        await SessionStorage.SetItemAsync("PatientExaminationRecord", record);
         NavigationManager.NavigateTo($"WordProcessor?PatientId={PatientId}");       
     }
 }

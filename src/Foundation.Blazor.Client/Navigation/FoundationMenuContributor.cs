@@ -72,9 +72,9 @@ public class FoundationMenuContributor : IMenuContributor
         ));
 
         context.Menu.AddItem(new ApplicationMenuItem(
-            FoundationMenus.ReportViewer,
-            "ReportViewer",
-            "/ReportViewer",
+            FoundationMenus.RecordViewer,
+            "RecordViewer",
+            "/RecordViewer",
             icon: "fa-solid fa-file-lines",
             order: 4
         ));
