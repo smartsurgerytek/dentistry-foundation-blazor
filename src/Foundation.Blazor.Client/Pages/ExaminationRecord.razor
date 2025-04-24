@@ -16,6 +16,7 @@
 @using System.Net.Http.Json
 @using System.Text;
 @using System.Text.Json;
+@using System.IO
 
 
 <SfDialog Width="335px" IsModal="true" @bind-Visible="Visibility">
@@ -129,6 +130,16 @@ else if (SelectedJaw == "Mandible")
     [Parameter]
     [SupplyParameterFromQuery]
     public string PatientId { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string imagePath { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string imageName { get; set; }
+
+
     private SfSpinner spinnerObj;
     private string SelectedJaw { get; set; } = "Maxilla";
     private bool IsMaxillaSelected => SelectedJaw == "Maxilla";
@@ -188,6 +199,7 @@ else if (SelectedJaw == "Mandible")
     {
         if (!string.IsNullOrEmpty(PatientId))
         {
+            spinnerObj.ShowAsync();
             var returnData = await Http.GetFromJsonAsync<PatientRecordDto>(
                 $"https://localhost:44337/api/app/patient/patient-record-by/{PatientId}");
 
@@ -197,6 +209,40 @@ else if (SelectedJaw == "Mandible")
                 PatientName = returnData.PatientName;
                 PatientDob = returnData.PatientDob;
             }
+        }
+        else
+        {
+            var responseMessage = await Http.GetAsync($"/api/AmazonS3Provider/OriginalImageDownload?path={imagePath}&name={imageName}");
+            var fileStreamResult = await responseMessage.Content.ReadAsStreamAsync();
+            string base64Image;
+            using (var memoryStream = new MemoryStream())
+            {
+                fileStreamResult.CopyTo(memoryStream);
+                byte[] fileBytes = memoryStream.ToArray();
+                base64Image = Convert.ToBase64String(fileBytes);
+            }
+
+            // get pa/pano image
+            var httpClient = new HttpClient();
+            var imagePaPanoRequest = new SegmentationApiRequestDto
+                {
+                    Image = base64Image
+                };
+            var paPanoResponse = await httpClient.PostAsJsonAsync("https://localhost:44337/api/app/dentistry-api/pa-pano-classification", imagePaPanoRequest);
+            var paPanoResponseMessage = await paPanoResponse.Content.ReadFromJsonAsync<PaPanoClassificationResponseDto>();
+            var isPeriapicalImage = paPanoResponseMessage?.Predicted_Class?.Contains("periapical", StringComparison.OrdinalIgnoreCase) ?? false;
+
+            // get fdi data if available for the selected image
+            string fdiData = "";
+            if (!isPeriapicalImage)
+            {
+                var imageRequest = new SegmentationApiRequestDto { Image = base64Image };
+                var fdiDataResponse = await httpClient.PostAsJsonAsync($"https://localhost:44337/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
+                fdiData = await fdiDataResponse.Content.ReadAsStringAsync();
+            }
+            Console.WriteLine("======= Fdi Data =======");
+            Console.WriteLine(fdiData);
+            // pass the fdi data to examination record form
         }
     }
     private async Task SubmitRecord()

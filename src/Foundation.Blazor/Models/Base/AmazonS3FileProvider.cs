@@ -1000,7 +1000,7 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                     GetBucketList();
                     await ListingObjectsAsync("/", RootName.Replace("/", "") + path, false);
 
-                    Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + names[0]);
+                    using Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + names[0]);
 
                     fileStreamResult = new FileStreamResult(stream, "APPLICATION/octet-stream");
                     fileStreamResult.FileDownloadName = names[0].Contains("/") ? names[0].Split("/").Last() : names[0];
@@ -1048,10 +1048,11 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
         }
 
         // download image as byte array: to be used only for download request for 1 file
-        public virtual async Task<byte[]> DownloadAsByteArrayAsync(string path, string name)
+        public virtual async Task<FileStreamResult> DownloadAsByteArrayAsync(string path, string name)
         {
             GetBucketList();
             await ListingObjectsAsync("/", RootName.Replace("/", "") + path + name, false);
+            FileStreamResult fileStreamResult = null;
 
             try
             {
@@ -1066,7 +1067,10 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
 
                 Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + name);
 
-                return await stream.GetAllBytesAsync();
+                fileStreamResult = new FileStreamResult(stream, "APPLICATION/octet-stream");
+                fileStreamResult.FileDownloadName = name;
+
+                return fileStreamResult;
             }
             catch (AmazonS3Exception amazonS3Exception)
             {

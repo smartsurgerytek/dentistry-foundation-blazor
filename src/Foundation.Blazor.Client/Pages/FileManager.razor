@@ -4,7 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
 
-<SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh" SelectedItemsChanged="OnSelectedItemsChanged">
+<SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"  SelectedItemsChanged="OnSelectedItemsChanged">
     <FileManagerAjaxSettings Url="/api/AmazonS3Provider/AmazonS3FileOperations"
         UploadUrl="/api/AmazonS3Provider/AmazonS3Upload" GetImageUrl="/api/AmazonS3Provider/AmazonS3GetImage"
         DownloadUrl="/api/AmazonS3Provider/AmazonS3Download">

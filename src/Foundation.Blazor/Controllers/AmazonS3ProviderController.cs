@@ -143,7 +143,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         // downloads the selected file(s) and folder(s)
         // returns a byte[]
         [Route("OriginalImageDownload")]
-        public async Task<byte[]> OriginalImageDownload(string path, string name)
+        public async Task<FileStreamResult> OriginalImageDownload(string path, string name)
         {
             return await operation.DownloadAsByteArrayAsync(path, name);
         }

@@ -50,31 +50,10 @@ public partial class FileManager
         Console.WriteLine("Generate Record");
         // download the image as byte[]
         var selectedFile = this.SfFileManager?.GetSelectedFiles()[0];
-        var imagePath = selectedFile?.Path;
+        var imagePath = selectedFile?.FilterPath;
         var imageName = selectedFile?.Name;
         
-        NavigationManager.NavigateTo($"/ExaminationRecord?path={imagePath}&name={imageName}");
-        var responseMessage = await HttpClient.GetAsync($"/api/AmazonS3Provider/OriginalImageDownload?path={imagePath}&name={imageName}");
-
-        // get pa/pano image
-        var httpClient = new HttpClient();
-        var paPanoResponse = await httpClient.PostAsJsonAsync("https://localhost:44337/api/app/dentistry-api/pa-pano-classification", new SegmentationApiRequestDto
-        {
-            Image = Convert.ToBase64String(await responseMessage.Content.ReadAsByteArrayAsync()),
-        });
-        var paPanoResponseMessage = await paPanoResponse.Content.ReadFromJsonAsync<PaPanoClassificationResponseDto>();
-        var isPeriapicalImage = paPanoResponseMessage?.Predicted_Class?.Contains("periapical", StringComparison.OrdinalIgnoreCase) ?? false;
-
-        // get fdi data if available for the selected image
-        string fdiData = "";
-        if (!isPeriapicalImage)
-        {
-            var imageRequest = new SegmentationApiRequestDto { Image = Convert.ToBase64String(await responseMessage.Content.ReadAsByteArrayAsync()) };
-            var fdiDataResponse = await httpClient.PostAsJsonAsync($"https://localhost/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
-            fdiData = await fdiDataResponse.Content.ReadAsStringAsync();
-        }
-        
-        // pass the fdi data to examination record form
+        NavigationManager.NavigateTo($"/ExaminationRecord?imagePath={imagePath}&imageName={imageName}");
     }
 
     public void OnSelectedItemsChanged(string[] args)
