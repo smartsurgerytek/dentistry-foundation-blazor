@@ -140,7 +140,7 @@ else if (SelectedJaw == "Mandible")
     public string imageName { get; set; }
 
 
-    private SfSpinner spinnerObj;
+    public SfSpinner spinnerObj;
     private string SelectedJaw { get; set; } = "Maxilla";
     private bool IsMaxillaSelected => SelectedJaw == "Maxilla";
     private bool IsMandibleSelected => SelectedJaw == "Mandible";
@@ -196,10 +196,10 @@ else if (SelectedJaw == "Mandible")
         tooth.CariesNo = !isYes;
     }
     protected override async Task OnInitializedAsync()
-    {
+    {       
         if (!string.IsNullOrEmpty(PatientId))
         {
-            spinnerObj.ShowAsync();
+            
             var returnData = await Http.GetFromJsonAsync<PatientRecordDto>(
                 $"https://localhost:44337/api/app/patient/patient-record-by/{PatientId}");
 
@@ -240,10 +240,11 @@ else if (SelectedJaw == "Mandible")
                 var fdiDataResponse = await httpClient.PostAsJsonAsync($"https://localhost:44337/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
                 fdiData = await fdiDataResponse.Content.ReadAsStringAsync();
             }
+            
             Console.WriteLine("======= Fdi Data =======");
             Console.WriteLine(fdiData);
             // pass the fdi data to examination record form
-        }
+        }      
     }
     private async Task SubmitRecord()
     {
