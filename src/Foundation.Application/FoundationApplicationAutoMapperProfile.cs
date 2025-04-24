@@ -30,6 +30,7 @@ public class FoundationApplicationAutoMapperProfile : Profile
 
         CreateMap<CreateUpdateRecordDto, Record>().ReverseMap();
 
+        CreateMap<AuditLog, AuditLogDto>().ReverseMap();
 
     }
 }

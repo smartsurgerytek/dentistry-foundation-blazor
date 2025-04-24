@@ -26,7 +26,7 @@
                 @{
                     var Patient = (context as PatientDto);
                 }
-                <Button @onclick="@(() => NavigateRecord(Patient))">Records</Button>
+                <button class="e-btn" @onclick="@(() => NavigateRecord(Patient))">Records</button>
             </Template>
         </GridColumn>
     </GridColumns>
@@ -39,14 +39,20 @@
                 <DataAnnotationsValidator />
 
                 <div class="m-2">
+                    <label class="form-label">
+                        Patient <span style="color: red">*</span>
+                    </label>
                     <SfTextBox TValue="string"
                                Placeholder="Enter Patient Name"
                                FloatLabelType="FloatLabelType.Auto"
                                @bind-Value="CurrentPatient.Name" />
-                    <ValidationMessage For="@(() => CurrentPatient.Name)" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentPatient.Name)" />
                 </div>
 
                 <div class="m-2">
+                    <label class="form-label">
+                        Gender <span style="color: red">*</span>
+                    </label>
                     <SfDropDownList TItem="GenderList"
                                     TValue="string"
                                     Placeholder="Select a gender"
@@ -54,15 +60,16 @@
                                     @bind-Value="CurrentPatient.Gender">
                         <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
                     </SfDropDownList>
-                    <ValidationMessage For="@(() => CurrentPatient.Gender)" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentPatient.Gender)" />
                 </div>
 
                 <div class="m-2">
-                    <SfDatePicker TValue="DateTime?"
+                    <label class="form-label">Date of Birth </label>
+                    <SfDatePicker TValue="DateTime?" 
                                   Placeholder="Select Date of Birth"
                                   FloatLabelType="FloatLabelType.Auto"
                                   @bind-Value="SelectedDate" />
-                    <ValidationMessage For="@(() => CurrentPatient.DateOfBirth)" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentPatient.DateOfBirth)" />
                 </div>
             </EditForm>
         </Content>

@@ -16,6 +16,7 @@
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.10" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
     <PackageReference Include="Syncfusion.Blazor.FileManager" Version="28.1.36" />
     <PackageReference Include="Syncfusion.Blazor.Grid" Version="28.2.11" />
     <PackageReference Include="Syncfusion.Blazor.Inputs" Version="28.2.11" />
@@ -24,7 +25,6 @@
     <PackageReference Include="Syncfusion.Blazor.Themes" Version="28.2.11" />
     <PackageReference Include="Syncfusion.Blazor.WordProcessor" Version="28.2.11" />
     <PackageReference Include="Syncfusion.DocIORenderer.Net.Core" Version="28.2.11" />
-    <PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.2.25163.9" />
     <ProjectReference Include="..\Foundation.Blazor.Client\Foundation.Blazor.Client.csproj" />
   </ItemGroup>
 

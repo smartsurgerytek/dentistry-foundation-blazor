@@ -95,6 +95,14 @@ public class FoundationMenuContributor : IMenuContributor
             order: 6
         ));
 
+        context.Menu.AddItem(new ApplicationMenuItem(
+            FoundationMenus.AuditLog,
+            "AuditLog",
+            "/AuditLog",
+            icon: "fa-solid fa-file",
+            order: 7
+        ));
+
         //context.Menu.AddItem(new ApplicationMenuItem(
         //    FoundationMenus.Department,
         //    "Department",

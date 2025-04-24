@@ -34,18 +34,23 @@
         <Content>
             <EditForm Model="@CurrentOrganization" OnValidSubmit="SaveOrganization">
                 <DataAnnotationsValidator />
-                @* <Microsoft.AspNetCore.Components.Forms.ValidationSummary /> *@
 
                 <div class="mb-3">
+                    <label class="form-label">
+                        Name <span style="color: red">*</span>
+                    </label>
                     <SfTextBox TValue="string" @bind-Value="CurrentOrganization.Name"
                                Placeholder="Enter Name" FloatLabelType="FloatLabelType.Auto" />
-                    <ValidationMessage For="@(() => CurrentOrganization.Name)" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentOrganization.Name)" />
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">
+                        Address <span style="color: red">*</span>
+                    </label>
                     <SfTextBox TValue="string" @bind-Value="CurrentOrganization.Address"
                                Placeholder="Enter Address" FloatLabelType="FloatLabelType.Auto" />
-                    <ValidationMessage For="@(() => CurrentOrganization.Address)" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentOrganization.Address)" />
                 </div>
 
                 <div class="mt-4 text-end">
@@ -56,6 +61,7 @@
         </Content>
     </DialogTemplates>
 </SfDialog>
+
 
 @code {
     private SfGrid<OrganizationDto> OrganizationGrid;

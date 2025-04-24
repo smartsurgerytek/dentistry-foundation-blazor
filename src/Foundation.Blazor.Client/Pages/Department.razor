@@ -36,9 +36,12 @@
                 <DataAnnotationsValidator />
 
                 <div class="mb-3">
+                    <label class="form-label">
+                        Department <span style="color: red">*</span>
+                    </label>
                     <SfTextBox TValue="string" @bind-Value="CurrentDepartment.Name"
                                Placeholder="Enter Department Name" FloatLabelType="FloatLabelType.Auto" />
-                    <ValidationMessage For="@(() => CurrentDepartment.Name)" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentDepartment.Name)" />
                 </div>
 
                 <div class="text-end mt-4">
