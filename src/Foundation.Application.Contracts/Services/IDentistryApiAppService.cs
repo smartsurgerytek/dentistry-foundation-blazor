@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Foundation.Application.Contracts.Dtos;
 using Foundation.Dtos;
 using Newtonsoft.Json;
 using Volo.Abp;
@@ -11,9 +12,10 @@ using Volo.Abp.Application.Services;
 
 namespace Foundation.Services
 {
-    public interface IImageEnhancerAppService : IRemoteService, IApplicationService
+    public interface IDentistryApiAppService : IRemoteService, IApplicationService
     {
         public Task<SegmentationApiResponseDto> PostSegmentedImageAsync(SegmentationApiRequestDtoWrapper imageRequest);
         public Task<PaPanoClassificationResponseDto> PostPaPanoClassificationAsync(PaPanoClassificationRequestDto imageRequest);
+        public Task<FDISegmentationResponseDto> PostPanoFdiSegmentationCvatAsync(SegmentationApiRequestDtoWrapper imageRequest);
     }
 }
