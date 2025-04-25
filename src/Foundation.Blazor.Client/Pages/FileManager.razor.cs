@@ -20,6 +20,7 @@ public partial class FileManager
         new ToolBarItemModel() { Name = "Paste" },
         new ToolBarItemModel() { Name = "Delete" },
         new ToolBarItemModel() { Name = "Download" },
+        new ToolBarItemModel() { Name = "Upload" },
         new ToolBarItemModel() { Name = "Rename" },
         new ToolBarItemModel() { Name = "SortBy" },
         new ToolBarItemModel() { Name = "Refresh" },
@@ -76,8 +77,9 @@ public partial class FileManager
 
         // get the selected item
         var allSeparated = selectedItem?.Name?.Split(".");
-        var selectedItemName = allSeparated?[0] ?? "";
+        var selectedItemName = allSeparated != null ? string.Join(".", allSeparated[..^1]) : "";
         Console.WriteLine(selectedItemName);
+        // get the selected item extension
         var selectedItemExtension = allSeparated?[^1] ?? "";
         Console.WriteLine(selectedItemExtension);
 

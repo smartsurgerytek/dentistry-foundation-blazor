@@ -704,6 +704,11 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                     string name = folders[folders.Length - 1];
                     string fullName = Path.Combine(Path.GetTempPath(), name);
                     fullName = fullName.Replace("../", "");
+
+                    var fileNameOnly = Path.GetFileNameWithoutExtension(file.FileName) + "_a";
+                    var fileExtension = Path.GetExtension(file.FileName);
+                    fileName = fileNameOnly + fileExtension;
+                    
                     if (uploadFiles != null)
                     {
                         // only images allowed for upload
