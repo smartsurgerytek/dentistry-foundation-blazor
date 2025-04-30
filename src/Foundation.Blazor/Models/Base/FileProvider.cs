@@ -20,9 +20,9 @@ using Foundation.Blazor.Services;
 using System.Drawing;
 using Newtonsoft.Json;
 
-namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
+namespace Syncfusion.EJ2.FileManager.FileProvider
 {
-    public class AmazonS3FileProvider
+    public class FileProvider
     {
         protected static string bucketName;
         static IAmazonS3 client;
@@ -40,7 +40,7 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
         private readonly HttpClient _httpClient;
         private readonly DentistryApiService _imageService;
 
-        public AmazonS3FileProvider(HttpClient httpClient, DentistryApiService imageService)
+        public FileProvider(HttpClient httpClient, DentistryApiService imageService)
         {
             _httpClient = httpClient;
             _imageService = imageService;

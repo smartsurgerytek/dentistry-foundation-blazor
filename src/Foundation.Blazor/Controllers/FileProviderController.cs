@@ -1,4 +1,4 @@
-﻿using Syncfusion.EJ2.FileManager.AmazonS3FileProvider;
+﻿using Syncfusion.EJ2.FileManager.FileProvider;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,17 +21,17 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 
     [Route("api/[controller]")]
     [EnableCors("AllowAllOrigins")]
-    public class AmazonS3ProviderController : Controller
+    public class FileProviderController : Controller
     {
-        private readonly ILogger<AmazonS3ProviderController> _logger;
+        private readonly ILogger<FileProviderController> _logger;
         private readonly HttpClient _httpClient;
-        public AmazonS3FileProvider operation;
+        public FileProvider operation;
         public string basePath;
         protected RegionEndpoint bucketRegion;
         // RootFolder for all S3 Operations (used by minio)
-        public string root = "Files/";
+        // public string root = "Files/";
 
-        public AmazonS3ProviderController(IWebHostEnvironment hostingEnvironment, ILogger<AmazonS3ProviderController> logger, AmazonS3FileProvider s3provider, IConfiguration configuration)
+        public FileProviderController(IWebHostEnvironment hostingEnvironment, ILogger<FileProviderController> logger, FileProvider s3provider, IConfiguration configuration)
         {
             this.basePath = hostingEnvironment.ContentRootPath;
             this.basePath = basePath.Replace("../", "");
@@ -39,15 +39,27 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
             _logger = logger;
 
             var fileProvider = configuration["FileProvider"];
-            if (fileProvider == "AmazonS3")
+            if (!string.IsNullOrEmpty(fileProvider))
             {
-                this.operation.RegisterAmazonS3FileProvider("smartsurgerytek.foundation", "AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", "us-west-2");
+                var bucketName = configuration[$"{fileProvider}:BucketName"];
+                var accessKey = configuration[$"{fileProvider}:AccessKey"];
+                var secretKey = configuration[$"{fileProvider}:SecretKey"];
+                var region = configuration[$"{fileProvider}:Region"];
+
+                if (fileProvider != null && string.Compare(fileProvider, "amazons3", StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    this.operation.RegisterAmazonS3FileProvider(bucketName, accessKey, secretKey, region);
+                }
+                else
+                {
+                    this.operation.RegisterMinIOFileProvider(bucketName, accessKey, secretKey, "");
+                    this.operation.RootFolder(bucketName);
+                }
+
+                return;
             }
-            else
-            {
-                this.operation.RegisterMinIOFileProvider("sst", "myminioadmin", "minioadmin", "");
-                this.operation.RootFolder(root);
-            }
+
+            throw new Exception("FileProvider configuration is missing.");
         }
 
         [Route("AmazonS3FileOperations")]
