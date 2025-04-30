@@ -19,16 +19,16 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore D:/Krishtopher/MyProjects/dentistry-foundation-blazor/Foundation.sln
+        run: dotnet restore Foundation.sln
 
       - name: Publish Foundation.AuthServer
-        run: dotnet publish D:/Krishtopher/MyProjects/dentistry-foundation-blazor/src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release
+        run: dotnet publish src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release -o src/Foundation.AuthServer/bin/Release/net8.0/publish
 
       - name: Publish Foundation.HttpApi.Host
-        run: dotnet publish D:/Krishtopher/MyProjects/dentistry-foundation-blazor/src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj -c Release
+        run: dotnet publish src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj -c Release -o src/Foundation.HttpApi.Host/bin/Release/net8.0/publish
 
       - name: Publish Foundation.Blazor
-        run: dotnet publish D:/Krishtopher/MyProjects/dentistry-foundation-blazor/src/Foundation.Blazor/Foundation.Blazor.csproj -c Release
+        run: dotnet publish src/Foundation.Blazor/Foundation.Blazor.csproj -c Release -o src/Foundation.Blazor/bin/Release/net8.0/publish
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
