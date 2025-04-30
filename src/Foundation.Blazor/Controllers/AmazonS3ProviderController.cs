@@ -28,14 +28,26 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         public AmazonS3FileProvider operation;
         public string basePath;
         protected RegionEndpoint bucketRegion;
+        // RootFolder for all S3 Operations (used by minio)
+        public string root = "Files/";
 
-        public AmazonS3ProviderController(IWebHostEnvironment hostingEnvironment, ILogger<AmazonS3ProviderController> logger, AmazonS3FileProvider s3provider)
+        public AmazonS3ProviderController(IWebHostEnvironment hostingEnvironment, ILogger<AmazonS3ProviderController> logger, AmazonS3FileProvider s3provider, IConfiguration configuration)
         {
             this.basePath = hostingEnvironment.ContentRootPath;
             this.basePath = basePath.Replace("../", "");
             this.operation = s3provider;
-            this.operation.RegisterAmazonS3("smartsurgerytek.foundation", "AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", "us-west-2");
             _logger = logger;
+
+            var fileProvider = configuration["FileProvider"];
+            if (fileProvider == "AmazonS3")
+            {
+                this.operation.RegisterAmazonS3FileProvider("smartsurgerytek.foundation", "AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", "us-west-2");
+            }
+            else
+            {
+                this.operation.RegisterMinIOFileProvider("sst", "myminioadmin", "minioadmin", "");
+                this.operation.RootFolder(root);
+            }
         }
 
         [Route("AmazonS3FileOperations")]

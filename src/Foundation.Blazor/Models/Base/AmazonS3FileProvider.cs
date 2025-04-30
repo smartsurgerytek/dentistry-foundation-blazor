@@ -47,12 +47,63 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
         }
 
         // Register the amazon client details
-        public void RegisterAmazonS3(string name, string awsAccessKeyId, string awsSecretAccessKey, string region)
+        public void RegisterAmazonS3FileProvider(string name, string awsAccessKeyId, string awsSecretAccessKey, string region)
         {
             bucketName = name;
             RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName(region);
             client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, bucketRegion);
             GetBucketList();
+        }
+
+        // Register the amazon client details
+        public void RegisterMinIOFileProvider(string name, string awsAccessKeyId, string awsSecretAccessKey, string region)
+        {
+            bucketName = name;
+            //RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName(region);
+            //client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, bucketRegion);
+            var config = new AmazonS3Config
+            {
+                // AuthenticationRegion = RegionEndpoint.USEast1.SystemName, // Should match the `MINIO_REGION` environment variable.
+
+                // DEFAULT in Minio Docker Container is no `MINIO_REGION` environment variable.
+                AuthenticationRegion = "",
+                ServiceURL = "http://localhost:9000", // replace http://localhost:9000 with URL of your MinIO server
+                ForcePathStyle = true // MUST be true to work correctly with MinIO server
+            };
+            client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, config);
+            fileTransferUtility = new TransferUtility(client);
+            CreateBucket(bucketName);
+        }
+
+        public void CreateBucket(string bucketName)
+        {
+            if (client != null)
+                client.EnsureBucketExistsAsync(bucketName);
+        }
+
+        public void RootFolder(string name)
+        {
+            this.RootName = name;
+            ListingObjectsAsync("", name, false).Wait();
+            if (response.S3Objects.Count > 0)
+                RootName = response.S3Objects.First().Key;
+            else
+                CreateFolder(name);
+        }
+
+        public void CreateFolder(string name)
+        {
+            ListingObjectsAsync("", name, false).Wait();
+            if (response.S3Objects.Count == 0)
+            {
+                // Folder doesn't exits
+                PutObjectRequest request = new PutObjectRequest()
+                {
+                    BucketName = bucketName,
+                    Key = name // <-- in S3 key represents a path  
+                };
+                client.PutObjectAsync(request);
+            }
         }
 
         //Define the root directory to the file manager
