@@ -45,6 +45,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                 var accessKey = configuration[$"{fileProvider}:AccessKey"];
                 var secretKey = configuration[$"{fileProvider}:SecretKey"];
                 var region = configuration[$"{fileProvider}:Region"];
+                var serviceUrl = configuration[$"{fileProvider}:ServiceUrl"];
 
                 if (fileProvider != null && string.Compare(fileProvider, "amazons3", StringComparison.OrdinalIgnoreCase) == 0)
                 {
@@ -52,7 +53,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                 }
                 else
                 {
-                    this.operation.RegisterMinIOFileProvider(bucketName, accessKey, secretKey, "");
+                    this.operation.RegisterMinIOFileProvider(bucketName, accessKey, secretKey, serviceUrl);
                     this.operation.RootFolder(bucketName);
                 }
 

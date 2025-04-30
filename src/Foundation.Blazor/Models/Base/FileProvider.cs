@@ -56,7 +56,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         }
 
         // Register the amazon client details
-        public void RegisterMinIOFileProvider(string name, string awsAccessKeyId, string awsSecretAccessKey, string region)
+        public void RegisterMinIOFileProvider(string name, string awsAccessKeyId, string awsSecretAccessKey, string serviceUrl)
         {
             bucketName = name;
             //RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName(region);
@@ -67,7 +67,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
 
                 // DEFAULT in Minio Docker Container is no `MINIO_REGION` environment variable.
                 AuthenticationRegion = "",
-                ServiceURL = "http://localhost:9000", // replace http://localhost:9000 with URL of your MinIO server
+                ServiceURL = serviceUrl, // replace http://localhost:9000 with URL of your MinIO server
                 ForcePathStyle = true // MUST be true to work correctly with MinIO server
             };
             client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, config);
