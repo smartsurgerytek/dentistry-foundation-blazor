@@ -16,6 +16,17 @@
 @using System.IO
 @using System.Text
 @using System.Security.Cryptography
+@using System.Drawing;
+@using System.Diagnostics;
+@using System.IO;
+@using DocumentFormat.OpenXml.Packaging;
+@using DocumentFormat.OpenXml.Wordprocessing;
+@using DocumentFormat.OpenXml;
+@using A = DocumentFormat.OpenXml.Drawing;
+@using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
+@using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
+@using System.Drawing;
+
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject ISessionStorageService SessionStorage
@@ -43,9 +54,9 @@
             <SfSpinner @ref="spinnerObj" CssClass="custom-spinner"></SfSpinner>
 
             <SfDocumentEditorContainer @ref="_containerRef" Height="590px"
-                                       RestrictEditing="@ReadOnly"
-                                       ShowPropertiesPane="@ShowProperties"
-                                       DocumentEditorSettings="_settings">
+            RestrictEditing="@ReadOnly"
+            ShowPropertiesPane="@ShowProperties"
+            DocumentEditorSettings="_settings">
                 <DocumentEditorContainerEvents Created="OnCreated" DocumentChanged="OnDocumentChange" />
             </SfDocumentEditorContainer>
         </div>
@@ -56,6 +67,15 @@
     [Parameter]
     [SupplyParameterFromQuery]
     public string PatientId { get; set; }
+
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string fNmae { get; set; }
+
+
+
+
     private PatientRecordDto Records = new();
     private SfSpinner spinnerObj;
     private string StatusMessage = "";
@@ -70,11 +90,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!string.IsNullOrEmpty(PatientId))
-        {
-            Records = await Http.GetFromJsonAsync<PatientRecordDto>(
-                $"https://localhost:44337/api/app/patient/patient-record-by/{PatientId}");
-        }
+
     }
 
     private async Task OnExport()
@@ -107,7 +123,7 @@
 
             if (result)
             {
-                StatusMessage = "Document saved successfully!";                
+                StatusMessage = "Document saved successfully!";
                 await SaveRecordToDatabase(fileName);
             }
             else
@@ -123,9 +139,11 @@
 
     private async Task SaveRecordToDatabase(string fileName)
     {
+
+
         var recordData = new
         {
-            PatientId = Records.PatientId,
+            PatientId = PatientId,
             CreatedDate = DateTime.UtcNow,
             FileName = fileName
         };
@@ -153,161 +171,13 @@
     }
 
     private async Task OnCreated(object args)
-    {
-        if (_containerRef?.DocumentEditor == null) return;
-
-        var fileBytes = await Http.GetByteArrayAsync("FileData/DefaultFile.docx");
-        
+    {        
+        if (_containerRef?.DocumentEditor == null) return;        
+        var decodedFname = Uri.UnescapeDataString(fNmae);        
+        var fileBytes = await Http.GetByteArrayAsync(decodedFname);
         using (var stream = new MemoryStream(fileBytes))
-        {
-            using (WordprocessingDocument wordDocument = WordprocessingDocument.Open(stream, true))
-            {
-                foreach (var headerPart in wordDocument.MainDocumentPart.HeaderParts)
-                {
-                    var header = headerPart.Header;
-
-                    var tablesHeader = header.Elements<DocumentFormat.OpenXml.Wordprocessing.Table>().ToList();
-                    if (tablesHeader.Count > 0)
-                    {
-                        var headerTable = tablesHeader[0];
-
-                        var firstRow = headerTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAtOrDefault(0);
-                        if (firstRow != null)
-                        {
-                            var firstCell = firstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAtOrDefault(0);
-                            if (firstCell != null)
-                            {
-                                firstCell.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                                firstCell.Append(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                                    new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Date: "+DateTime.Now.ToShortDateString()))
-                                ));
-                            }
-                        }
-                    }
-                    header.Save();
-                }
-
-                var body = wordDocument.MainDocumentPart.Document.Body;
-                var tables = body.Elements<DocumentFormat.OpenXml.Wordprocessing.Table>().ToList();
-
-                if (tables.Count == 0) return;
-
-
-                var firstTable = tables[0];
-                DocumentFormat.OpenXml.Wordprocessing.TableRow tbFirstRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(0);
-                DocumentFormat.OpenXml.Wordprocessing.TableRow tbSecondRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(1);
-                DocumentFormat.OpenXml.Wordprocessing.TableRow tbFourRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(3);
-                DocumentFormat.OpenXml.Wordprocessing.TableCell cellName = tbFirstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
-                DocumentFormat.OpenXml.Wordprocessing.TableCell cellDoctorName = tbFirstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(1);
-                DocumentFormat.OpenXml.Wordprocessing.TableCell cellDob = tbSecondRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
-
-                cellName.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                cellDoctorName.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                cellDob.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-
-
-                var paraName = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                    new DocumentFormat.OpenXml.Wordprocessing.Run(
-                        new DocumentFormat.OpenXml.Wordprocessing.Text("Name: " + Records.PatientName)
-                    )
-                );
-                var paraDentist = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                    new DocumentFormat.OpenXml.Wordprocessing.Run(
-                        new DocumentFormat.OpenXml.Wordprocessing.Text("Dentist: " + Records.DoctorName)
-                    )
-                );
-
-                var paraDob = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                    new DocumentFormat.OpenXml.Wordprocessing.Run(
-                        new DocumentFormat.OpenXml.Wordprocessing.Text("Date Of Birth: " + Records.PatientDob.ToString())
-                    )
-                );
-
-                cellName.Append(paraName);
-                cellDoctorName.Append(paraDentist);
-                cellDob.Append(paraDob);
-
-
-                var rows = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ToList();
-
-                if (rows.Count < 12) return;
-
-                var rowMaxilla = rows[4];
-                var rowMaxillaCarries = rows[5];
-                var rowMandible = rows[11];
-                var rowMandibleCarries = rows[10];
-
-                Record = await SessionStorage.GetItemAsync<PatientExaminationRecordDto>("PatientExaminationRecord");
-                if (Record == null) return;
-
-                var maxillaToothMap = new Dictionary<int, int>
-            {
-                { 18, 1 }, { 17, 2 }, { 16, 3 }, { 15, 4 },
-                { 14, 5 }, { 13, 6 }, { 12, 7 }, { 11, 8 },
-                { 21, 9 }, { 22, 10 }, { 23, 11 }, { 24, 12 },
-                { 25, 13 }, { 26, 14 }, { 27, 15 }, { 28, 16 },
-            };
-
-                var mandibleToothMap = new Dictionary<int, int>
-            {
-                { 48, 1 }, { 47, 2 }, { 46, 3 }, { 45, 4 },
-                { 44, 5 }, { 43, 6 }, { 42, 7 }, { 41, 8 },
-                { 31, 9 }, { 32, 10 }, { 33, 11 }, { 34, 12 },
-                { 35, 13 }, { 36, 14 }, { 37, 15 }, { 38, 16 },
-            };
-                
-                foreach (var tooth in Record.MaxillaTeeth)
-                {
-                    if (tooth.CariesYes == true && maxillaToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
-                    {
-                        var cells = rowMaxilla.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
-                        var cellsCarries = rowMaxillaCarries.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
-
-                        if (cells.Count > cellIndex)
-                        {
-                            var cell = cells[cellIndex];
-                            var cellCarries = cellsCarries[cellIndex];
-
-                            cell.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                            var para = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                                new DocumentFormat.OpenXml.Wordprocessing.Run(
-                                    new DocumentFormat.OpenXml.Wordprocessing.Text(tooth.SelectedPE ?? string.Empty)
-                                )
-                            );
-                            cell.Append(para);                            
-                            CheckLegacyCheckbox(cellCarries);
-                        }
-                    }
-                }
-                
-                foreach (var tooth in Record.MandibleTeeth)
-                {
-                    if (tooth.CariesYes == true && mandibleToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
-                    {
-                        var cells = rowMandible.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
-                        var cellsManCarries = rowMandibleCarries.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
-                        if (cells.Count > cellIndex)
-                        {
-                            var cell = cells[cellIndex];
-                            var cellManCarries = cellsManCarries[cellIndex];
-                            cell.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-
-                            var para = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                                new DocumentFormat.OpenXml.Wordprocessing.Run(
-                                    new DocumentFormat.OpenXml.Wordprocessing.Text(tooth.SelectedPE ?? string.Empty)
-                                )
-                            );
-                            cell.Append(para);
-                            CheckLegacyCheckbox(cellManCarries);
-                        }
-                    }
-                }
-                wordDocument.MainDocumentPart.Document.Save();
-            }
-
-            fileBytes = stream.ToArray();
+        {            
             stream.Position = 0;
-
             await _containerRef.DocumentEditor.OpenAsync(stream, ImportFormatType.Docx);
             await _containerRef.DocumentEditor.FitPageAsync(PageFitType.FitPageWidth);
         }
@@ -323,9 +193,9 @@
 
         var checkBox = checkBoxRun.Descendants<CheckBox>().FirstOrDefault();
         if (checkBox == null) return;
-        
+
         checkBox.Elements<DocumentFormat.OpenXml.Wordprocessing.Checked>().ToList().ForEach(c => c.Remove());
-        
+
         checkBox.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Checked { Val = OnOffValue.FromBoolean(true) });
     }
 
@@ -357,6 +227,7 @@
         }
         return result.ToString();
     }
+
 }
 
 <style>
@@ -417,8 +288,8 @@
         outline: none;
     }
     /*.single-line:hover, .single-line:focus {
-                                                                                        border-color: #e4e4e4 !important;
-                                                                                    }*/
+                                                                                                                            border-color: #e4e4e4 !important;
+                                                                                                                        }*/
     [contenteditable="true"].single-line {
         white-space: nowrap;
         border-color: #e4e4e4 !important;

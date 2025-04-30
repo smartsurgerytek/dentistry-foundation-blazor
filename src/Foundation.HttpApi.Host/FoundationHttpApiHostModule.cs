@@ -43,6 +43,7 @@ using Volo.Abp.Studio.Client.AspNetCore;
 using Volo.Abp.AspNetCore.Authentication.JwtBearer;
 using Volo.Chat;
 using Volo.Abp.EventBus.RabbitMq;
+using Volo.Abp.AspNetCore.Mvc.Libs;
 
 namespace Foundation;
 
@@ -90,6 +91,11 @@ public class FoundationHttpApiHostModule : AbpModule
         {
             options.IsDynamicPermissionStoreEnabled = true;
         });
+        Configure<AbpMvcLibsOptions>(options =>
+        {
+            options.CheckLibs = false;
+        });
+
     }
 
     private void ConfigureHealthChecks(ServiceConfigurationContext context)

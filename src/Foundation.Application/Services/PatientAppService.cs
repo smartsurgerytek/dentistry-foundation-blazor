@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
@@ -21,16 +22,24 @@ namespace Foundation.Services
     {
         private readonly IRepository<Patient, Guid> _patientRepository;
         private readonly IRepository<Doctor, Guid> _doctorRepository;
+        private readonly IRepository<AuditLog, Guid> _auditLogRepository;
 
-        public PatientAppService(IRepository<Patient, Guid> patientRepository, IRepository<Doctor, Guid> doctorRepository)
+        public PatientAppService(
+            IRepository<Patient, Guid> patientRepository,
+            IRepository<Doctor, Guid> doctorRepository,
+            IRepository<AuditLog, Guid> auditLogRepository)
         {
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
+            _auditLogRepository = auditLogRepository;
         }
 
         public async Task<List<PatientDto>> GetPatientsAsync()
         {
             var patients = await _patientRepository.GetListAsync();
+
+            await LogAudit("GetPatients", string.Empty);
+
             return ObjectMapper.Map<List<Patient>, List<PatientDto>>(patients);
         }
 
@@ -41,6 +50,9 @@ namespace Foundation.Services
             {
                 throw new EntityNotFoundException(typeof(Patient), patientId);
             }
+
+            await LogAudit("GetPatient", patientId);
+
             return ObjectMapper.Map<Patient, PatientDto>(patient);
         }
 
@@ -48,6 +60,8 @@ namespace Foundation.Services
         {
             var patient = ObjectMapper.Map<CreateUpdatePatientDto, Patient>(input);
             await _patientRepository.InsertAsync(patient);
+
+            await LogAudit("CreatePatient", input);
         }
 
         public async Task UpdatePatientAsync(Guid patientId, CreateUpdatePatientDto input)
@@ -60,6 +74,8 @@ namespace Foundation.Services
 
             ObjectMapper.Map(input, patient);
             await _patientRepository.UpdateAsync(patient);
+
+            await LogAudit("UpdatePatient", input);
         }
 
         public async Task DeletePatientAsync(Guid patientId)
@@ -71,11 +87,16 @@ namespace Foundation.Services
             }
 
             await _patientRepository.DeleteAsync(patient);
+
+            await LogAudit("DeletePatient", patientId);
         }
 
         public async Task<List<PatientDto>> GetPatientByAsync(Guid doctorId)
         {
             var patient = await _patientRepository.GetListAsync(x => x.DoctorId == doctorId);
+
+            await LogAudit("GetPatientBy", doctorId);
+
             return ObjectMapper.Map<List<Patient>, List<PatientDto>>(patient);
         }
 
@@ -83,7 +104,7 @@ namespace Foundation.Services
         {
             var queryable = await _patientRepository.GetQueryableAsync();
 
-            var patient =  queryable
+            var patient = queryable
                 .Where(p => p.Id == patientId)
                 .Select(p => new PatientRecordDto
                 {
@@ -99,9 +120,24 @@ namespace Foundation.Services
                 throw new BusinessException("Patient not found!");
             }
 
-            return patient;
+            await LogAudit("GetPatientRecordBy", patientId);
 
+            return patient;
+        }
+
+        private async Task LogAudit(string methodName, object parameters)
+        {
+            await _auditLogRepository.InsertAsync(new AuditLog(GuidGenerator.Create())
+            {
+                UserName = CurrentUser.UserName ?? "System",
+                ServiceName = nameof(PatientAppService),
+                MethodName = $"Patient - {methodName}",
+                Parameters = JsonSerializer.Serialize(parameters),
+                ExecutionTime = Clock.Now,
+                ExecutionDuration = 150
+            });
         }
     }
+
 
 }

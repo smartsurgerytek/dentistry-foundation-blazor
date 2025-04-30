@@ -14,6 +14,7 @@ using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.Pdf;
 using Syncfusion.DocIORenderer;
+using System.Threading.Tasks;
 
 namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 {
@@ -137,6 +138,14 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
             };
             FileManagerDirectoryContent args = JsonSerializer.Deserialize<FileManagerDirectoryContent>(downloadInput, options);
             return operation.Download(args.Path, args.Names);
+        }
+
+        // downloads the selected file(s) and folder(s)
+        // returns a byte[]
+        [Route("OriginalImageDownload")]
+        public async Task<FileStreamResult> OriginalImageDownload(string path, string name)
+        {
+            return await operation.DownloadAsByteArrayAsync(path, name);
         }
 
         // gets the image(s) from the given path

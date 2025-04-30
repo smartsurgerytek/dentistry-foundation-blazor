@@ -1,8 +1,24 @@
 ﻿@page "/FileManager"
+@using Syncfusion.Blazor.FileManager
+@using Syncfusion.Blazor.Buttons
 @inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
 
-<SfFileManager TValue="FileManagerDirectoryContent" Height="90vh">
-    <FileManagerAjaxSettings Url="/api/AmazonS3Provider/AmazonS3FileOperations" UploadUrl="/api/AmazonS3Provider/AmazonS3Upload" GetImageUrl="/api/AmazonS3Provider/AmazonS3GetImage" DownloadUrl="/api/AmazonS3Provider/AmazonS3Download">
+<SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"  SelectedItemsChanged="OnSelectedItemsChanged">
+    <FileManagerAjaxSettings Url="/api/AmazonS3Provider/AmazonS3FileOperations"
+        UploadUrl="/api/AmazonS3Provider/AmazonS3Upload" GetImageUrl="/api/AmazonS3Provider/AmazonS3GetImage"
+        DownloadUrl="/api/AmazonS3Provider/AmazonS3Download">
     </FileManagerAjaxSettings>
+    <FileManagerToolbarSettings ToolbarItems="@Items">
+        <FileManagerCustomToolbarItems>
+            <FileManagerCustomToolbarItem Name="ExaminationRecord">
+                <Template>
+                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Examination Record"
+                        OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled"></SfButton>
+                </Template>
+            </FileManagerCustomToolbarItem>
+        </FileManagerCustomToolbarItems>
+    </FileManagerToolbarSettings>
     <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
+    @* <FileManagerContextMenuSettings File="@ContextMenuItems"></FileManagerContextMenuSettings> *@
 </SfFileManager>

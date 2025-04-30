@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Volo.Abp;
@@ -22,11 +23,16 @@ namespace Foundation.Services
     {
         private readonly IRepository<Record, Guid> _recordRepository;
         private readonly IRepository<Patient, Guid> _patientRepository;
+        private readonly IRepository<AuditLog, Guid> _auditLogRepository;
 
-        public RecordAppService(IRepository<Record, Guid> recordRepository, IRepository<Patient, Guid> patientRepository)
+        public RecordAppService(
+            IRepository<Record, Guid> recordRepository,
+            IRepository<Patient, Guid> patientRepository,
+            IRepository<AuditLog, Guid> auditLogRepository)
         {
             _recordRepository = recordRepository;
             _patientRepository = patientRepository;
+            _auditLogRepository = auditLogRepository;
         }
 
         public async Task<List<RecordDto>> GetRecordsAsync()
@@ -41,11 +47,13 @@ namespace Foundation.Services
                     PatientName = r.Patient != null ? r.Patient.Name : "Unknown",
                     CreatedDate = r.CreatedDate,
                     DoctorName = r.Patient.Doctor != null ? r.Patient.Doctor.Name : "Unknown",
-                    OrganizationName = r.Patient.Doctor.Department.Organization.Name != null ? r.Patient.Doctor.Department.Organization.Name : "Unknown",
-                    DepartmentName = r.Patient.Doctor.Department.Name != null ? r.Patient.Doctor.Department.Name : "Unknown",
+                    OrganizationName = r.Patient.Doctor.Department.Organization.Name ?? "Unknown",
+                    DepartmentName = r.Patient.Doctor.Department.Name ?? "Unknown",
                     FileName = r.FileName
                 })
                 .ToList();
+
+            await LogAudit("GetRecords", string.Empty);
 
             return records;
         }
@@ -70,6 +78,8 @@ namespace Foundation.Services
                 throw new BusinessException("Record not found!");
             }
 
+            await LogAudit("GetRecord", recordId);
+
             return record;
         }
 
@@ -77,6 +87,8 @@ namespace Foundation.Services
         {
             var record = ObjectMapper.Map<CreateUpdateRecordDto, Record>(input);
             await _recordRepository.InsertAsync(record);
+
+            await LogAudit("CreateRecord", input);
         }
 
         public async Task UpdateRecordAsync(Guid recordId, CreateUpdateRecordDto input)
@@ -89,6 +101,8 @@ namespace Foundation.Services
 
             ObjectMapper.Map(input, record);
             await _recordRepository.UpdateAsync(record);
+
+            await LogAudit("UpdateRecord", input);
         }
 
         public async Task DeleteRecordAsync(Guid recordId)
@@ -100,7 +114,23 @@ namespace Foundation.Services
             }
 
             await _recordRepository.DeleteAsync(record);
+
+            await LogAudit("DeleteRecord", recordId);
+        }
+
+        private async Task LogAudit(string methodName, object parameters)
+        {
+            await _auditLogRepository.InsertAsync(new AuditLog(GuidGenerator.Create())
+            {
+                UserName = CurrentUser.UserName ?? "System",
+                ServiceName = nameof(RecordAppService),
+                MethodName = $"Record - {methodName}",
+                Parameters = JsonSerializer.Serialize(parameters),
+                ExecutionTime = Clock.Now,
+                ExecutionDuration = 150
+            });
         }
     }
+
 
 }

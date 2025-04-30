@@ -29,7 +29,7 @@ builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<AmazonS3FileProvider>();
 
-builder.Services.AddScoped<ImageService>();
+builder.Services.AddScoped<DentistryApiService>();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Services.AddBlazoredSessionStorage();
 

@@ -17,6 +17,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using System;
+using Polly;
+using Foundation.Services;
+using Polly.Extensions.Http;
 
 namespace Foundation;
 
@@ -47,12 +51,42 @@ public class FoundationApplicationModule : AbpModule
             options.AddMaps<FoundationApplicationModule>();
         });
 
-        context.Services.AddSingleton<HttpClient>();
-        // IConfiguration configuration = new ConfigurationBuilder()
-        //                                 .SetBasePath(Directory.GetCurrentDirectory())
-        //                                 .AddJsonFile("appsettings.json", false)
-        //                                 .Build();
-            
-        // context.Services.AddSingleton<IConfiguration>(configuration);
+        AsyncPolicy circuitBreakerPolicy = Policy.Handle<HttpRequestException>()
+                                                    .CircuitBreakerAsync(
+                                                        exceptionsAllowedBeforeBreaking: 2,
+                                                        durationOfBreak: TimeSpan.FromSeconds(3),
+                                                        onBreak: (exception, timespan) =>
+                                                        {
+                                                            Console.WriteLine($"Circuit broken due to: {exception.Message}");
+                                                        },
+                                                        onReset: () => Console.WriteLine("Circuit closed."),
+                                                        onHalfOpen: () => Console.WriteLine("Circuit in half-open state.")
+                                                    );
+
+        context.Services.AddHttpClient<DentistryApiAppService>(client =>
+        {
+            var configuration = context.Services.GetConfiguration();
+            var apiUrl = configuration["ApiUrl"];
+            var apiKey = configuration["ApiKey"];
+
+            client.BaseAddress = new Uri(apiUrl);
+        })
+        .AddPolicyHandler(GetRetryPolicy())
+        .AddPolicyHandler(GetCircuitBreakerPolicy());
+    }
+
+    private IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+    {
+        return HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(3, TimeSpan.FromSeconds(30));
+    }
+
+    private IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+    {
+        return Policy<HttpResponseMessage>.Handle<HttpRequestException>()
+            .RetryAsync(3,
+                onRetry: (result, retryCount) =>
+                {
+                    Console.WriteLine($"Retry {retryCount} due to: {result.Exception?.Message}");
+                });
     }
 }

@@ -62,10 +62,9 @@ public class FoundationDbContext :
     public DbSet<Department> Departments { get; set; }
     public DbSet<Doctor> Doctors { get; set; }
     public DbSet<Patient> Patients { get; set; }
-    public DbSet<Record> Records { get; set; }
-
-
-
+    public DbSet<Record> Records { get; set; }    
+    public DbSet<ExaminationReport> ExaminationReports { get; set; }
+    public DbSet<AuditLog> AuditLogs { get; set; }
 
     // SaaS
     public DbSet<Tenant> Tenants { get; set; }
@@ -146,6 +145,22 @@ public class FoundationDbContext :
              .IsRequired(false);
 
         });
+
+        builder.Entity<ExaminationReport>(b =>
+        {
+            b.HasOne(x => x.Patient)
+             .WithMany()
+             .HasForeignKey(x => x.PatientId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<AuditLog>(b =>
+        {
+            b.ToTable("AuditLogs");
+            b.ConfigureByConvention();
+            b.Property(x => x.UserName).IsRequired().HasMaxLength(128);            
+        });
+
 
     }
 }

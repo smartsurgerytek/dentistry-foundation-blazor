@@ -19,5 +19,6 @@ public class FoundationMenus
     public const string Organization = Prefix + ".Organization";
 
     public const string Record = Prefix + ".Record";
+    public const string AuditLog = Prefix + ".AuditLog";
 
 }

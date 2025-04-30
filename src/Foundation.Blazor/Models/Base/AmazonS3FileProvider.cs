@@ -18,6 +18,7 @@ using Foundation.Dtos;
 using System.Net.Http.Formatting;
 using Foundation.Blazor.Services;
 using System.Drawing;
+using Newtonsoft.Json;
 
 namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
 {
@@ -37,9 +38,9 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
         private static List<PartETag> partETags;
         private static string uploadId;
         private readonly HttpClient _httpClient;
-        private readonly ImageService _imageService;
+        private readonly DentistryApiService _imageService;
 
-        public AmazonS3FileProvider(HttpClient httpClient, ImageService imageService)
+        public AmazonS3FileProvider(HttpClient httpClient, DentistryApiService imageService)
         {
             _httpClient = httpClient;
             _imageService = imageService;
@@ -703,8 +704,27 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                     string name = folders[folders.Length - 1];
                     string fullName = Path.Combine(Path.GetTempPath(), name);
                     fullName = fullName.Replace("../", "");
+
+                    var fileNameOnly = Path.GetFileNameWithoutExtension(file.FileName) + "_a";
+                    var fileExtension = Path.GetExtension(file.FileName);
+                    fileName = fileNameOnly + fileExtension;
+                    
                     if (uploadFiles != null)
                     {
+                        // only images allowed for upload
+                        bool isValidXrayImage = _imageService.IsImageFile(file);
+                        if (!isValidXrayImage)
+                        {
+                            return new FileManagerResponse
+                            {
+                                Error = new ErrorDetails
+                                {
+                                    Code = "400",
+                                    Message = "Invalid file type. Only image files are allowed."
+                                }
+                            };
+                        }
+
                         bool isValidChunkUpload = file.ContentType == "application/octet-stream";
                         if (action == "save")
                         {
@@ -812,7 +832,7 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                 // upload the first/original image
                 await UploadFileToS3(stream, fileName, path);
 
-                if (_imageService.IsImageFile(file))
+                // if (_imageService.IsImageFile(file))
                 {
                     await ProcessAndUploadEnhancedImage(file, path);
                 }
@@ -867,7 +887,7 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                     }
                 }
 
-                if (_imageService.IsImageFile(file))
+                // if (_imageService.IsImageFile(file))
                 {
                     await ProcessAndUploadEnhancedImage(file, keyName);
                 }
@@ -883,19 +903,48 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
         {
             using var originalImageStream = file.OpenReadStream();
             var orignialImageBytes = await originalImageStream.GetAllBytesAsync();
+            var originalImageBase64 = Convert.ToBase64String(orignialImageBytes);
 
-            var enhancedImage = await _imageService.GetEnhancedImage(file);
+            // 1. get image type pe/pano
+            var isPeriapicalImage = await _imageService.IsPeriapicalImage(originalImageBase64);
+
+            // 2.
+            // get the ai image from api
+            var enhancedImage = await _imageService.GetEnhancedImage(isPeriapicalImage, originalImageBase64);
             if (enhancedImage == null) return;
 
             var enhancedImageBytes = Convert.FromBase64String(enhancedImage.Image);
             using var enhancedImageStream = new MemoryStream(enhancedImageBytes);
 
-            var combinedImageStream = _imageService.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
+            // 3.
+            // generate the combined a+b image
+            var combinedImageStream = ImageOperationsHelper.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
 
-            var enhancedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai." + enhancedImage.Content_Type?.Split("/")[1]??".png";
+            var enhancedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
             var combinedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ab." + "png";
 
-            await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
+            if (!isPeriapicalImage)
+            {
+                // 4.
+                // get the fdi data from the original image
+                var fdiData = await _imageService.GetFDIData(isPeriapicalImage, originalImageBase64);
+                var fdiDataString = JsonConvert.SerializeObject(fdiData);
+
+                // create a dicom image from ai image and fdi data
+                var dicomImage = ImageOperationsHelper.ConvertImageToDicom(enhancedImageBytes, fdiDataString);
+                var dicomImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_dicom." + "dcm";
+                using var dicomImageStream = new MemoryStream(dicomImage);
+
+                // upload the dicom image
+                await UploadFileToS3(dicomImageStream, dicomImageFileName, path);
+            }
+            else
+            {
+                // upload the ai image
+                await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
+            }
+
+            // upload the combined image
             await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
         }
 
@@ -956,7 +1005,7 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                     GetBucketList();
                     await ListingObjectsAsync("/", RootName.Replace("/", "") + path, false);
 
-                    Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + names[0]);
+                    using Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + names[0]);
 
                     fileStreamResult = new FileStreamResult(stream, "APPLICATION/octet-stream");
                     fileStreamResult.FileDownloadName = names[0].Contains("/") ? names[0].Split("/").Last() : names[0];
@@ -1000,6 +1049,37 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                 {
                     throw amazonS3Exception;
                 }
+            }
+        }
+
+        // download image as byte array: to be used only for download request for 1 file
+        public virtual async Task<FileStreamResult> DownloadAsByteArrayAsync(string path, string name)
+        {
+            GetBucketList();
+            await ListingObjectsAsync("/", RootName.Replace("/", "") + path + name, false);
+            FileStreamResult fileStreamResult = null;
+
+            try
+            {
+                AccessPermission pathPermission = GetPathPermission(path + name, true);
+                if (pathPermission != null && (!pathPermission.Read || !pathPermission.Download))
+                {
+                    throw new UnauthorizedAccessException("'" + name + "' is not accessible. Access is denied.");
+                }
+
+                GetBucketList();
+                await ListingObjectsAsync("/", RootName.Replace("/", "") + path, false);
+
+                Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + name);
+
+                fileStreamResult = new FileStreamResult(stream, "APPLICATION/octet-stream");
+                fileStreamResult.FileDownloadName = name;
+
+                return fileStreamResult;
+            }
+            catch (AmazonS3Exception amazonS3Exception)
+            {
+                throw amazonS3Exception;
             }
         }
 
@@ -1163,7 +1243,7 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
 
-            return JsonSerializer.Serialize(userData, options);
+            return System.Text.Json.JsonSerializer.Serialize(userData, options);
         }
         protected virtual string[] GetFolderDetails(string path)
         {

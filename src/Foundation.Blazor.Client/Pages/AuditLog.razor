@@ -1,0 +1,48 @@
+﻿@page "/AuditLog"
+@using Foundation.Dtos
+@using Syncfusion.Blazor.Grids
+@using System.Net.Http.Json
+@using Syncfusion.Blazor.Navigations
+@inject HttpClient Http
+
+
+<h3>AuditLog</h3>
+
+
+<SfGrid DataSource="@AuditLogDtos" @ref="AuditLogDtoGrid" AllowPaging="true" AllowSorting="true"  Toolbar="@Toolbaritems">
+    <GridEvents OnToolbarClick="OnToolbarClick" TValue="AuditLogDto"></GridEvents>
+    <GridColumns>
+        <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
+        <GridColumn Field="UserName" HeaderText="UserName" Width="200"></GridColumn>
+        <GridColumn Field="ServiceName" HeaderText="ServiceName" Width="200"></GridColumn>
+        <GridColumn Field="MethodName" HeaderText="MethodName" Width="200"></GridColumn>
+        <GridColumn Field="Parameters" HeaderText="Parameters" Width="200"></GridColumn>
+        <GridColumn Field="ExecutionTime" HeaderText="ExecutionTime" Width="100"></GridColumn>
+        <GridColumn Field="ExecutionDuration" HeaderText="ExecutionDuration" Width="100"></GridColumn>
+    </GridColumns>
+</SfGrid>
+
+@code {
+
+    private SfGrid<AuditLogDto> AuditLogDtoGrid;
+    private List<AuditLogDto> AuditLogDtos = new();
+    private List<ItemModel> Toolbaritems = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAuditLogs();
+        Toolbaritems.Add(new ItemModel() { Text = "Refresh"});
+    }
+
+    private async Task LoadAuditLogs()
+    {        
+        AuditLogDtos = await Http.GetFromJsonAsync<List<AuditLogDto>>("https://localhost:44337/api/app/audit-log-app-services/audit-log");
+    }
+
+    private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {        
+        if (args.Item.Text == "Refresh")
+        {
+            await LoadAuditLogs();
+        }
+    }
+}

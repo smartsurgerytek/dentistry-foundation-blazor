@@ -17,14 +17,14 @@
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="DoctorDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
-        <GridColumn Field="Name" HeaderText="Doctor Name" Width="200"></GridColumn>
+        <GridColumn Field="Name" HeaderText="Doctor" Width="200"></GridColumn>
         <GridColumn Field="Specialty" HeaderText="Specialty" Width="200"></GridColumn>
         <GridColumn HeaderText="Manage Patient" Width="120">
             <Template>
                 @{
-                    var Patient = (context as DoctorDto);
-                    <Button @onclick="@(() => NavigatePatient(Patient))">Doctor</Button>
+                    var Patient = (context as DoctorDto);                    
                 }
+                <button class="e-btn" @onclick="@(() => NavigatePatient(Patient))">Patient</button>
             </Template>
         </GridColumn>
     </GridColumns>
@@ -38,19 +38,25 @@
                 
 
                 <div class="mb-3">
+                    <label class="form-label">
+                        Doctor <span style="color: red">*</span>
+                    </label>
                     <SfTextBox TValue="string" Value="@CurrentDoctor.Name"
                                ValueChanged="@((string value) => CurrentDoctor.Name = value)"
                                Placeholder="Enter Doctor Name" FloatLabelType="FloatLabelType.Auto">
                     </SfTextBox>
-                    <ValidationMessage For="@(() => CurrentDoctor.Name)" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentDoctor.Name)" />
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">
+                        Specilty <span style="color: red">*</span>
+                    </label>
                     <SfTextBox TValue="string" Value="@CurrentDoctor.Specialty"
                                ValueChanged="@((string value) => CurrentDoctor.Specialty = value)"
                                Placeholder="Enter Specialty" FloatLabelType="FloatLabelType.Auto">
                     </SfTextBox>
-                    <ValidationMessage For="@(() => CurrentDoctor.Specialty)" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentDoctor.Specialty)" />
                 </div>
             </EditForm>
         </Content>

@@ -3,6 +3,7 @@ using System;
 using Foundation.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Foundation.Migrations
 {
     [DbContext(typeof(FoundationDbContext))]
-    partial class FoundationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250418071000_examination_report")]
+    partial class examination_report
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,51 +26,6 @@ namespace Foundation.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Foundation.Entities.AuditLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<int>("ExecutionDuration")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("ExecutionTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<string>("MethodName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Parameters")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ServiceName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AuditLogs", (string)null);
-                });
 
             modelBuilder.Entity("Foundation.Entities.Department", b =>
                 {
