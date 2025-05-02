@@ -31,7 +31,7 @@ jobs:
         run: dotnet publish src/Foundation.Blazor/Foundation.Blazor.csproj -c Release
 
       - name: Publish Foundation.DbMigrator
-        run: dotnet publish src/Foundation.DbMigrator/Foundation.DbMigrator.csproj -c Release 
+        run: dotnet publish src/Foundation.DbMigrator/Foundation.DbMigrator.csproj -c Release
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
