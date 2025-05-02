@@ -8,9 +8,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    env:
-      DOTNET_ROOT: /usr/share/dotnet
-      PATH: /home/runner/.dotnet/tools:/usr/share/dotnet:/usr/bin:/bin
 
     steps:
       - name: Checkout code
@@ -21,57 +18,41 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Install ABP CLI
-        run: dotnet tool install -g Volo.Abp.Cli --version 8.1.2
-
       - name: Restore dependencies
         run: dotnet restore ./Foundation.sln
 
-      - name: Publish Foundation.AuthServer
-        run: dotnet publish ./src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release
-
-      - name: Publish Foundation.HttpApi.Host
-        run: dotnet publish ./src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj -c Release
-
-      - name: Publish Foundation.Blazor
-        run: dotnet publish ./src/Foundation.Blazor/Foundation.Blazor.csproj -c Release
-
-      - name: Publish Foundation.DbMigrator
-        run: dotnet publish ./src/Foundation.DbMigrator/Foundation.DbMigrator.csproj -c Release -o ./src/Foundation.DbMigrator/bin/Release/net8.0/publish
+      - name: Publish all projects
+        run: |
+          dotnet publish ./src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release -o ./publish/Foundation.AuthServer
+          dotnet publish ./src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj -c Release -o ./publish/Foundation.HttpApi.Host
+          dotnet publish ./src/Foundation.Blazor/Foundation.Blazor.csproj -c Release -o ./publish/Foundation.Blazor
+          dotnet publish ./src/Foundation.DbMigrator/Foundation.DbMigrator.csproj -c Release -o ./publish/Foundation.DbMigrator
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      - name: Configure Docker to use gcloud as a credential helper
+      - name: Configure Docker to use gcloud
         run: |
           gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev
 
       - name: Build and push AuthServer image
         run: |
-          docker build -f src/Foundation.AuthServer/Dockerfile \
-            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest \
-            src/Foundation.AuthServer
+          docker build -f Dockerfile.AuthServer -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest .
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest
 
       - name: Build and push HttpApi.Host image
         run: |
-          docker build -f src/Foundation.HttpApi.Host/Dockerfile \
-            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest \
-            src/Foundation.HttpApi.Host
+          docker build -f Dockerfile.HttpApi.Host -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest .
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest
 
       - name: Build and push Blazor image
         run: |
-          docker build -f src/Foundation.Blazor/Dockerfile \
-            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest \
-            src/Foundation.Blazor
+          docker build -f Dockerfile.Blazor -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest .
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest
 
       - name: Build and push DbMigrator image
         run: |
-          docker build -f src/Foundation.DbMigrator/Dockerfile \
-            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-dbmigrator:latest \
-            src/Foundation.DbMigrator
+          docker build -f Dockerfile.DbMigrator -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-dbmigrator:latest .
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-dbmigrator:latest
