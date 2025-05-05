@@ -2,6 +2,12 @@
 
   <Import Project="..\..\common.props" />
 
+	<ItemGroup>
+		<None Update="wwwroot/libs/abp/core/abp.css">
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</None>
+	</ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
