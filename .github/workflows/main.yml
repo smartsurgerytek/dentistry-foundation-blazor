@@ -21,6 +21,12 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore ./Foundation.sln
 
+      - name: Install ABP CLI
+        run: dotnet tool install -g Volo.Abp.Cli
+
+      - name: Restore ABP libraries
+        run: abp install-libs
+
       - name: Publish Foundation.AuthServer
         run: dotnet publish ./src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release
 
