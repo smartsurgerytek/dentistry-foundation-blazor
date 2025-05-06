@@ -22,7 +22,7 @@ jobs:
         run: dotnet restore ./Foundation.sln
 
       - name: Install ABP CLI
-        run: dotnet tool install -g Volo.Abp.Cli
+        run: dotnet tool install -g Volo.Abp.Cli --version 8.1.2
 
       - name: Restore ABP libraries
         run: abp install-libs
