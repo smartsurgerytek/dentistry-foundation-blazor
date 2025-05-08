@@ -47,15 +47,24 @@ jobs:
 
       - name: Build and push AuthServer image
         run: |
-          docker build -f src/Foundation.AuthServer/Dockerfile -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest src/Foundation.AuthServer
+          docker build \
+            --build-arg CERT_BASE64="${{ secrets.AUTH_CERT_BASE64 }}" \
+            --build-arg CERT_PASSWORD="${{ secrets.AUTH_CERT_PASSWORD }}" \
+            -f src/Foundation.AuthServer/Dockerfile \
+            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest \
+            src/Foundation.AuthServer
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest
 
       - name: Build and push HttpApi.Host image
         run: |
-          docker build -f src/Foundation.HttpApi.Host/Dockerfile -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest src/Foundation.HttpApi.Host
+          docker build -f src/Foundation.HttpApi.Host/Dockerfile \
+            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest \
+            src/Foundation.HttpApi.Host
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest
 
       - name: Build and push Blazor image
         run: |
-          docker build -f src/Foundation.Blazor/Dockerfile -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest src/Foundation.Blazor
+          docker build -f src/Foundation.Blazor/Dockerfile \
+            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest \
+            src/Foundation.Blazor
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest
