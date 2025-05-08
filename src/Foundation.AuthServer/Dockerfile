@@ -1,23 +1,37 @@
-#FROM mcr.microsoft.com/dotnet/aspnet:8.0
-#COPY bin/Release/net8.0/publish/ app/
-##COPY ./src/Foundation.AuthServer/bin/Release/net8.0/publish/ app/
-#
-#RUN dotnet tool install -g Volo.Abp.Cli
-#ENV PATH="$PATH:/root/.dotnet/tools"
-#RUN abp install-libs
-#
-#WORKDIR /app
-#ENV ASPNETCORE_URLS=http://+:80
-#ENTRYPOINT ["dotnet", "Foundation.AuthServer.dll"]
-#### hello world
 # Use official ASP.NET Core runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+# Set working directory for runtime
+WORKDIR /app
+
+# Arguments passed during build
+ARG CERT_BASE64=""
+ARG CERT_PASSWORD="Krish@3003"
+
+# Decode the certificate from base64 to a file
+RUN if [ ! -z "$CERT_BASE64" ]; then \
+        mkdir -p /https && \
+        echo "$CERT_BASE64" | base64 -d > /https/authserver.pfx; \
+    fi
+
+# Set Kestrel to use the certificate
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/authserver.pfx
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password=$CERT_PASSWORD
+
+# Set environment variable for ASP.NET Core
+ENV ASPNETCORE_URLS=http://+:80
+
+# Expose ports
+EXPOSE 80
+EXPOSE 443
+
+# --- Build stage ---
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
 # Set working directory
 WORKDIR /app
 
 # Copy published output from local publish directory into the container
-# Make sure this path is correct relative to your Docker build context
 COPY ./bin/Release/net8.0/publish/ .
 
 # Install ABP CLI globally
@@ -29,11 +43,5 @@ ENV PATH="${PATH}:/root/.dotnet/tools"
 # Install ABP front-end and other libraries (if needed)
 RUN abp install-libs
 
-# Expose port (optional, useful for documentation or compose)
-EXPOSE 80
-
-# Set environment variable for ASP.NET Core
-ENV ASPNETCORE_URLS=http://+:80
-
-# Run the app
+# Final entry point
 ENTRYPOINT ["dotnet", "Foundation.AuthServer.dll"]
