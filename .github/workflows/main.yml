@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Install ABP CLI
-        run: dotnet tool install -g Volo.Abp.Cli
+        run: dotnet tool install -g Volo.Abp.Cli --version 8.0.3
 
       - name: Add ABP CLI to PATH
         run: echo "${HOME}/.dotnet/tools" >> $GITHUB_PATH
