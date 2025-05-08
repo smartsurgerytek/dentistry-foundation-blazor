@@ -9,7 +9,7 @@ using Foundation.Services;
 
 // using Foundation.Services;
 using Syncfusion.Blazor;
-using Syncfusion.EJ2.FileManager.AmazonS3FileProvider;
+using Syncfusion.EJ2.FileManager.FileProvider;
 using Volo.Abp.AspNetCore.Components.WebAssembly.WebApp;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +27,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<AmazonS3FileProvider>();
+builder.Services.AddScoped<FileProvider>();
 
 builder.Services.AddScoped<DentistryApiService>();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);

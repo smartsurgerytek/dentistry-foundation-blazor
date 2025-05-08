@@ -5,9 +5,9 @@
 @inject HttpClient HttpClient
 
 <SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"  SelectedItemsChanged="OnSelectedItemsChanged">
-    <FileManagerAjaxSettings Url="/api/AmazonS3Provider/AmazonS3FileOperations"
-        UploadUrl="/api/AmazonS3Provider/AmazonS3Upload" GetImageUrl="/api/AmazonS3Provider/AmazonS3GetImage"
-        DownloadUrl="/api/AmazonS3Provider/AmazonS3Download">
+    <FileManagerAjaxSettings Url="/api/FileProvider/AmazonS3FileOperations"
+        UploadUrl="/api/FileProvider/AmazonS3Upload" GetImageUrl="/api/FileProvider/AmazonS3GetImage"
+        DownloadUrl="/api/FileProvider/AmazonS3Download">
     </FileManagerAjaxSettings>
     <FileManagerToolbarSettings ToolbarItems="@Items">
         <FileManagerCustomToolbarItems>
