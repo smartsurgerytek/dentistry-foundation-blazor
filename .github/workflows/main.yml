@@ -1,69 +1,85 @@
 name: main
-
+ 
 on:
+
   push:
+
     branches:
+
       - FOND-20-research-on-github-action-cicd-idental-foundation
-
+ 
 jobs:
+
   build-and-push:
+
     runs-on: ubuntu-latest
-
+ 
     steps:
+
       - name: Checkout code
+
         uses: actions/checkout@v4
-
+ 
       - name: Setup .NET Core
+
         uses: actions/setup-dotnet@v4
+
         with:
+
           dotnet-version: '8.0.x'
-
+ 
       - name: Restore dependencies
+
         run: dotnet restore ./Foundation.sln
+ 
+      - name: Publish Foundation.AuthServer
 
-      - name: Install ABP CLI
-        run: dotnet tool install -g Volo.Abp.Cli --version 8.1.2
+        run: dotnet publish ./src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release
+ 
+      - name: Publish Foundation.HttpApi.Host
 
-      - name: Restore ABP libraries
-        run: abp install-libs
+        run: dotnet publish ./src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj -c Release
+ 
+      - name: Publish Foundation.Blazor
 
-      # Publish Foundation.AuthServer project
-      - name: Publish Foundation.AuthServer project
-        run: dotnet publish src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release -o src/Foundation.AuthServer/publish
-
-      # Publish Foundation.HttpApi.Host project
-      - name: Publish Foundation.HttpApi.Host project
-        run: dotnet publish src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj -c Release -o src/Foundation.HttpApi.Host/publish
-
-      # Publish Foundation.Blazor project
-      - name: Publish Foundation.Blazor project
-        run: dotnet publish src/Foundation.Blazor/Foundation.Blazor.csproj -c Release -o src/Foundation.Blazor/publish
-
-      # Authenticate to Google Cloud
+        run: dotnet publish ./src/Foundation.Blazor/Foundation.Blazor.csproj -c Release
+ 
       - name: Authenticate to Google Cloud
+
         uses: google-github-actions/auth@v2
+
         with:
+
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
-
-      # Configure Docker to use gcloud as a credential helper
+ 
       - name: Configure Docker to use gcloud as a credential helper
+
         run: |
+
           gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev
-
-      # Build and push AuthServer image
+ 
       - name: Build and push AuthServer image
+
         run: |
+
           docker build -f src/Foundation.AuthServer/Dockerfile -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest src/Foundation.AuthServer
+
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest
-
-      # Build and push HttpApi.Host image
+ 
       - name: Build and push HttpApi.Host image
-        run: |
-          docker build -f src/Foundation.HttpApi.Host/Dockerfile -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest src/Foundation.HttpApi.Host
-          docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest
 
-      # Build and push Blazor image
-      - name: Build and push Blazor image
         run: |
+
+          docker build -f src/Foundation.HttpApi.Host/Dockerfile -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest src/Foundation.HttpApi.Host
+
+          docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest
+ 
+      - name: Build and push Blazor image
+
+        run: |
+
           docker build -f src/Foundation.Blazor/Dockerfile -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest src/Foundation.Blazor
+
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest
+
+ 
