@@ -35,7 +35,7 @@
 
     private async Task LoadAuditLogs()
     {        
-        AuditLogDtos = await Http.GetFromJsonAsync<List<AuditLogDto>>("https://localhost:44337/api/app/audit-log-app-services/audit-log");
+        AuditLogDtos = await Http.GetFromJsonAsync<List<AuditLogDto>>("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/audit-log-app-services/audit-log");
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)

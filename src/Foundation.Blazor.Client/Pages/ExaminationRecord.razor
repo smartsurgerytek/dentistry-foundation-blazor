@@ -200,7 +200,7 @@ else if (SelectedJaw == "Mandible")
         {
             
             var returnData = await Http.GetFromJsonAsync<PatientRecordDto>(
-                $"https://localhost:44337/api/app/patient/patient-record-by/{PatientId}");
+                $"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/patient/patient-record-by/{PatientId}");
 
             if (returnData != null)
             {
@@ -227,7 +227,7 @@ else if (SelectedJaw == "Mandible")
                 {
                     Image = base64Image
                 };
-            var paPanoResponse = await httpClient.PostAsJsonAsync("https://localhost:44337/api/app/dentistry-api/pa-pano-classification", imagePaPanoRequest);
+            var paPanoResponse = await httpClient.PostAsJsonAsync("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/dentistry-api/pa-pano-classification", imagePaPanoRequest);
             var paPanoResponseMessage = await paPanoResponse.Content.ReadFromJsonAsync<PaPanoClassificationResponseDto>();
             var isPeriapicalImage = paPanoResponseMessage?.Predicted_Class?.Contains("periapical", StringComparison.OrdinalIgnoreCase) ?? false;
 
@@ -236,7 +236,7 @@ else if (SelectedJaw == "Mandible")
             if (!isPeriapicalImage)
             {
                 var imageRequest = new SegmentationApiRequestDto { Image = base64Image };
-                var fdiDataResponse = await httpClient.PostAsJsonAsync($"https://localhost:44337/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
+                var fdiDataResponse = await httpClient.PostAsJsonAsync($"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
                 fdiData = await fdiDataResponse.Content.ReadAsStringAsync();
             }
             
@@ -258,7 +258,7 @@ else if (SelectedJaw == "Mandible")
                 PatientName = PatientName,
                 PatientDob = PatientDob
             };
-        var response = await Http.PostAsJsonAsync("https://localhost:44337/api/app/Examination", record);
+        var response = await Http.PostAsJsonAsync("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/Examination", record);
         var fNmae = await response.Content.ReadAsStringAsync();
         NavigationManager.NavigateTo($"WordProcessor?fNmae={Uri.EscapeDataString(fNmae)}&PatientId={PatientId}");
         spinnerObj.HideAsync();

@@ -48,7 +48,7 @@
 
     private async Task LoadRecords()
     {
-        Records = await Http.GetFromJsonAsync<List<RecordDto>>("https://localhost:44337/api/app/record/records") ?? new();
+        Records = await Http.GetFromJsonAsync<List<RecordDto>>("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/record/records") ?? new();
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
@@ -71,7 +71,7 @@
 
     private async Task DeleteRecord(Guid id)
     {
-        await Http.DeleteAsync($"https://localhost:44337/api/app/record/record/{id}");
+        await Http.DeleteAsync($"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/record/record/{id}");
         await LoadRecords();
     }
 
