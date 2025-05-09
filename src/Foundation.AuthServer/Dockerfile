@@ -5,4 +5,7 @@ COPY ./bin/Release/net8.0/publish/ .
 RUN dotnet tool install -g Volo.Abp.Cli --version 8.1.2
 ENV PATH="${PATH}:/root/.dotnet/tools"
 RUN abp install-libs
+EXPOSE 80
+EXPOSE 443
+ENV ASPNETCORE_URLS=http://+:80
 ENTRYPOINT ["dotnet", "Foundation.AuthServer.dll"]
