@@ -17,11 +17,16 @@ public class Program
         builder.Services.AddSyncfusionBlazor();
         builder.Services.AddBlazoredSessionStorage();
 
-        builder.Services.AddScoped(sp => new HttpClient
-        {
-            BaseAddress = new Uri("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/") 
-        });
+        //builder.Services.AddScoped(sp => new HttpClient
+        //{
+        //    BaseAddress = new Uri("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/") 
+        //});
 
+        var http = new HttpClient
+        {
+            BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"])
+        };
+        builder.Services.AddScoped(sp => http);
 
 
         var application = await builder.AddApplicationAsync<FoundationBlazorClientModule>(options =>
