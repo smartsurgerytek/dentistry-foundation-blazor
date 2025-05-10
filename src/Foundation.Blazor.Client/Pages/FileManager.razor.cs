@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Foundation.Application.Contracts.Dtos;
 using Foundation.Dtos;
 using Syncfusion.Blazor.FileManager;
+using Syncfusion.Blazor.Popups;
 using Volo.Abp.EventBus.Distributed;
 
 namespace Foundation.Blazor.Client.Pages;
@@ -25,10 +26,23 @@ public partial class FileManager
         new ToolBarItemModel() { Name = "SortBy" },
         new ToolBarItemModel() { Name = "Refresh" },
         new ToolBarItemModel() { Name = "ExaminationRecord" , TooltipText ="Click to generate an examination record" },
+        new ToolBarItemModel() { Name = "OpenImageEditor" , TooltipText ="Click to edit the selected image" },
         new ToolBarItemModel() { Name = "Selection" },
         new ToolBarItemModel() { Name = "View" },
         new ToolBarItemModel() { Name = "Details" },
     };
+
+    public bool IsImageEditorVisible { get; set; } = false;
+
+    public void OpenImageEditor()
+    {
+        this.IsImageEditorVisible = true;
+    }
+
+    public void OnOverlayclick(OverlayModalClickEventArgs arg)
+    {
+        this.IsImageEditorVisible = false;
+    }
 
     public bool IsExaminationRecordDisabled { get; set; } = false;
 
@@ -53,7 +67,7 @@ public partial class FileManager
         var selectedFile = this.SfFileManager?.GetSelectedFiles()[0];
         var imagePath = selectedFile?.FilterPath;
         var imageName = selectedFile?.Name;
-        
+
         NavigationManager.NavigateTo($"/ExaminationRecord?imagePath={imagePath}&imageName={imageName}");
     }
 
@@ -83,8 +97,8 @@ public partial class FileManager
         var selectedItemExtension = allSeparated?[^1] ?? "";
         Console.WriteLine(selectedItemExtension);
 
-        // check if the selected item is an original image: contains _a with jpg,png,jpeg extensions
-        var isOriginalImage = selectedItemName.EndsWith("_a") && (selectedItemExtension == "jpg" || selectedItemExtension == "png" || selectedItemExtension == "jpeg");
+        // check if the selected item is an original image: contains _a with jpg,png,jpeg,dcm extensions
+        var isOriginalImage = selectedItemName.EndsWith("_a") && (selectedItemExtension == "jpg" || selectedItemExtension == "png" || selectedItemExtension == "jpeg" || selectedItemExtension == "dcm");
         // if it is an image, enable the button
         IsExaminationRecordDisabled = !isOriginalImage;
     }

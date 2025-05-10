@@ -54,7 +54,6 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                 else
                 {
                     this.operation.RegisterMinIOFileProvider(bucketName, accessKey, secretKey, serviceUrl);
-                    this.operation.RootFolder(bucketName);
                 }
 
                 return;
