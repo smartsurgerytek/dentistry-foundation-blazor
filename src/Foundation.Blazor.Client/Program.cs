@@ -1,3 +1,5 @@
+using System.Net.Http;
+using System;
 using System.Threading.Tasks;
 using Blazored.SessionStorage;
 using Foundation.Services;
@@ -14,6 +16,12 @@ public class Program
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
         builder.Services.AddSyncfusionBlazor();
         builder.Services.AddBlazoredSessionStorage();
+
+        builder.Services.AddScoped(sp => new HttpClient
+        {
+            BaseAddress = new Uri("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/") 
+        });
+
 
 
         var application = await builder.AddApplicationAsync<FoundationBlazorClientModule>(options =>
