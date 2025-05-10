@@ -84,8 +84,8 @@
     }
 
     private async Task LoadOrganizations()
-    {
-        Organizations = await Http.GetFromJsonAsync<List<OrganizationDto>>("https://localhost:44337/api/app/organization/organizations");
+    {        
+        Organizations = await Http.GetFromJsonAsync<List<OrganizationDto>>("/api/app/organization/organizations");
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
@@ -125,12 +125,12 @@
     private async Task SaveOrganization()
     {
         if (IsNew)
-        {
-            await Http.PostAsJsonAsync("https://localhost:44337/api/app/organization/organization", CurrentOrganization);
+        {            
+            await Http.PostAsJsonAsync("/api/app/organization/organization", CurrentOrganization);
         }
         else
         {
-            await Http.PutAsJsonAsync($"https://localhost:44337/api/app/organization/organization/{CurrentOrganization.Id}", CurrentOrganization);
+            await Http.PutAsJsonAsync($"/api/app/organization/organization/{CurrentOrganization.Id}", CurrentOrganization);            
         }
 
         await LoadOrganizations();
@@ -138,8 +138,8 @@
     }
 
     private async Task DeleteOrganization(Guid id)
-    {
-        await Http.DeleteAsync($"https://localhost:44337/api/app/organization/organization/{id}");
+    {        
+        await Http.DeleteAsync($"/api/app/organization/organization/{id}");
         await LoadOrganizations();
     }
 
