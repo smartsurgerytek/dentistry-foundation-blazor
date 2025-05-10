@@ -132,7 +132,7 @@
         if (!string.IsNullOrEmpty(DoctorId))
         {
             Patients = await Http.GetFromJsonAsync<List<PatientDto>>(
-                $"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/patient/patient-by/{DoctorId}"
+                $"https://localhost:44337/api/app/patient/patient-by/{DoctorId}"
             ) ?? new();
         }
     }
@@ -190,11 +190,11 @@
         {
             if (IsNew)
             {
-                await Http.PostAsJsonAsync("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/patient/patient", CurrentPatient);
+                await Http.PostAsJsonAsync("https://localhost:44337/api/app/patient/patient", CurrentPatient);
             }
             else
             {
-                await Http.PutAsJsonAsync($"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/patient/patient/{CurrentPatient.Id}", CurrentPatient);
+                await Http.PutAsJsonAsync($"https://localhost:44337/api/app/patient/patient/{CurrentPatient.Id}", CurrentPatient);
             }
 
             await LoadPatients();
@@ -208,7 +208,7 @@
 
     private async Task DeletePatient(Guid id)
     {
-        await Http.DeleteAsync($"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/patient/patient/{id}");
+        await Http.DeleteAsync($"https://localhost:44337/api/app/patient/patient/{id}");
         await LoadPatients();
     }
 

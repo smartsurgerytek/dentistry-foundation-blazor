@@ -85,7 +85,7 @@
 
     private async Task LoadOrganizations()
     {
-        Organizations = await Http.GetFromJsonAsync<List<OrganizationDto>>("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/organization/organizations");
+        Organizations = await Http.GetFromJsonAsync<List<OrganizationDto>>("https://localhost:44337/api/app/organization/organizations");
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
@@ -126,11 +126,11 @@
     {
         if (IsNew)
         {
-            await Http.PostAsJsonAsync("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/organization/organization", CurrentOrganization);
+            await Http.PostAsJsonAsync("https://localhost:44337/api/app/organization/organization", CurrentOrganization);
         }
         else
         {
-            await Http.PutAsJsonAsync($"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/organization/organization/{CurrentOrganization.Id}", CurrentOrganization);
+            await Http.PutAsJsonAsync($"https://localhost:44337/api/app/organization/organization/{CurrentOrganization.Id}", CurrentOrganization);
         }
 
         await LoadOrganizations();
@@ -139,7 +139,7 @@
 
     private async Task DeleteOrganization(Guid id)
     {
-        await Http.DeleteAsync($"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/organization/organization/{id}");
+        await Http.DeleteAsync($"https://localhost:44337/api/app/organization/organization/{id}");
         await LoadOrganizations();
     }
 

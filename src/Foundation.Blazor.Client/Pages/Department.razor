@@ -88,7 +88,7 @@
         if (!string.IsNullOrEmpty(OrganizationId))
         {
             Departments = await Http.GetFromJsonAsync<List<DepartmentDto>>(
-                $"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/department/departments-by/{OrganizationId}"
+                $"https://localhost:44337/api/app/department/departments-by/{OrganizationId}"
             ) ?? new();
         }
     }
@@ -131,12 +131,12 @@
     {
         if (IsNew)
         {
-            await Http.PostAsJsonAsync("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/department/department", CurrentDepartment);
+            await Http.PostAsJsonAsync("https://localhost:44337/api/app/department/department", CurrentDepartment);
         }
         else
         {
             await Http.PutAsJsonAsync(
-                $"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/department/department/{CurrentDepartment.Id}",
+                $"https://localhost:44337/api/app/department/department/{CurrentDepartment.Id}",
                 CurrentDepartment
             );
         }
@@ -147,7 +147,7 @@
 
     private async Task DeleteDepartment(Guid id)
     {
-        await Http.DeleteAsync($"https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/api/app/department/department/{id}");
+        await Http.DeleteAsync($"https://localhost:44337/api/app/department/department/{id}");
         await LoadDepartments();
     }
 
