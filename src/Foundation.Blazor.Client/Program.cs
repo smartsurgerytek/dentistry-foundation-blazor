@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Blazored.SessionStorage;
 using Foundation.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Syncfusion.Blazor;
 
@@ -17,17 +18,18 @@ public class Program
         builder.Services.AddSyncfusionBlazor();
         builder.Services.AddBlazoredSessionStorage();
 
-        //builder.Services.AddScoped(sp => new HttpClient
-        //{
-        //    BaseAddress = new Uri("https://krishtopher-dev-mumbai.smartsurgerytek.net:44337/") 
-        //});
+        var tempHttp = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
+        var configStream = await tempHttp.GetStreamAsync("appsettings.json");
+        builder.Configuration.AddJsonStream(configStream);
 
-        var http = new HttpClient
+        var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
+        if (string.IsNullOrWhiteSpace(apiBaseUrl))
+            throw new Exception("ApiBaseUrl is missing or empty in appsettings.json");
+
+        builder.Services.AddScoped(sp => new HttpClient
         {
-            BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"])
-        };
-        builder.Services.AddScoped(sp => http);
-
+            BaseAddress = new Uri(apiBaseUrl)
+        });
 
         var application = await builder.AddApplicationAsync<FoundationBlazorClientModule>(options =>
         {
@@ -38,6 +40,8 @@ public class Program
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzY0MjIzMEAzMjM4MmUzMDJlMzBDWGVhMGYreWNZTlJQYkdNWjRFczkxZkdxSFh5UW1wNHpiaVRaRFFBT1cwPQ==");        
 
         await application.InitializeApplicationAsync(host.Services);
+
+
 
         await host.RunAsync();
     }
