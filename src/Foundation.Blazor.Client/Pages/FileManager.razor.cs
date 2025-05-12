@@ -7,13 +7,19 @@ using Foundation.Application.Contracts.Dtos;
 using Foundation.Dtos;
 using Syncfusion.Blazor.FileManager;
 using Syncfusion.Blazor.Popups;
+using Syncfusion.Blazor.ImageEditor;
 using Volo.Abp.EventBus.Distributed;
 
 namespace Foundation.Blazor.Client.Pages;
 
 public partial class FileManager
 {
+    public bool IsImageEditorVisible { get; set; } = true;
+    public bool IsOpenImageEditorBtnDisabled { get; set; } = true;
+    public bool IsExaminationRecordDisabled { get; set; } = false;
     public SfFileManager<FileManagerDirectoryContent>? SfFileManager;
+    public SfImageEditor? ImageEditor;
+
     public List<ToolBarItemModel> Items = new List<ToolBarItemModel>(){
         new ToolBarItemModel() { Name = "NewFolder" },
         new ToolBarItemModel() { Name = "Cut" },
@@ -32,11 +38,12 @@ public partial class FileManager
         new ToolBarItemModel() { Name = "Details" },
     };
 
-    public bool IsImageEditorVisible { get; set; } = false;
-
-    public void OpenImageEditor()
+    public async Task OpenImageEditor()
     {
         this.IsImageEditorVisible = true;
+        // load the selected image in the image editor
+        var selectedItem = this.SfFileManager?.GetSelectedFiles()[0];
+        await ImageEditor?.OpenAsync("https://ej2.syncfusion.com/react/demos/src/image-editor/images/bridge.png");
     }
 
     public void OnOverlayclick(OverlayModalClickEventArgs arg)
@@ -44,7 +51,10 @@ public partial class FileManager
         this.IsImageEditorVisible = false;
     }
 
-    public bool IsExaminationRecordDisabled { get; set; } = false;
+    public async void OpenAsync()
+    {
+        await ImageEditor?.OpenAsync("https://ej2.syncfusion.com/react/demos/src/image-editor/images/bridge.png");
+    }
 
     public Task HandleEventAsync(ImageUploadEto eventData)
     {
@@ -78,6 +88,7 @@ public partial class FileManager
         if (totalSelections != 1)
         {
             IsExaminationRecordDisabled = true;
+            IsOpenImageEditorBtnDisabled = true;
             return;
         }
 
@@ -86,6 +97,7 @@ public partial class FileManager
         if (!(selectedItem?.IsFile ?? true))
         {
             IsExaminationRecordDisabled = true;
+            IsOpenImageEditorBtnDisabled = true;
             return;
         }
 
@@ -98,8 +110,12 @@ public partial class FileManager
         Console.WriteLine(selectedItemExtension);
 
         // check if the selected item is an original image: contains _a with jpg,png,jpeg,dcm extensions
-        var isOriginalImage = selectedItemName.EndsWith("_a") && (selectedItemExtension == "jpg" || selectedItemExtension == "png" || selectedItemExtension == "jpeg" || selectedItemExtension == "dcm");
+        var isSelectedFileAnImage = selectedItemExtension == "jpg" || selectedItemExtension == "png" || selectedItemExtension == "jpeg" || selectedItemExtension == "dcm";
+        var isOriginalImage = selectedItemName.EndsWith("_a") && isSelectedFileAnImage;
         // if it is an image, enable the button
         IsExaminationRecordDisabled = !isOriginalImage;
+
+        // disable image editor btn, if dicom image selected
+        IsOpenImageEditorBtnDisabled = !(isSelectedFileAnImage && selectedItemExtension != "dcm");
     }
 }

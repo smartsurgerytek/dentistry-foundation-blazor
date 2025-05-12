@@ -1,53 +1,59 @@
 ﻿@page "/FileManager"
 @using Syncfusion.Blazor.FileManager
 @using Syncfusion.Blazor.Buttons
-@using Syncfusion.Blazor.ImageEditor
 @using Syncfusion.Blazor.Popups
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
 
-<SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"
-    SelectedItemsChanged="OnSelectedItemsChanged" CssClass="posRelative">
-    <FileManagerAjaxSettings Url="/api/FileProvider/AmazonS3FileOperations" UploadUrl="/api/FileProvider/AmazonS3Upload"
-        GetImageUrl="/api/FileProvider/AmazonS3GetImage" DownloadUrl="/api/FileProvider/AmazonS3Download">
-    </FileManagerAjaxSettings>
-    <FileManagerToolbarSettings ToolbarItems="@Items">
-        <FileManagerCustomToolbarItems>
-            @* ExaminationRecord *@
-            <FileManagerCustomToolbarItem Name="ExaminationRecord">
-                <Template>
-                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Examination Record"
-                        OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled"></SfButton>
-                </Template>
-            </FileManagerCustomToolbarItem>
-            @* OnFileOpen GetImageUrl Editor *@
-            <FileManagerCustomToolbarItem Name="OpenImageEditor">
-                <Template>
-                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Edit Image"
-                        OnClick="OpenImageEditor"></SfButton>
-                </Template>
-            </FileManagerCustomToolbarItem>
-        </FileManagerCustomToolbarItems>
-    </FileManagerToolbarSettings>
-
-    <SfDialog Width="40%" IsModal="true" @bind-Visible="@IsImageEditorVisible" CssClass="posAbsolute">
-        <DialogEvents OnOverlayModalClick="@OnOverlayclick">
-        </DialogEvents>
-        <DialogTemplates>
-            @* <Content> This is a modal dialog </Content> *@
-            <Content>
-                <SfImageEditor Height="500"></SfImageEditor>
-            </Content>
-        </DialogTemplates>
-    </SfDialog>
-    <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
-    @* <FileManagerContextMenuSettings File="@ContextMenuItems"></FileManagerContextMenuSettings> *@
-</SfFileManager>
+@* <div class="posRelative"> *@
+    <SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"
+        SelectedItemsChanged="OnSelectedItemsChanged">
+        <FileManagerAjaxSettings Url="/api/FileProvider/AmazonS3FileOperations"
+            UploadUrl="/api/FileProvider/AmazonS3Upload" GetImageUrl="/api/FileProvider/AmazonS3GetImage"
+            DownloadUrl="/api/FileProvider/AmazonS3Download">
+        </FileManagerAjaxSettings>
+        <FileManagerToolbarSettings ToolbarItems="@Items">
+            <FileManagerCustomToolbarItems>
+                @* ExaminationRecord *@
+                <FileManagerCustomToolbarItem Name="ExaminationRecord">
+                    <Template>
+                        <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Examination Record"
+                            OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled"></SfButton>
+                    </Template>
+                </FileManagerCustomToolbarItem>
+                @* OnFileOpen GetImageUrl Editor *@
+                <FileManagerCustomToolbarItem Name="OpenImageEditor">
+                    <Template>
+                        <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Edit Image"
+                            OnClick="OpenImageEditor" Disabled="@IsOpenImageEditorBtnDisabled"></SfButton>
+                    </Template>
+                </FileManagerCustomToolbarItem>
+            </FileManagerCustomToolbarItems>
+        </FileManagerToolbarSettings>
+        <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
+        @* <FileManagerContextMenuSettings File="@ContextMenuItems"></FileManagerContextMenuSettings> *@
+    </SfFileManager>
+    @* <div class="posAbsolute"> *@
+        <SfDialog Width="40%" IsModal="true" @bind-Visible="@IsImageEditorVisible">
+            <DialogEvents OnOverlayModalClick="@OnOverlayclick">
+            </DialogEvents>
+            <DialogTemplates>
+                @* <Content> This is a modal dialog </Content> *@
+                <Content>
+                    <SfImageEditor @ref="ImageEditor" Height="500">
+                            <ImageEditorEvents Created="OpenAsync"></ImageEditorEvents>
+                    </SfImageEditor>
+                </Content>
+            </DialogTemplates>
+        </SfDialog>
+    @* </div> *@
+@* </div> *@
 
 <style>
     .posRelative {
         position: relative;
     }
+
     .posAbsolute {
         position: absolute;
         top: 0;
