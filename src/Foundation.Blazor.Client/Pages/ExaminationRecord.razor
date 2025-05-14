@@ -212,7 +212,7 @@ else if (SelectedJaw == "Mandible")
         }
         else
         {
-            var responseMessage = await Http.GetAsync($"/api/AmazonS3Provider/OriginalImageDownload?path={imagePath}&name={imageName}");
+            var responseMessage = await Http.GetAsync($"/api/FileProvider/OriginalImageDownload?path={imagePath}&name={imageName}");
             var fileStreamResult = await responseMessage.Content.ReadAsStreamAsync();
             string base64Image;
             using (var memoryStream = new MemoryStream())
