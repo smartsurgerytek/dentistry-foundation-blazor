@@ -14,6 +14,7 @@ public class Program
 {
     public async static Task Main(string[] args)
     {
+        Console.WriteLine("=========Program.cs start ========");
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
         builder.Services.AddSyncfusionBlazor();
         builder.Services.AddBlazoredSessionStorage();
@@ -30,6 +31,15 @@ public class Program
         {
             BaseAddress = new Uri(apiBaseUrl)
         });
+
+        builder.Services.AddHttpClient("ApiClient", client =>
+        {
+            client.BaseAddress = new Uri(apiBaseUrl);
+        });
+
+        Console.WriteLine(apiBaseUrl);
+
+        Console.WriteLine("=========Program.cs end ========");
 
         var application = await builder.AddApplicationAsync<FoundationBlazorClientModule>(options =>
         {

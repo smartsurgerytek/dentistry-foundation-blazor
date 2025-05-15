@@ -7,7 +7,7 @@
 @using Syncfusion.Blazor.Navigations
 @using Syncfusion.Blazor.Popups
 @using System.Net.Http.Json
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 
 <h3>Organization</h3>
@@ -40,7 +40,7 @@
                         Name <span style="color: red">*</span>
                     </label>
                     <SfTextBox TValue="string" @bind-Value="CurrentOrganization.Name"
-                               Placeholder="Enter Name" FloatLabelType="FloatLabelType.Auto" />
+                    Placeholder="Enter Name" FloatLabelType="FloatLabelType.Auto" />
                     <ValidationMessage style="color: red" For="@(() => CurrentOrganization.Name)" />
                 </div>
 
@@ -49,7 +49,7 @@
                         Address <span style="color: red">*</span>
                     </label>
                     <SfTextBox TValue="string" @bind-Value="CurrentOrganization.Address"
-                               Placeholder="Enter Address" FloatLabelType="FloatLabelType.Auto" />
+                    Placeholder="Enter Address" FloatLabelType="FloatLabelType.Auto" />
                     <ValidationMessage style="color: red" For="@(() => CurrentOrganization.Address)" />
                 </div>
 
@@ -66,7 +66,6 @@
 @code {
     private SfGrid<OrganizationDto> OrganizationGrid;
     private SfDialog DialogRef;
-
     private List<OrganizationDto> Organizations = new();
     private CreateUpdateOrganizationDto CurrentOrganization = new();
     private string DialogTitle = "";
@@ -84,8 +83,11 @@
     }
 
     private async Task LoadOrganizations()
-    {        
-        Organizations = await Http.GetFromJsonAsync<List<OrganizationDto>>("/api/app/organization/organizations");
+    {
+        Console.WriteLine("==== LoadOrganizations start ====");
+        Console.WriteLine(HttpClientFactory.CreateClient("ApiClient").BaseAddress);
+        Console.WriteLine("==== LoadOrganizations end ====");
+        Organizations = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<OrganizationDto>>("api/app/organization/organizations");
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
@@ -125,12 +127,12 @@
     private async Task SaveOrganization()
     {
         if (IsNew)
-        {            
-            await Http.PostAsJsonAsync("/api/app/organization/organization", CurrentOrganization);
+        {
+            await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/organization/organization", CurrentOrganization);
         }
         else
         {
-            await Http.PutAsJsonAsync($"/api/app/organization/organization/{CurrentOrganization.Id}", CurrentOrganization);            
+            await HttpClientFactory.CreateClient("ApiClient").PutAsJsonAsync($"/api/app/organization/organization/{CurrentOrganization.Id}", CurrentOrganization);
         }
 
         await LoadOrganizations();
@@ -138,8 +140,8 @@
     }
 
     private async Task DeleteOrganization(Guid id)
-    {        
-        await Http.DeleteAsync($"/api/app/organization/organization/{id}");
+    {
+        await HttpClientFactory.CreateClient("ApiClient").DeleteAsync($"/api/app/organization/organization/{id}");
         await LoadOrganizations();
     }
 
