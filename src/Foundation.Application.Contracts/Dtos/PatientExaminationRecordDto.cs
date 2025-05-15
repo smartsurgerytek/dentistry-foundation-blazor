@@ -14,6 +14,7 @@ namespace Foundation.Dtos
         public string PatientName { get; set; }
         public string DoctorName { get; set; }
         public DateOnly PatientDob { get; set; }
-        
+        public string FileBaseAddress { get; set; }
+
     }
 }

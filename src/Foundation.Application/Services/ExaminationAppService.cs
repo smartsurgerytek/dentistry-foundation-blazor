@@ -54,8 +54,8 @@ namespace Foundation.Services
         {
             try
             {
-                using HttpClient httpClient = new HttpClient();
-                var fileBytes = await httpClient.GetByteArrayAsync("https://localhost:44355/FileData/DefaultFile.docx");
+                using HttpClient httpClient = new HttpClient();               
+                var fileBytes = await httpClient.GetByteArrayAsync(input.FileBaseAddress+"/FileData/DefaultFile.docx");
                 using var stream = new MemoryStream();
                 stream.Write(fileBytes, 0, fileBytes.Length);
                 stream.Position = 0;

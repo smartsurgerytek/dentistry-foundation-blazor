@@ -2,7 +2,7 @@
 
 @inject ISessionStorageService SessionStorage
 @inject IHttpClientFactory HttpClientFactory
-
+@inject HttpClient Http
 @using Blazored.SessionStorage
 @inject NavigationManager NavigationManager
 @using Foundation.Dtos
@@ -195,7 +195,7 @@ else if (SelectedJaw == "Mandible")
     {       
         if (!string.IsNullOrEmpty(PatientId))
         {
-            
+
             var returnData = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<PatientRecordDto>($"/api/app/patient/patient-record-by/{PatientId}");
 
             if (returnData != null)
@@ -235,12 +235,16 @@ else if (SelectedJaw == "Mandible")
                 var fdiDataResponse = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync($"/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
                 fdiData = await fdiDataResponse.Content.ReadAsStringAsync();
             }
-            
+
             // pass the fdi data to examination record form
         }      
     }
     private async Task SubmitRecord()
     {
+
+        Console.WriteLine("==============");
+        Console.WriteLine(Http.BaseAddress.ToString());
+
         spinnerObj.ShowAsync();
 
         var record = new PatientExaminationRecordDto
@@ -250,7 +254,8 @@ else if (SelectedJaw == "Mandible")
                 PatientId = PatientId,
                 DoctorName = DoctorName,
                 PatientName = PatientName,
-                PatientDob = PatientDob
+                PatientDob = PatientDob,
+                FileBaseAddress = Http.BaseAddress.ToString()
             };
 
         var response = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/Examination", record);
