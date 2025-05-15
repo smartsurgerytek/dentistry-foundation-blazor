@@ -1,14 +1,7 @@
 ﻿@page "/Doctor"
 
-@using Microsoft.AspNetCore.Components.Forms
-@using Foundation.Dtos
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Inputs
-@using Syncfusion.Blazor.Navigations
-@using Syncfusion.Blazor.Popups
-@using System.Net.Http.Json
-@using System.ComponentModel.DataAnnotations
-@inject HttpClient Http
+
+@inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 
 <h3>Doctors</h3>
@@ -97,8 +90,8 @@
     {
         if (!string.IsNullOrEmpty(DepartmentId))
         {
-            Doctors = await Http.GetFromJsonAsync<List<DoctorDto>>(
-                $"https://localhost:44337/api/app/doctor/doctors-by/{DepartmentId}"
+            Doctors = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<DoctorDto>>(
+                $"/api/app/doctor/doctors-by/{DepartmentId}"
             ) ?? new();
         }
     }
@@ -150,11 +143,11 @@
     {
         if (IsNew)
         {
-            await Http.PostAsJsonAsync("https://localhost:44337/api/app/doctor/doctor", CurrentDoctor);
+            await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/doctor/doctor", CurrentDoctor);
         }
         else
         {
-            await Http.PutAsJsonAsync($"https://localhost:44337/api/app/doctor/doctor/{CurrentDoctor.Id}", CurrentDoctor);
+            await HttpClientFactory.CreateClient("ApiClient").PutAsJsonAsync($"/api/app/doctor/doctor/{CurrentDoctor.Id}", CurrentDoctor);
         }
 
         await LoadDoctors();
@@ -163,7 +156,7 @@
 
     private async Task DeleteDoctor(Guid id)
     {
-        await Http.DeleteAsync($"https://localhost:44337/api/app/doctor/doctor/{id}");
+        await HttpClientFactory.CreateClient("ApiClient").DeleteAsync($"/api/app/doctor/doctor/{id}");
         await LoadDoctors();
     }
 

@@ -1,16 +1,13 @@
 ﻿@page "/ExaminationRecord"
 
 @inject ISessionStorageService SessionStorage
+@inject IHttpClientFactory HttpClientFactory
+
 @using Blazored.SessionStorage
 @inject NavigationManager NavigationManager
 @using Foundation.Dtos
 @using Foundation.Services
 @using Newtonsoft.Json
-@using Syncfusion.Blazor.Inputs
-@using Syncfusion.Blazor.DropDowns
-@using Syncfusion.Blazor.Buttons
-@using Syncfusion.Blazor.Popups
-@using Syncfusion.Blazor.Spinner
 @inject IJSRuntime JS
 @inject HttpClient Http
 @using System.Net.Http.Json
@@ -199,8 +196,7 @@ else if (SelectedJaw == "Mandible")
         if (!string.IsNullOrEmpty(PatientId))
         {
             
-            var returnData = await Http.GetFromJsonAsync<PatientRecordDto>(
-                $"https://localhost:44337/api/app/patient/patient-record-by/{PatientId}");
+            var returnData = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<PatientRecordDto>($"/api/app/patient/patient-record-by/{PatientId}");
 
             if (returnData != null)
             {
@@ -211,7 +207,7 @@ else if (SelectedJaw == "Mandible")
         }
         else
         {
-            var responseMessage = await Http.GetAsync($"/api/AmazonS3Provider/OriginalImageDownload?path={imagePath}&name={imageName}");
+            var responseMessage = await HttpClientFactory.CreateClient("ApiClient").GetAsync($"/api/AmazonS3Provider/OriginalImageDownload?path={imagePath}&name={imageName}");
             var fileStreamResult = await responseMessage.Content.ReadAsStreamAsync();
             string base64Image;
             using (var memoryStream = new MemoryStream())
@@ -222,12 +218,12 @@ else if (SelectedJaw == "Mandible")
             }
 
             // get pa/pano image
-            var httpClient = new HttpClient();
+            //var httpClient = new HttpClient();
             var imagePaPanoRequest = new SegmentationApiRequestDto
                 {
                     Image = base64Image
                 };
-            var paPanoResponse = await httpClient.PostAsJsonAsync("https://localhost:44337/api/app/dentistry-api/pa-pano-classification", imagePaPanoRequest);
+            var paPanoResponse = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/dentistry-api/pa-pano-classification", imagePaPanoRequest);
             var paPanoResponseMessage = await paPanoResponse.Content.ReadFromJsonAsync<PaPanoClassificationResponseDto>();
             var isPeriapicalImage = paPanoResponseMessage?.Predicted_Class?.Contains("periapical", StringComparison.OrdinalIgnoreCase) ?? false;
 
@@ -236,12 +232,10 @@ else if (SelectedJaw == "Mandible")
             if (!isPeriapicalImage)
             {
                 var imageRequest = new SegmentationApiRequestDto { Image = base64Image };
-                var fdiDataResponse = await httpClient.PostAsJsonAsync($"https://localhost:44337/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
+                var fdiDataResponse = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync($"/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
                 fdiData = await fdiDataResponse.Content.ReadAsStringAsync();
             }
             
-            Console.WriteLine("======= Fdi Data =======");
-            Console.WriteLine(fdiData);
             // pass the fdi data to examination record form
         }      
     }
@@ -258,7 +252,9 @@ else if (SelectedJaw == "Mandible")
                 PatientName = PatientName,
                 PatientDob = PatientDob
             };
-        var response = await Http.PostAsJsonAsync("https://localhost:44337/api/app/Examination", record);
+
+        var response = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/Examination", record);
+
         var fNmae = await response.Content.ReadAsStringAsync();
         NavigationManager.NavigateTo($"WordProcessor?fNmae={Uri.EscapeDataString(fNmae)}&PatientId={PatientId}");
         spinnerObj.HideAsync();

@@ -1,10 +1,5 @@
 ﻿@page "/AuditLog"
-@using Foundation.Dtos
-@using Syncfusion.Blazor.Grids
-@using System.Net.Http.Json
-@using Syncfusion.Blazor.Navigations
-@inject HttpClient Http
-
+@inject IHttpClientFactory HttpClientFactory
 
 <h3>AuditLog</h3>
 
@@ -35,7 +30,7 @@
 
     private async Task LoadAuditLogs()
     {        
-        AuditLogDtos = await Http.GetFromJsonAsync<List<AuditLogDto>>("/api/app/audit-log-app-services/audit-log");
+        AuditLogDtos = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<AuditLogDto>>("/api/app/audit-log-app-services/audit-log");
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)

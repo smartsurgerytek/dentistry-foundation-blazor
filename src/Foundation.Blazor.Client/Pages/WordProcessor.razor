@@ -1,5 +1,7 @@
 ﻿@page "/WordProcessor"
 @inject IJSRuntime JS
+@inject IHttpClientFactory HttpClientFactory
+
 
 @using DocumentFormat.OpenXml.Wordprocessing;
 @using Blazored.SessionStorage
@@ -148,7 +150,7 @@
             FileName = fileName
         };
 
-        var recordResponse = await Http.PostAsJsonAsync("https://localhost:44337/api/app/record/record", recordData);
+        var recordResponse = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/record/record", recordData);
 
         if (recordResponse.IsSuccessStatusCode)
         {

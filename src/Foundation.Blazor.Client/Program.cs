@@ -13,8 +13,7 @@ namespace Foundation.Blazor.Client;
 public class Program
 {
     public async static Task Main(string[] args)
-    {
-        Console.WriteLine("=========Program.cs start ========");
+    {        
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
         builder.Services.AddSyncfusionBlazor();
         builder.Services.AddBlazoredSessionStorage();
@@ -36,11 +35,7 @@ public class Program
         {
             client.BaseAddress = new Uri(apiBaseUrl);
         });
-
-        Console.WriteLine(apiBaseUrl);
-
-        Console.WriteLine("=========Program.cs end ========");
-
+      
         var application = await builder.AddApplicationAsync<FoundationBlazorClientModule>(options =>
         {
             options.UseAutofac();
@@ -50,9 +45,6 @@ public class Program
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzY0MjIzMEAzMjM4MmUzMDJlMzBDWGVhMGYreWNZTlJQYkdNWjRFczkxZkdxSFh5UW1wNHpiaVRaRFFBT1cwPQ==");        
 
         await application.InitializeApplicationAsync(host.Services);
-
-
-
         await host.RunAsync();
     }
 }

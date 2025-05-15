@@ -1,12 +1,4 @@
 ﻿@page "/Organization"
-
-@using Microsoft.AspNetCore.Components.Forms
-@using Foundation.Dtos
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Inputs
-@using Syncfusion.Blazor.Navigations
-@using Syncfusion.Blazor.Popups
-@using System.Net.Http.Json
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 
@@ -84,9 +76,6 @@
 
     private async Task LoadOrganizations()
     {
-        Console.WriteLine("==== LoadOrganizations start ====");
-        Console.WriteLine(HttpClientFactory.CreateClient("ApiClient").BaseAddress);
-        Console.WriteLine("==== LoadOrganizations end ====");
         Organizations = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<OrganizationDto>>("api/app/organization/organizations");
     }
 
