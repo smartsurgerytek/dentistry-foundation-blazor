@@ -131,153 +131,153 @@ namespace Foundation.Services
 
                     #region Image Creation 
 
-                    var cellPic = tbFourRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
+    //                var cellPic = tbFourRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
 
 
-                    var imageUrl = "http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/withnum.jpg";
-                    using HttpClient httpClientImg = new();
-                    using HttpResponseMessage imageResponse = await httpClientImg.GetAsync(imageUrl);
-                    imageResponse.EnsureSuccessStatusCode();
-                    using var responseData = await httpClientImg.GetAsync(imageUrl);
-                    responseData.EnsureSuccessStatusCode();
+    //                var imageUrl = "http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/withnum.jpg";
+    //                using HttpClient httpClientImg = new();
+    //                using HttpResponseMessage imageResponse = await httpClientImg.GetAsync(imageUrl);
+    //                imageResponse.EnsureSuccessStatusCode();
+    //                using var responseData = await httpClientImg.GetAsync(imageUrl);
+    //                responseData.EnsureSuccessStatusCode();
 
 
-                    await using var remoteStream = await responseData.Content.ReadAsStreamAsync();
-                    await using var imageStream = new MemoryStream();
-                    await remoteStream.CopyToAsync(imageStream);
-                    imageStream.Position = 0;
+    //                await using var remoteStream = await responseData.Content.ReadAsStreamAsync();
+    //                await using var imageStream = new MemoryStream();
+    //                await remoteStream.CopyToAsync(imageStream);
+    //                imageStream.Position = 0;
 
-                    //                    var issueTeethList = input.MaxillaTeeth.Where(t => t.CariesYes == true)
-                    //.Select(t => t.ToothNumber).Concat(input.MandibleTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)).ToArray();
+    //                //                    var issueTeethList = input.MaxillaTeeth.Where(t => t.CariesYes == true)
+    //                //.Select(t => t.ToothNumber).Concat(input.MandibleTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)).ToArray();
 
-                    //var issueTeethList = 
-                    //    input.MaxillaTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(input.MandibleTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)).ToArray();
+    //                //var issueTeethList = 
+    //                //    input.MaxillaTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(input.MandibleTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)).ToArray();
 
-                    var issueTeethList =
-                        input.UpperLeft.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(
-                            input.UpperRight.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(
-                                input.LowerLeft.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(
-                                    input.LowerRight.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)))).ToArray();
+    //                var issueTeethList =
+    //                    input.UpperLeft.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(
+    //                        input.UpperRight.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(
+    //                            input.LowerLeft.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(
+    //                                input.LowerRight.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)))).ToArray();
 
-                    using Bitmap bitmap = new Bitmap(imageStream);
-                    using Graphics g = Graphics.FromImage(bitmap);
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-
-
-
-                    Dictionary<int, System.Drawing.Rectangle> toothMap = new()
-    {
-        { 18, new System.Drawing.Rectangle(55, 307, 25, 25) },
-        { 17, new System.Drawing.Rectangle(68, 263, 25, 25) },
-        { 16, new System.Drawing.Rectangle(82, 220, 25, 25) },
-            { 15, new System.Drawing.Rectangle(106, 178, 25, 25) },
-            { 14, new System.Drawing.Rectangle(118, 149, 25, 25) },
-            { 13, new System.Drawing.Rectangle(139, 119, 25, 25) },
-            { 12, new System.Drawing.Rectangle(171, 102, 22, 22) },
-            { 11, new System.Drawing.Rectangle(206, 83, 25, 25) },
-            { 21, new System.Drawing.Rectangle(249, 86, 25, 25) },
-            { 22, new System.Drawing.Rectangle(287, 98, 25, 25) },
-            { 23, new System.Drawing.Rectangle(316, 120, 25, 25) },
-            { 24, new System.Drawing.Rectangle(336, 150, 25, 25) },
-            { 25, new System.Drawing.Rectangle(353, 177, 25, 25) },
-            { 26, new System.Drawing.Rectangle(366, 220, 25, 25) },
-            { 27, new System.Drawing.Rectangle(383, 261, 22, 22) },
-            { 28, new System.Drawing.Rectangle(390, 303, 25, 25) },
-            { 48, new System.Drawing.Rectangle(482, 95, 25, 25) },
-            { 47, new System.Drawing.Rectangle(495, 136, 25, 25) },
-            { 46, new System.Drawing.Rectangle(510, 178, 25, 25) },
-            { 45, new System.Drawing.Rectangle(533, 219, 25, 25) },
-            { 44, new System.Drawing.Rectangle(554, 249, 25, 25) },
-            { 43, new System.Drawing.Rectangle(576, 277, 25, 25) },
-            { 42, new System.Drawing.Rectangle(608, 294, 22, 22) },
-            { 41, new System.Drawing.Rectangle(637, 303, 25, 25) },
-            { 31, new System.Drawing.Rectangle(665, 305, 25, 25) },
-            { 32, new System.Drawing.Rectangle(697, 296, 25, 25) },
-            { 33, new System.Drawing.Rectangle(729, 277, 25, 25) },
-            { 34, new System.Drawing.Rectangle(748, 248, 25, 25) },
-            { 35, new System.Drawing.Rectangle(771, 216, 25, 25) },
-            { 36, new System.Drawing.Rectangle(791, 179, 25, 25) },
-            { 37, new System.Drawing.Rectangle(807, 135, 25, 25) },
-            { 38, new System.Drawing.Rectangle(820, 93, 25, 25) }
-    };
-
-                    int[] attentionTeeth = { 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28,
-                             48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38 };
-
-                    using Brush redBrush = new SolidBrush(System.Drawing.Color.Green);
-                    using System.Drawing.Font font = new System.Drawing.Font("Arial", 12, FontStyle.Bold);
-                    using Brush textBrush = new SolidBrush(System.Drawing.Color.White);
-
-                    foreach (int tooth in issueTeethList)
-                    {
-                        if (toothMap.TryGetValue(tooth, out var rect))
-                        {
-                            g.FillEllipse(redBrush, rect);
-                            var stringSize = g.MeasureString(tooth.ToString(), font);
-                            float textX = rect.X + (rect.Width - stringSize.Width) / 2;
-                            float textY = rect.Y + (rect.Height - stringSize.Height) / 2;
-                            g.DrawString(tooth.ToString(), font, textBrush, textX, textY);
-                        }
-                    }
+    //                using Bitmap bitmap = new Bitmap(imageStream);
+    //                using Graphics g = Graphics.FromImage(bitmap);
+    //                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+    //                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
 
 
-                    // Save bitmap to memory stream
-                    using var finalImageStream = new MemoryStream();
-                    bitmap.Save(finalImageStream, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    finalImageStream.Position = 0;
 
-                    ImagePart imagePart = wordDocument.MainDocumentPart.AddImagePart(ImagePartType.Jpeg);
-                    imagePart.FeedData(finalImageStream);
+    //                Dictionary<int, System.Drawing.Rectangle> toothMap = new()
+    //{
+    //    { 18, new System.Drawing.Rectangle(55, 307, 25, 25) },
+    //    { 17, new System.Drawing.Rectangle(68, 263, 25, 25) },
+    //    { 16, new System.Drawing.Rectangle(82, 220, 25, 25) },
+    //        { 15, new System.Drawing.Rectangle(106, 178, 25, 25) },
+    //        { 14, new System.Drawing.Rectangle(118, 149, 25, 25) },
+    //        { 13, new System.Drawing.Rectangle(139, 119, 25, 25) },
+    //        { 12, new System.Drawing.Rectangle(171, 102, 22, 22) },
+    //        { 11, new System.Drawing.Rectangle(206, 83, 25, 25) },
+    //        { 21, new System.Drawing.Rectangle(249, 86, 25, 25) },
+    //        { 22, new System.Drawing.Rectangle(287, 98, 25, 25) },
+    //        { 23, new System.Drawing.Rectangle(316, 120, 25, 25) },
+    //        { 24, new System.Drawing.Rectangle(336, 150, 25, 25) },
+    //        { 25, new System.Drawing.Rectangle(353, 177, 25, 25) },
+    //        { 26, new System.Drawing.Rectangle(366, 220, 25, 25) },
+    //        { 27, new System.Drawing.Rectangle(383, 261, 22, 22) },
+    //        { 28, new System.Drawing.Rectangle(390, 303, 25, 25) },
+    //        { 48, new System.Drawing.Rectangle(482, 95, 25, 25) },
+    //        { 47, new System.Drawing.Rectangle(495, 136, 25, 25) },
+    //        { 46, new System.Drawing.Rectangle(510, 178, 25, 25) },
+    //        { 45, new System.Drawing.Rectangle(533, 219, 25, 25) },
+    //        { 44, new System.Drawing.Rectangle(554, 249, 25, 25) },
+    //        { 43, new System.Drawing.Rectangle(576, 277, 25, 25) },
+    //        { 42, new System.Drawing.Rectangle(608, 294, 22, 22) },
+    //        { 41, new System.Drawing.Rectangle(637, 303, 25, 25) },
+    //        { 31, new System.Drawing.Rectangle(665, 305, 25, 25) },
+    //        { 32, new System.Drawing.Rectangle(697, 296, 25, 25) },
+    //        { 33, new System.Drawing.Rectangle(729, 277, 25, 25) },
+    //        { 34, new System.Drawing.Rectangle(748, 248, 25, 25) },
+    //        { 35, new System.Drawing.Rectangle(771, 216, 25, 25) },
+    //        { 36, new System.Drawing.Rectangle(791, 179, 25, 25) },
+    //        { 37, new System.Drawing.Rectangle(807, 135, 25, 25) },
+    //        { 38, new System.Drawing.Rectangle(820, 93, 25, 25) }
+    //};
+
+    //                int[] attentionTeeth = { 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28,
+    //                         48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38 };
+
+    //                using Brush redBrush = new SolidBrush(System.Drawing.Color.Green);
+    //                using System.Drawing.Font font = new System.Drawing.Font("Arial", 12, FontStyle.Bold);
+    //                using Brush textBrush = new SolidBrush(System.Drawing.Color.White);
+
+    //                foreach (int tooth in issueTeethList)
+    //                {
+    //                    if (toothMap.TryGetValue(tooth, out var rect))
+    //                    {
+    //                        g.FillEllipse(redBrush, rect);
+    //                        var stringSize = g.MeasureString(tooth.ToString(), font);
+    //                        float textX = rect.X + (rect.Width - stringSize.Width) / 2;
+    //                        float textY = rect.Y + (rect.Height - stringSize.Height) / 2;
+    //                        g.DrawString(tooth.ToString(), font, textBrush, textX, textY);
+    //                    }
+    //                }
 
 
-                    using System.Drawing.Image img = System.Drawing.Image.FromStream(imageStream);
-                    long widthEmus = (long)(img.Width * 5000);
-                    long heightEmus = (long)(img.Height * 5000);
-                    string imagePartId = wordDocument.MainDocumentPart.GetIdOfPart(imagePart);
+    //                // Save bitmap to memory stream
+    //                using var finalImageStream = new MemoryStream();
+    //                bitmap.Save(finalImageStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+    //                finalImageStream.Position = 0;
+
+    //                ImagePart imagePart = wordDocument.MainDocumentPart.AddImagePart(ImagePartType.Jpeg);
+    //                imagePart.FeedData(finalImageStream);
 
 
-                    var element = new DocumentFormat.OpenXml.Wordprocessing.Drawing(
-            new DW.Inline(
-                new DW.Extent() { Cx = widthEmus, Cy = heightEmus },
-                new DW.EffectExtent() { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
-                new DW.DocProperties() { Id = (UInt32Value)1U, Name = "Tooth Highlight" },
-                new DW.NonVisualGraphicFrameDrawingProperties(new A.GraphicFrameLocks() { NoChangeAspect = true }),
-                new A.Graphic(
-                    new A.GraphicData(
-                        new PIC.Picture(
-                            new PIC.NonVisualPictureProperties(
-                                new PIC.NonVisualDrawingProperties() { Id = 0U, Name = "output.jpg" },
-                                new PIC.NonVisualPictureDrawingProperties()
-                            ),
-                            new PIC.BlipFill(
-                                new A.Blip() { Embed = imagePartId, CompressionState = A.BlipCompressionValues.Print },
-                                new A.Stretch(new A.FillRectangle())
-                            ),
-                            new PIC.ShapeProperties(
-                                new A.Transform2D(
-                                    new A.Offset() { X = 0L, Y = 0L },
-                                    new A.Extents() { Cx = widthEmus, Cy = heightEmus }
-                                ),
-                                new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Rectangle }
-                            )
-                        )
-                    )
-                    { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" }
-                )
-            )
-            {
-                DistanceFromTop = 0U,
-                DistanceFromBottom = 0U,
-                DistanceFromLeft = 0U,
-                DistanceFromRight = 0U
-            });
+    //                using System.Drawing.Image img = System.Drawing.Image.FromStream(imageStream);
+    //                long widthEmus = (long)(img.Width * 5000);
+    //                long heightEmus = (long)(img.Height * 5000);
+    //                string imagePartId = wordDocument.MainDocumentPart.GetIdOfPart(imagePart);
 
-                    cellPic.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                    cellPic.Append(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                        new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties(new Justification() { Val = JustificationValues.Center }),
-                        new DocumentFormat.OpenXml.Wordprocessing.Run(element)
-                    ));
+
+    //                var element = new DocumentFormat.OpenXml.Wordprocessing.Drawing(
+    //        new DW.Inline(
+    //            new DW.Extent() { Cx = widthEmus, Cy = heightEmus },
+    //            new DW.EffectExtent() { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
+    //            new DW.DocProperties() { Id = (UInt32Value)1U, Name = "Tooth Highlight" },
+    //            new DW.NonVisualGraphicFrameDrawingProperties(new A.GraphicFrameLocks() { NoChangeAspect = true }),
+    //            new A.Graphic(
+    //                new A.GraphicData(
+    //                    new PIC.Picture(
+    //                        new PIC.NonVisualPictureProperties(
+    //                            new PIC.NonVisualDrawingProperties() { Id = 0U, Name = "output.jpg" },
+    //                            new PIC.NonVisualPictureDrawingProperties()
+    //                        ),
+    //                        new PIC.BlipFill(
+    //                            new A.Blip() { Embed = imagePartId, CompressionState = A.BlipCompressionValues.Print },
+    //                            new A.Stretch(new A.FillRectangle())
+    //                        ),
+    //                        new PIC.ShapeProperties(
+    //                            new A.Transform2D(
+    //                                new A.Offset() { X = 0L, Y = 0L },
+    //                                new A.Extents() { Cx = widthEmus, Cy = heightEmus }
+    //                            ),
+    //                            new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Rectangle }
+    //                        )
+    //                    )
+    //                )
+    //                { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" }
+    //            )
+    //        )
+    //        {
+    //            DistanceFromTop = 0U,
+    //            DistanceFromBottom = 0U,
+    //            DistanceFromLeft = 0U,
+    //            DistanceFromRight = 0U
+    //        });
+
+    //                cellPic.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+    //                cellPic.Append(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+    //                    new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties(new Justification() { Val = JustificationValues.Center }),
+    //                    new DocumentFormat.OpenXml.Wordprocessing.Run(element)
+    //                ));
 
 
                     await LogAudit("DocEditor - Image Create", string.Empty);
@@ -462,6 +462,7 @@ namespace Foundation.Services
             }
             catch (Exception ex)
             {
+                await LogAudit("DocEditor Error "+ex.Message, string.Empty);
                 string str = ex.ToString();
                 throw;
             }
