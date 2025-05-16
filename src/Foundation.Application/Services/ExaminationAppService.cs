@@ -39,7 +39,7 @@ namespace Foundation.Services
     [Audited]
     public class ExaminationAppService : ApplicationService, IExaminationAppService, ITransientDependency
     {
-        private readonly IRepository<ExaminationReport, Guid> _examinationRepository;        
+        private readonly IRepository<ExaminationReport, Guid> _examinationRepository;
         private readonly IRepository<AuditLog, Guid> _auditLogRepository;
 
 
@@ -54,8 +54,9 @@ namespace Foundation.Services
         {
             try
             {
-                using HttpClient httpClient = new HttpClient();               
-                var fileBytes = await httpClient.GetByteArrayAsync(input.FileBaseAddress+"/FileData/DefaultFile.docx");
+                using HttpClient httpClient = new HttpClient();
+                //var fileBytes = await httpClient.GetByteArrayAsync(input.FileBaseAddress + "/FileData/DefaultFile.docx");
+                var fileBytes = await httpClient.GetByteArrayAsync("http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/DefaultFile.docx");
                 using var stream = new MemoryStream();
                 stream.Write(fileBytes, 0, fileBytes.Length);
                 stream.Position = 0;
@@ -130,7 +131,7 @@ namespace Foundation.Services
                     var cellPic = tbFourRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
 
 
-                    var imageUrl = "https://localhost:44355/images/withnum.jpg";
+                    var imageUrl = "http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/withnum.jpg";
                     using HttpClient httpClientImg = new();
                     using HttpResponseMessage imageResponse = await httpClientImg.GetAsync(imageUrl);
                     imageResponse.EnsureSuccessStatusCode();
@@ -143,8 +144,17 @@ namespace Foundation.Services
                     await remoteStream.CopyToAsync(imageStream);
                     imageStream.Position = 0;
 
-                    var issueTeethList = input.MaxillaTeeth.Where(t => t.CariesYes == true)
-.Select(t => t.ToothNumber).Concat(input.MandibleTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)).ToArray();
+                    //                    var issueTeethList = input.MaxillaTeeth.Where(t => t.CariesYes == true)
+                    //.Select(t => t.ToothNumber).Concat(input.MandibleTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)).ToArray();
+
+                    //var issueTeethList = 
+                    //    input.MaxillaTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(input.MandibleTeeth.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)).ToArray();
+
+                    var issueTeethList =
+                        input.UpperLeft.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(
+                            input.UpperRight.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(
+                                input.LowerLeft.Where(t => t.CariesYes == true).Select(t => t.ToothNumber).Concat(
+                                    input.LowerRight.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)))).ToArray();
 
                     using Bitmap bitmap = new Bitmap(imageStream);
                     using Graphics g = Graphics.FromImage(bitmap);
@@ -272,7 +282,6 @@ namespace Foundation.Services
 
                     #region Checkbox Creation
 
-
                     var rows = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ToList();
 
                     var rowMaxilla = rows[4];
@@ -280,25 +289,38 @@ namespace Foundation.Services
                     var rowMandible = rows[11];
                     var rowMandibleCarries = rows[10];
 
-                    var maxillaToothMap = new Dictionary<int, int>
-            {
-                { 18, 1 }, { 17, 2 }, { 16, 3 }, { 15, 4 },
-                { 14, 5 }, { 13, 6 }, { 12, 7 }, { 11, 8 },
-                { 21, 9 }, { 22, 10 }, { 23, 11 }, { 24, 12 },
-                { 25, 13 }, { 26, 14 }, { 27, 15 }, { 28, 16 },
-            };
+                    var upperRightToothMap = new Dictionary<int, int> { { 18, 1 }, { 17, 2 }, { 16, 3 }, { 15, 4 }, { 14, 5 }, { 13, 6 }, { 12, 7 }, { 11, 8 } };
+                    var upperLeftToothMap = new Dictionary<int, int> { { 21, 9 }, { 22, 10 }, { 23, 11 }, { 24, 12 }, { 25, 13 }, { 26, 14 }, { 27, 15 }, { 28, 16 } };
+                    var lowerRightToothMap = new Dictionary<int, int> { { 48, 1 }, { 47, 2 }, { 46, 3 }, { 45, 4 }, { 44, 5 }, { 43, 6 }, { 42, 7 }, { 41, 8 } };
+                    var lowerLeftToothMap = new Dictionary<int, int> { { 31, 9 }, { 32, 10 }, { 33, 11 }, { 34, 12 }, { 35, 13 }, { 36, 14 }, { 37, 15 }, { 38, 16 }, };
 
-                    var mandibleToothMap = new Dictionary<int, int>
-            {
-                { 48, 1 }, { 47, 2 }, { 46, 3 }, { 45, 4 },
-                { 44, 5 }, { 43, 6 }, { 42, 7 }, { 41, 8 },
-                { 31, 9 }, { 32, 10 }, { 33, 11 }, { 34, 12 },
-                { 35, 13 }, { 36, 14 }, { 37, 15 }, { 38, 16 },
-            };
 
-                    foreach (var tooth in input.MaxillaTeeth)
+                    foreach (var tooth in input.UpperRight)
                     {
-                        if (tooth.CariesYes == true && maxillaToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
+                        if (tooth.CariesYes == true && upperRightToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
+                        {
+                            var cells = rowMaxilla.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
+                            var cellsCarries = rowMaxillaCarries.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
+
+                            if (cells.Count > cellIndex)
+                            {
+                                var cell = cells[cellIndex];
+                                var cellCarries = cellsCarries[cellIndex];
+
+                                cell.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+                                var para = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                                    new DocumentFormat.OpenXml.Wordprocessing.Run(
+                                        new DocumentFormat.OpenXml.Wordprocessing.Text(tooth.SelectedPE ?? string.Empty)
+                                    )
+                                );
+                                cell.Append(para);
+                                CheckLegacyCheckbox(cellCarries);
+                            }
+                        }
+                    }
+                    foreach (var tooth in input.UpperLeft)
+                    {
+                        if (tooth.CariesYes == true && upperLeftToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
                         {
                             var cells = rowMaxilla.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
                             var cellsCarries = rowMaxillaCarries.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
@@ -321,9 +343,32 @@ namespace Foundation.Services
                     }
 
 
-                    foreach (var tooth in input.MandibleTeeth)
+                    foreach (var tooth in input.LowerRight)
                     {
-                        if (tooth.CariesYes == true && mandibleToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
+                        if (tooth.CariesYes == true && lowerRightToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
+                        {
+                            var cells = rowMandible.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
+                            var cellsCarries = rowMandibleCarries.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
+
+                            if (cells.Count > cellIndex)
+                            {
+                                var cell = cells[cellIndex];
+                                var cellCarries = cellsCarries[cellIndex];
+
+                                cell.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+                                var para = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                                    new DocumentFormat.OpenXml.Wordprocessing.Run(
+                                        new DocumentFormat.OpenXml.Wordprocessing.Text(tooth.SelectedPE ?? string.Empty)
+                                    )
+                                );
+                                cell.Append(para);
+                                CheckLegacyCheckbox(cellCarries);
+                            }
+                        }
+                    }
+                    foreach (var tooth in input.LowerLeft)
+                    {
+                        if (tooth.CariesYes == true && lowerLeftToothMap.TryGetValue(tooth.ToothNumber, out int cellIndex))
                         {
                             var cells = rowMandible.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
                             var cellsManCarries = rowMandibleCarries.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ToList();
@@ -355,7 +400,7 @@ namespace Foundation.Services
 
                 #region File Creation And Upload On S3 Bucket
 
-                
+
 
 
                 var modifiedFileBytes = stream.ToArray();
@@ -407,7 +452,7 @@ namespace Foundation.Services
 
                 #endregion
 
-                
+
 
                 return preSignedUrl;
 

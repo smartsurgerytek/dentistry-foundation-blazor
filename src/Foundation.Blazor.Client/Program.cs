@@ -35,7 +35,9 @@ public class Program
         {
             client.BaseAddress = new Uri(apiBaseUrl);
         });
-      
+
+       
+
         var application = await builder.AddApplicationAsync<FoundationBlazorClientModule>(options =>
         {
             options.UseAutofac();
@@ -45,6 +47,9 @@ public class Program
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzY0MjIzMEAzMjM4MmUzMDJlMzBDWGVhMGYreWNZTlJQYkdNWjRFczkxZkdxSFh5UW1wNHpiaVRaRFFBT1cwPQ==");        
 
         await application.InitializeApplicationAsync(host.Services);
+
+
+
         await host.RunAsync();
     }
 }
