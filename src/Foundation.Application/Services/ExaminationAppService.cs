@@ -54,9 +54,12 @@ namespace Foundation.Services
         {
             try
             {
+                await LogAudit("DocEditor - Create Examination", string.Empty);
+
                 using HttpClient httpClient = new HttpClient();
                 //var fileBytes = await httpClient.GetByteArrayAsync(input.FileBaseAddress + "/FileData/DefaultFile.docx");
                 var fileBytes = await httpClient.GetByteArrayAsync("http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/DefaultFile.docx");
+                await LogAudit("DocEditor - Read DefaultFile", string.Empty);
                 using var stream = new MemoryStream();
                 stream.Write(fileBytes, 0, fileBytes.Length);
                 stream.Position = 0;
