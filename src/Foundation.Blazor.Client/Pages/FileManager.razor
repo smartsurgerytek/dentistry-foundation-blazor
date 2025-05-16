@@ -1,24 +1,75 @@
 ﻿@page "/FileManager"
 @using Syncfusion.Blazor.FileManager
 @using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.ImageEditor
+@using Syncfusion.Blazor.Popups
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
 
-<SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"  SelectedItemsChanged="OnSelectedItemsChanged">
-    <FileManagerAjaxSettings Url="/api/AmazonS3Provider/AmazonS3FileOperations"
-        UploadUrl="/api/AmazonS3Provider/AmazonS3Upload" GetImageUrl="/api/AmazonS3Provider/AmazonS3GetImage"
-        DownloadUrl="/api/AmazonS3Provider/AmazonS3Download">
+@* <div class="posRelative"> *@
+<SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"
+    SelectedItemsChanged="OnSelectedItemsChanged">
+    <FileManagerAjaxSettings Url="/api/FileProvider/AmazonS3FileOperations" UploadUrl="/api/FileProvider/AmazonS3Upload"
+        GetImageUrl="/api/FileProvider/AmazonS3GetImage"
+         DownloadUrl="/api/FileProvider/AmazonS3Download">
     </FileManagerAjaxSettings>
     <FileManagerToolbarSettings ToolbarItems="@Items">
         <FileManagerCustomToolbarItems>
+            @* ExaminationRecord *@
             <FileManagerCustomToolbarItem Name="ExaminationRecord">
                 <Template>
                     <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Examination Record"
                         OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled"></SfButton>
                 </Template>
             </FileManagerCustomToolbarItem>
+            @* OnFileOpen GetImageUrl Editor *@
+            @* <FileManagerCustomToolbarItem Name="OpenImageEditor">
+                <Template>
+                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Edit Image" OnClick="OpenImageEditor"
+                        Disabled="@IsOpenImageEditorBtnDisabled"></SfButton>
+                </Template>
+            </FileManagerCustomToolbarItem> *@
         </FileManagerCustomToolbarItems>
     </FileManagerToolbarSettings>
     <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
+    <FileManagerEvents TValue="FileManagerDirectoryContent" BeforePopupOpen="SuppressImagePreview"></FileManagerEvents>
     @* <FileManagerContextMenuSettings File="@ContextMenuItems"></FileManagerContextMenuSettings> *@
 </SfFileManager>
+@* <div class="posAbsolute"> *@
+@* </div> *@
+@* </div> *@
+
+<style>
+    .posRelative {
+        position: relative;
+    }
+
+    .posAbsolute {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    div.e-large-icons li.e-large-icon {
+        width: 170px !important;
+        height: 130px !important;
+    }
+
+    div.e-large-icons div.e-text-content {
+        height: 125px !important;
+    }
+
+    div.e-large-icons div.e-list-icon,
+    div.e-large-icons img.e-list-img {
+        width: 160px;
+        height: 100px;
+        max-width: unset !important;
+        max-height: unset !important;
+    }
+
+    div.e-large-icons span.e-list-text {
+        width: 160px !important;
+    }
+</style>

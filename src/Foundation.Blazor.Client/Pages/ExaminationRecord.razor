@@ -184,13 +184,13 @@ else if (SelectedJaw == "Lower right")
     [SupplyParameterFromQuery]
     public string PatientId { get; set; }
 
-    [Parameter]
+    @* [Parameter]
     [SupplyParameterFromQuery]
-    public string imagePath { get; set; }
+    public string imagePath { get; set; } *@
 
     [Parameter]
     [SupplyParameterFromQuery]
-    public string imageName { get; set; }
+    public string imageNames { get; set; }
 
 
     public SfSpinner spinnerObj;
@@ -270,7 +270,7 @@ else if (SelectedJaw == "Lower right")
         }
         else
         {
-            var responseMessage = await HttpClientFactory.CreateClient("ApiClient").GetAsync($"/api/AmazonS3Provider/OriginalImageDownload?path={imagePath}&name={imageName}");
+            @* var responseMessage = await Http.GetAsync($"/api/FileProvider/OriginalImageDownload?path={imagePath}&name={imageName}");
             var fileStreamResult = await responseMessage.Content.ReadAsStreamAsync();
             string base64Image;
             using (var memoryStream = new MemoryStream())
@@ -293,8 +293,12 @@ else if (SelectedJaw == "Lower right")
                 var imageRequest = new SegmentationApiRequestDto { Image = base64Image };
                 var fdiDataResponse = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync($"/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
                 fdiData = await fdiDataResponse.Content.ReadAsStringAsync();
-            }            
-        }
+            } *@
+            
+            @* Console.WriteLine("======= Fdi Data =======");
+            Console.WriteLine(fdiData); *@
+            // pass the fdi data to examination record form
+        }      
     }
     private async Task SubmitRecord()
     {
@@ -324,9 +328,7 @@ else if (SelectedJaw == "Lower right")
         var fNmae = await response.Content.ReadAsStringAsync();
 
         Console.Write(fNmae);
-
-
-        NavigationManager.NavigateTo($"WordProcessor?fNmae={Uri.EscapeDataString(fNmae)}&PatientId={PatientId}");
+        NavigationManager.NavigateTo($"WordProcessor?fNmae={Uri.EscapeDataString(fNmae)}&PatientId={PatientId}&imageNames={imageNames}");
         spinnerObj.HideAsync();
     }
     private void DialogOpen(Object args)

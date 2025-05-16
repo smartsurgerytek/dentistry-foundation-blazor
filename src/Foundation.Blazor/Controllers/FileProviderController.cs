@@ -1,4 +1,4 @@
-﻿using Syncfusion.EJ2.FileManager.AmazonS3FileProvider;
+﻿using Syncfusion.EJ2.FileManager.FileProvider;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,27 +15,48 @@ using Syncfusion.DocIO.DLS;
 using Syncfusion.Pdf;
 using Syncfusion.DocIORenderer;
 using System.Threading.Tasks;
+using Foundation.Dtos;
 
 namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 {
 
     [Route("api/[controller]")]
     [EnableCors("AllowAllOrigins")]
-    public class AmazonS3ProviderController : Controller
+    public class FileProviderController : Controller
     {
-        private readonly ILogger<AmazonS3ProviderController> _logger;
+        private readonly ILogger<FileProviderController> _logger;
         private readonly HttpClient _httpClient;
-        public AmazonS3FileProvider operation;
+        public FileProvider operation;
         public string basePath;
         protected RegionEndpoint bucketRegion;
+        // RootFolder for all S3 Operations (used by minio)
+        // public string root = "Files/";
 
-        public AmazonS3ProviderController(IWebHostEnvironment hostingEnvironment, ILogger<AmazonS3ProviderController> logger, AmazonS3FileProvider s3provider)
+        public FileProviderController(IWebHostEnvironment hostingEnvironment, ILogger<FileProviderController> logger, FileProvider s3provider, IConfiguration configuration)
         {
             this.basePath = hostingEnvironment.ContentRootPath;
             this.basePath = basePath.Replace("../", "");
             this.operation = s3provider;
-            this.operation.RegisterAmazonS3("smartsurgerytek.foundation", "AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", "us-west-2");
             _logger = logger;
+
+            var fileProvider = configuration["FileProvider"];
+            if (!string.IsNullOrEmpty(fileProvider))
+            {
+                var bucketName = configuration[$"{fileProvider}:BucketName"];
+
+                if (fileProvider != null && string.Compare(fileProvider, "amazons3", StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    this.operation.RegisterAmazonS3FileProvider(bucketName);
+                }
+                else
+                {
+                    this.operation.RegisterMinIOFileProvider(bucketName);
+                }
+
+                return;
+            }
+
+            throw new Exception("FileProvider configuration is missing.");
         }
 
         [Route("AmazonS3FileOperations")]
@@ -153,6 +174,42 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         public IActionResult AmazonS3GetImage(FileManagerDirectoryContent args)
         {
             return operation.GetImage(args.Path, args.Id, false, null, args.Data);
+        }
+
+        // uploads a single image to the bucket
+        // this is used by the image editor
+        [HttpPost]
+        [Route("UploadImageAsStream")]
+        public async Task UploadImageAsStream([FromBody]ImageEditorUploadAndReplaceDto replaceDto)
+        {
+            // replace the old image with the edited image
+            // check if the file exists
+            // if it does, delete it
+            var oldImagePath = replaceDto.FilePath;
+            var oldImageName = replaceDto.OldFileName;
+            if (oldImagePath != null && oldImageName != "")
+            {
+                var fileExists = this.operation.checkFileExist(oldImagePath, oldImageName);
+                if (fileExists)
+                {
+                    // delete the old image
+                    var fileManagerDirectoryContent = new FileManagerDirectoryContent
+                    {
+                        Path = oldImagePath,
+                        Id = oldImageName,
+                        Names = [oldImageName],
+                        IsFile = true,
+                        Data = null
+                    };
+                    this.operation.Delete(oldImagePath, [oldImageName], [fileManagerDirectoryContent]);
+                }
+            }
+
+            // upload the image
+            // set the root name
+            this.operation.GetBucketList();
+            using Stream stream = new MemoryStream(Convert.FromBase64String(replaceDto.FileStream.Split(",")[1]));
+            await this.operation.UploadFileToS3(stream, replaceDto.FileName, replaceDto.FilePath);
         }
 
         //save the document

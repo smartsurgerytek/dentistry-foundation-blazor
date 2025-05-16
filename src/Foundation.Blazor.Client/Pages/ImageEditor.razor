@@ -1,0 +1,35 @@
+@page "/ImageEditor"
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.ImageEditor
+@using Syncfusion.Blazor.Spinner
+
+<SfSpinner @bind-Visible="ShowSpinner"></SfSpinner>
+<SfButton style="margin: auto" OnClick="SaveAsync">Save To Storage</SfButton>
+<SfImageEditor @ref="SfImageEditor" Height="80vh" Vertical="true"></SfImageEditor>
+
+<style>
+    .e-image-editor {
+        position: relative;
+    }
+
+    .e-toolbar-area {
+        display: block;
+        position: absolute;
+        transform: rotate(90deg);
+        transform-origin: 0% 0%;
+        top: 0px;
+        left: 46px;
+        width: 80vh;
+        border: 2px solid black;
+    }
+
+    .e-toolbar-item {
+        transform: rotate(-90deg);
+    }
+
+    .e-canvas-wrapper {
+        width: 950px !important;
+        margin-left: 48px !important;
+        margin-right: 48px !important;
+    }
+</style>
