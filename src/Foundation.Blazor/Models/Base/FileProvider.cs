@@ -34,46 +34,33 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         AccessDetails AccessDetails = new AccessDetails();
         long sizeValue = 0;
         List<FileManagerDirectoryContent> s3ObjectFiles = new List<FileManagerDirectoryContent>();
-        TransferUtility fileTransferUtility = new TransferUtility(client);
+        TransferUtility fileTransferUtility;
         private static List<PartETag> partETags;
         private static string uploadId;
         private readonly HttpClient _httpClient;
         private readonly DentistryApiService _imageService;
 
-        public FileProvider(HttpClient httpClient, DentistryApiService imageService)
+        public FileProvider(HttpClient httpClient, DentistryApiService imageService, IAmazonS3 amazonS3Client, TransferUtility transferUtility)
         {
+            client = amazonS3Client;
             _httpClient = httpClient;
             _imageService = imageService;
+            fileTransferUtility = transferUtility;
         }
 
         // Register the amazon client details
-        public void RegisterAmazonS3FileProvider(string name, string awsAccessKeyId, string awsSecretAccessKey, string region)
+        public void RegisterAmazonS3FileProvider(string name)
         {
             bucketName = name;
-            RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName(region);
-            client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, bucketRegion);
             CreateBucket(bucketName).Wait();
             // RootFolder(bucketName);
             GetBucketList();
         }
 
         // Register the amazon client details
-        public void RegisterMinIOFileProvider(string name, string awsAccessKeyId, string awsSecretAccessKey, string serviceUrl)
+        public void RegisterMinIOFileProvider(string name)
         {
             bucketName = name;
-            //RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName(region);
-            //client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, bucketRegion);
-            var config = new AmazonS3Config
-            {
-                // AuthenticationRegion = RegionEndpoint.USEast1.SystemName, // Should match the `MINIO_REGION` environment variable.
-
-                // DEFAULT in Minio Docker Container is no `MINIO_REGION` environment variable.
-                AuthenticationRegion = "",
-                ServiceURL = serviceUrl, // replace http://localhost:9000 with URL of your MinIO server
-                ForcePathStyle = true // MUST be true to work correctly with MinIO server
-            };
-            client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, config);
-            fileTransferUtility = new TransferUtility(client);
             CreateBucket(bucketName).Wait();
             RootFolder(bucketName);
         }
@@ -1024,7 +1011,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
         }
 
-        private async Task UploadFileToS3(Stream stream, string fileName, string path)
+        public async Task UploadFileToS3(Stream stream, string fileName, string path)
         {
             var s3Path = RootName.Replace("/", "") + path + fileName;
             await fileTransferUtility.UploadAsync(stream, bucketName, s3Path);
