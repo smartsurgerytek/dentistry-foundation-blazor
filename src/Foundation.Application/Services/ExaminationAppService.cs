@@ -345,8 +345,8 @@ namespace Foundation.Services
                     var white = SixLabors.ImageSharp.Color.White;
 
                     // Load font
-                    var fontFamily = SixLabors.Fonts.SystemFonts.Families.FirstOrDefault();                  
-                    var font = fontFamily.CreateFont(12, FontStyle.Bold);
+                    //var fontFamily = SixLabors.Fonts.SystemFonts.Families.FirstOrDefault();                  
+                    //var font = fontFamily.CreateFont(12, FontStyle.Bold);
 
 
                     // Mutate image with highlights
@@ -357,7 +357,7 @@ namespace Foundation.Services
                             image.Mutate(ctx =>
                             {
                                 ctx.Fill(green, new EllipsePolygon(rect.X + rect.Width / 2, rect.Y + rect.Height / 2, rect.Width / 2));
-                                ctx.DrawText(tooth.ToString(), font, white, new PointF(rect.X + rect.Width / 2 - 5, rect.Y + rect.Height / 2 - 5));
+                                //ctx.DrawText(tooth.ToString(), font, white, new PointF(rect.X + rect.Width / 2 - 5, rect.Y + rect.Height / 2 - 5));
                             });
                         }
                     }
