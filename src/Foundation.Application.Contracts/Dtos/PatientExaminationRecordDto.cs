@@ -20,5 +20,6 @@ namespace Foundation.Dtos
         public DateOnly PatientDob { get; set; }
         public string FileBaseAddress { get; set; }
 
+        public string ImageNames { get; set; }
     }
 }

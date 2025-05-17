@@ -294,7 +294,7 @@ else if (SelectedJaw == "Lower right")
                 var fdiDataResponse = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync($"/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
                 fdiData = await fdiDataResponse.Content.ReadAsStringAsync();
             } *@
-            
+
             @* Console.WriteLine("======= Fdi Data =======");
             Console.WriteLine(fdiData); *@
             // pass the fdi data to examination record form
@@ -319,7 +319,7 @@ else if (SelectedJaw == "Lower right")
             };
 
         Console.Write("===call Examination===");
-
+        record.ImageNames = imageNames;
         var response = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/Examination", record);
 
         Console.Write("===return  Examination===");
