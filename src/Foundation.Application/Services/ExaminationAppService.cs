@@ -345,12 +345,7 @@ namespace Foundation.Services
                     var white = SixLabors.ImageSharp.Color.White;
 
                     // Load font
-                    var fontFamily = SixLabors.Fonts.SystemFonts.Families.FirstOrDefault(f => f.Name == "Arial");
-                    if (fontFamily == null)
-                    {
-                        throw new Exception("Arial font not found.");
-                    }
-
+                    var fontFamily = SixLabors.Fonts.SystemFonts.Families.FirstOrDefault();                  
                     var font = fontFamily.CreateFont(12, FontStyle.Bold);
 
 
