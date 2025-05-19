@@ -536,12 +536,20 @@ namespace Foundation.Services
             Console.WriteLine($"{imageNames}");
             var allImages = new List<byte[]>();
             var imageNamesList = imageNames.Split(',');
-            var httpClient = new HttpClient();
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+            };
+            var httpClient = new HttpClient(handler);
+           
             foreach (var imageName in imageNamesList)
             {
-                var imageStream = await httpClient.GetStreamAsync("https://krishtopher-dev-mumbai.smartsurgerytek.net:44355/api/FileProvider/AmazonS3GetImage?Path=" + imageName);
-                //var imageStream = await httpClient.GetStreamAsync(bAddress + "api/FileProvider/AmazonS3GetImage?Path="+ imageName);
                 Console.WriteLine("===============Test 789===========");
+                string urlImg = bAddress + "/api/FileProvider/AmazonS3GetImage?Path=" + imageName;
+                Console.WriteLine(urlImg);
+                var imageStream = await httpClient.GetStreamAsync(urlImg);
+                //var imageStream = await httpClient.GetStreamAsync(bAddress + "api/FileProvider/AmazonS3GetImage?Path="+ imageName);
+                Console.WriteLine(imageStream);
                 Console.WriteLine(imageStream);
                 Console.WriteLine("===============Test 101112===========");
                 var imageBytes = await imageStream.GetAllBytesAsync();
