@@ -67,7 +67,7 @@ namespace Foundation.Services
             {
                 await LogAudit("DocEditor - Create Examination", string.Empty);
 
-                using HttpClient httpClient = new HttpClient();
+                //using HttpClient httpClient = new HttpClient();
                 var fileBytes = input.DefaultFileBytes;
                 //var fileBytes = await httpClient.GetByteArrayAsync("/FileData/DefaultFile.docx");
                 //var fileBytes = await httpClient.GetByteArrayAsync(input.FileBaseAddress + "/FileData/DefaultFile.docx");
@@ -380,7 +380,7 @@ namespace Foundation.Services
                     #region Dycom Images
 
                     var targetCell = tblSixteenRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().First();
-                    var allImages = await GetAllSelectedImages(input.ImageNames);
+                    var allImages = await GetAllSelectedImages(input.ImageNames,input.FileBaseAddress);
 
                     foreach (var imageBytes in allImages)
                     {
@@ -527,7 +527,7 @@ namespace Foundation.Services
                 });
         }
 
-        private async Task<List<byte[]>> GetAllSelectedImages(string imageNames)
+        private async Task<List<byte[]>> GetAllSelectedImages(string imageNames,string bAddress)
         {
             Console.WriteLine($"{imageNames}");
             var allImages = new List<byte[]>();
@@ -535,7 +535,7 @@ namespace Foundation.Services
             var httpClient = new HttpClient();
             foreach (var imageName in imageNamesList)
             {
-                var imageStream = await httpClient.GetStreamAsync($"https://localhost:44355/api/FileProvider/AmazonS3GetImage?Path={imageName}");
+                var imageStream = await httpClient.GetStreamAsync(bAddress + "api/FileProvider/AmazonS3GetImage?Path="+imageNames);
                 var imageBytes = await imageStream.GetAllBytesAsync();
                 Console.WriteLine($"{imageName} {imageBytes.Length}");
                 allImages.Add(imageBytes);
