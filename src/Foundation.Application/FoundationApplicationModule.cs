@@ -21,6 +21,8 @@ using System;
 using Polly;
 using Foundation.Services;
 using Polly.Extensions.Http;
+using Microsoft.AspNetCore.Cors;
+using System.Linq;
 
 namespace Foundation;
 
@@ -46,6 +48,7 @@ public class FoundationApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
+        var configuration = context.Services.GetConfiguration();
         Configure<AbpAutoMapperOptions>(options =>
         {
             options.AddMaps<FoundationApplicationModule>();
@@ -73,6 +76,26 @@ public class FoundationApplicationModule : AbpModule
         })
         .AddPolicyHandler(GetRetryPolicy())
         .AddPolicyHandler(GetCircuitBreakerPolicy());
+
+
+        context.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+            {
+                builder
+                    .WithOrigins(
+                        configuration["App:CorsOrigins"]?
+                            .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                            .Select(o => o.Trim().RemovePostFix("/"))
+                            .ToArray() ?? Array.Empty<string>()
+                    )
+                    .WithAbpExposedHeaders()
+                    .SetIsOriginAllowedToAllowWildcardSubdomains()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
     }
 
     private IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
