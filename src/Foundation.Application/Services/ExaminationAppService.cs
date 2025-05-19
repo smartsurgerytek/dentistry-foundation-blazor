@@ -535,7 +535,7 @@ namespace Foundation.Services
             var httpClient = new HttpClient();
             foreach (var imageName in imageNamesList)
             {
-                var imageStream = await httpClient.GetStreamAsync(bAddress + "api/FileProvider/AmazonS3GetImage?Path="+imageNames);
+                var imageStream = await httpClient.GetStreamAsync(bAddress + "api/FileProvider/AmazonS3GetImage?Path="+ imageName);
                 var imageBytes = await imageStream.GetAllBytesAsync();
                 Console.WriteLine($"{imageName} {imageBytes.Length}");
                 allImages.Add(imageBytes);
