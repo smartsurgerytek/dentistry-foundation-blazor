@@ -529,13 +529,21 @@ namespace Foundation.Services
 
         private async Task<List<byte[]>> GetAllSelectedImages(string imageNames,string bAddress)
         {
+            Console.WriteLine("===============Test 123===========");
+            Console.WriteLine(imageNames);
+            Console.WriteLine(bAddress);
+            Console.WriteLine("===============Test 456===========");
             Console.WriteLine($"{imageNames}");
             var allImages = new List<byte[]>();
             var imageNamesList = imageNames.Split(',');
             var httpClient = new HttpClient();
             foreach (var imageName in imageNamesList)
             {
-                var imageStream = await httpClient.GetStreamAsync(bAddress + "api/FileProvider/AmazonS3GetImage?Path="+ imageName);
+                var imageStream = await httpClient.GetStreamAsync("https://krishtopher-dev-mumbai.smartsurgerytek.net:44355/api/FileProvider/AmazonS3GetImage?Path=" + imageName);
+                //var imageStream = await httpClient.GetStreamAsync(bAddress + "api/FileProvider/AmazonS3GetImage?Path="+ imageName);
+                Console.WriteLine("===============Test 789===========");
+                Console.WriteLine(imageStream);
+                Console.WriteLine("===============Test 101112===========");
                 var imageBytes = await imageStream.GetAllBytesAsync();
                 Console.WriteLine($"{imageName} {imageBytes.Length}");
                 allImages.Add(imageBytes);
