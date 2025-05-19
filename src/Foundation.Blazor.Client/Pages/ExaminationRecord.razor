@@ -2,7 +2,6 @@
 
 @inject ISessionStorageService SessionStorage
 @inject IHttpClientFactory HttpClientFactory
-@inject HttpClient Http
 @using Blazored.SessionStorage
 @inject NavigationManager NavigationManager
 @using Foundation.Dtos
@@ -25,14 +24,14 @@
     </DialogTemplates>
     <DialogButtons>
         <DialogButton Content="OK" IsPrimary="true" OnClick="@DialogButtonClick" />
-    </DialogButtons>   
+    </DialogButtons>
 </SfDialog>
 
 
 <h3>Examination Record</h3>
 <hr />
 <SfSpinner @ref="spinnerObj" CssClass="custom-spinner"></SfSpinner>
-<div class="jaw-selection mb-3">   
+<div class="jaw-selection mb-3">
     <label>
         <input type="radio" name="jaw" value="Upper left" @onchange="@(() => SelectedJaw = "Upper left")" checked="@IsUpperLeftSelected" />
         Upper left
@@ -250,6 +249,9 @@ else if (SelectedJaw == "Lower right")
         new ToothInfoDto { ToothNumber = 37 }, new ToothInfoDto { ToothNumber = 38 }
     };
 
+    [Inject]
+    private HttpClient HttpClient { get; set; } = default!;
+
     private void OnCariesChanged(ToothInfoDto tooth, bool isYes)
     {
         tooth.CariesYes = isYes;
@@ -298,11 +300,10 @@ else if (SelectedJaw == "Lower right")
             @* Console.WriteLine("======= Fdi Data =======");
             Console.WriteLine(fdiData); *@
             // pass the fdi data to examination record form
-        }      
+        }
     }
     private async Task SubmitRecord()
     {
-        Console.Write("===call submit===");
         spinnerObj.ShowAsync();
 
         var record = new PatientExaminationRecordDto
@@ -315,19 +316,13 @@ else if (SelectedJaw == "Lower right")
                 DoctorName = DoctorName,
                 PatientName = PatientName,
                 PatientDob = PatientDob,
-                FileBaseAddress = Http.BaseAddress.ToString()
+                FileBaseAddress = Http.BaseAddress.ToString(),
+                DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/WordDefaultFile.docx"),
+                DefaultJawImageBytes = await HttpClient.GetByteArrayAsync("/FileData/withnum.jpg"),
             };
-
-        Console.Write("===call Examination===");
         record.ImageNames = imageNames;
         var response = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/Examination", record);
-
-        Console.Write("===return  Examination===");
-        Console.Write(response);
-
         var fNmae = await response.Content.ReadAsStringAsync();
-
-        Console.Write(fNmae);
         NavigationManager.NavigateTo($"WordProcessor?fNmae={Uri.EscapeDataString(fNmae)}&PatientId={PatientId}&imageNames={imageNames}");
         spinnerObj.HideAsync();
     }

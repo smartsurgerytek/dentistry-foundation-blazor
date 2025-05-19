@@ -21,5 +21,7 @@ namespace Foundation.Dtos
         public string FileBaseAddress { get; set; }
 
         public string ImageNames { get; set; }
+        public byte[]? DefaultFileBytes { get; set; }
+        public byte[]? DefaultJawImageBytes { get; set; }
     }
 }

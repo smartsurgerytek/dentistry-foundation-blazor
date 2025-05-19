@@ -68,8 +68,10 @@ namespace Foundation.Services
                 await LogAudit("DocEditor - Create Examination", string.Empty);
 
                 using HttpClient httpClient = new HttpClient();
+                var fileBytes = input.DefaultFileBytes;
+                //var fileBytes = await httpClient.GetByteArrayAsync("/FileData/DefaultFile.docx");
                 //var fileBytes = await httpClient.GetByteArrayAsync(input.FileBaseAddress + "/FileData/DefaultFile.docx");
-                var fileBytes = await httpClient.GetByteArrayAsync("http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/DefaultFile.docx");
+                //var fileBytes = await httpClient.GetByteArrayAsync("http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/DefaultFile.docx");
                 await LogAudit("DocEditor - Read DefaultFile", string.Empty);
                 using var stream = new MemoryStream();
                 stream.Write(fileBytes, 0, fileBytes.Length);
@@ -151,11 +153,14 @@ namespace Foundation.Services
 
                     var cellPic = tbFourRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
 
-                    var imageUrl = "http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/withnum.jpg";
-                    using HttpClient httpClientImg = new();
-                    using var responseData = await httpClientImg.GetAsync(imageUrl);
-                    responseData.EnsureSuccessStatusCode();
-                    await using var remoteStream = await responseData.Content.ReadAsStreamAsync();
+                    //var imageUrl = "http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/withnum.jpg";
+                    //var imageUrl = input.DefaultJawImageBytes;
+                    //using HttpClient httpClientImg = new();
+                    //using var responseData = await httpClientImg.GetAsync(imageUrl);
+                    //responseData.EnsureSuccessStatusCode();
+
+
+                    await using var remoteStream = new MemoryStream(input.DefaultJawImageBytes);
 
                     var issueTeethList =
                         input.UpperLeft.Where(t => t.CariesYes == true).Select(t => t.ToothNumber)
