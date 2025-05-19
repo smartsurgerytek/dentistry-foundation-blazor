@@ -545,7 +545,7 @@ namespace Foundation.Services
             foreach (var imageName in imageNamesList)
             {
                 Console.WriteLine("===============Test 789===========");
-                string urlImg = bAddress + "/api/FileProvider/AmazonS3GetImage?Path=" + imageName;
+                string urlImg = bAddress + "api/FileProvider/AmazonS3GetImage?Path=" + imageName;
                 Console.WriteLine(urlImg);
                 var imageStream = await httpClient.GetStreamAsync(urlImg);
                 //var imageStream = await httpClient.GetStreamAsync(bAddress + "api/FileProvider/AmazonS3GetImage?Path="+ imageName);
