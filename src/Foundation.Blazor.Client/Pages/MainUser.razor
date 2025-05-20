@@ -13,6 +13,8 @@
         <GridColumn Field="Address" HeaderText="Address" Width="300"></GridColumn>
         <GridColumn Field="Mobile" HeaderText="Mobile" Width="200"></GridColumn>
         <GridColumn Field="City" HeaderText="City" Width="300"></GridColumn>
+        <GridColumn Field="PinCode" HeaderText="PinCode" Width="200"></GridColumn>
+        <GridColumn Field="Age" HeaderText="Age" Width="300"></GridColumn>
     </GridColumns>
 </SfGrid>
 
@@ -51,6 +53,18 @@
                                Placeholder="Enter City" FloatLabelType="FloatLabelType.Auto" />
                     <ValidationMessage style="color: red" For="@(() => CurrentMainUser.City)" />
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Pincode <span style="color: red">*</span>
+                    </label>
+                    <SfTextBox TValue="string" @bind-Value="CurrentMainUser.PinCode"
+                               Placeholder="Enter Pincode" FloatLabelType="FloatLabelType.Auto" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentMainUser.PinCode)" />
+                </div>
+
+
+              
 
 
 

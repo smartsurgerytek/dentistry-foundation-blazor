@@ -22,5 +22,8 @@ namespace Foundation.Dtos
         [Required(ErrorMessage = "Address is required")]
         public string Address { get; set; }
 
+        public string PinCode { get; set; }
+        public int Age { get; set; }
+
     }
 }
