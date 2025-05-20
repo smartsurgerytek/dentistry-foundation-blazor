@@ -16,11 +16,16 @@ namespace Foundation.Services
 {
     public class MainUserAppService : ApplicationService, IMainUserAppService, ITransientDependency
     {
+
         private readonly IRepository<MainUser, Guid> _mainUserRepository;
-        public async Task CreateMainUserAsync(MainUserDto input)
+        public MainUserAppService(IRepository<MainUser, Guid> mainUserRepository)
         {
-            var organization = ObjectMapper.Map<MainUserDto, MainUser>(input);
-            await _mainUserRepository.InsertAsync(organization);            
+            _mainUserRepository = mainUserRepository;
+        }
+        public async Task CreateMainUserAsync(CreateUpdateMainUserDto input)
+        {
+            var mainUser = ObjectMapper.Map<CreateUpdateMainUserDto, MainUser>(input);
+            await _mainUserRepository.InsertAsync(mainUser);            
         }
 
         public async Task DeleteMainUserAsync(Guid mainUserId)
@@ -46,7 +51,7 @@ namespace Foundation.Services
             return ObjectMapper.Map<MainUser, MainUserDto>(mainUser);
         }
 
-        public async Task UpdateMainUserAsync(Guid mainUserId, MainUserDto input)
+        public async Task UpdateMainUserAsync(Guid mainUserId, CreateUpdateMainUserDto input)
         {
             var mainUser = await _mainUserRepository.FirstOrDefaultAsync(x => x.Id == mainUserId, CancellationToken.None);
             ObjectMapper.Map(input, mainUser);

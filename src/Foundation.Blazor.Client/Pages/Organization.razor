@@ -63,7 +63,7 @@
     private string DialogTitle = "";
     private bool IsNew = true;
 
-    private List<ItemModel> Toolbaritems = new();
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -73,7 +73,7 @@
         Toolbaritems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
         Toolbaritems.Add(new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" });
     }
-
+    private List<ItemModel> Toolbaritems = new();
     private async Task LoadOrganizations()
     {
         Organizations = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<OrganizationDto>>("api/app/organization/organizations");

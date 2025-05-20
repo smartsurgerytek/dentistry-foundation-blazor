@@ -11,8 +11,8 @@ namespace Foundation.Services
     {
         Task<List<MainUserDto>> GetMainUserAsync();
         Task<MainUserDto> GetMainUserAsync(Guid mainUserId);
-        Task CreateMainUserAsync(MainUserDto input);
-        Task UpdateMainUserAsync(Guid mainUserId, MainUserDto input);
+        Task CreateMainUserAsync(CreateUpdateMainUserDto input);
+        Task UpdateMainUserAsync(Guid mainUserId, CreateUpdateMainUserDto input);
         Task DeleteMainUserAsync(Guid mainUserId);
     }
 }
