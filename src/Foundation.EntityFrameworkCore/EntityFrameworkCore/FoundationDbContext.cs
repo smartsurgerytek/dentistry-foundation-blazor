@@ -66,6 +66,8 @@ public class FoundationDbContext :
     public DbSet<ExaminationReport> ExaminationReports { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
 
+    public DbSet<MainUser> MainUsers { get; set; }
+
     // SaaS
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<Edition> Editions { get; set; }

@@ -32,5 +32,8 @@ public class FoundationApplicationAutoMapperProfile : Profile
 
         CreateMap<AuditLog, AuditLogDto>().ReverseMap();
 
+        CreateMap<MainUser, MainUserDto>().ReverseMap();
+        CreateMap<MainUser, CreateUpdateMainUserDto>().ReverseMap();
+
     }
 }

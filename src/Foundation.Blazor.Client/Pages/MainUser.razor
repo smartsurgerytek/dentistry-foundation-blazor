@@ -1,0 +1,153 @@
+﻿@page "/Mainuser"
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager NavigationManager
+
+
+<h3>MainUser</h3>
+
+<SfGrid DataSource="@MainUsers" @ref="MainUserGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
+    <GridEvents OnToolbarClick="OnToolbarClick" TValue="MainUserDto"></GridEvents>
+    <GridColumns>
+        <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
+        <GridColumn Field="Name" HeaderText="Name" Width="200"></GridColumn>
+        <GridColumn Field="Address" HeaderText="Address" Width="300"></GridColumn>
+        <GridColumn Field="Mobile" HeaderText="Mobile" Width="200"></GridColumn>
+        <GridColumn Field="City" HeaderText="City" Width="300"></GridColumn>
+    </GridColumns>
+</SfGrid>
+
+
+<SfDialog @ref="DialogRef" Width="400px" ShowCloseIcon="true" Header="@DialogTitle" Visible="false">
+    <DialogTemplates>
+        <Content>
+            <EditForm Model="@CurrentMainUser" OnValidSubmit="SaveMainuser">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Name <span style="color: red">*</span>
+                    </label>
+                    <SfTextBox TValue="string" @bind-Value="CurrentMainUser.Name"
+                               Placeholder="Enter Name" FloatLabelType="FloatLabelType.Auto" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentMainUser.Name)" />
+                </div>
+
+
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Mobile <span style="color: red">*</span>
+                    </label>
+                    <SfTextBox TValue="string" @bind-Value="CurrentMainUser.Mobile"
+                               Placeholder="Enter Mobile" FloatLabelType="FloatLabelType.Auto" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentMainUser.Mobile)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        City <span style="color: red">*</span>
+                    </label>
+                    <SfTextBox TValue="string" @bind-Value="CurrentMainUser.City"
+                               Placeholder="Enter City" FloatLabelType="FloatLabelType.Auto" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentMainUser.City)" />
+                </div>
+
+
+
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Address <span style="color: red">*</span>
+                    </label>
+                    <SfTextBox TValue="string" @bind-Value="CurrentMainUser.Address"
+                               Placeholder="Enter Address" FloatLabelType="FloatLabelType.Auto" />
+                    <ValidationMessage style="color: red" For="@(() => CurrentMainUser.Address)" />
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="e-btn e-primary">Save</button>
+                    <button type="button" class="e-btn" @onclick="CloseDialog">Cancel</button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+
+    private SfGrid<MainUserDto> MainUserGrid;
+    private SfDialog DialogRef;
+    private List<MainUserDto> MainUsers = new();
+    private CreateUpdateMainUserDto CurrentMainUser = new();
+    private string DialogTitle = "";
+    private bool IsNew = true;
+
+    private List<ItemModel> Toolbaritems = new();
+
+    private async Task LoadMainUsers()
+    {
+        MainUsers = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<MainUserDto>>("api/app/mainuser/mainusers");
+    }
+
+    private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        var selectedRow = await MainUserGrid.GetSelectedRecordsAsync();
+
+        if (args.Item.Text == "Add")
+        {
+            IsNew = true;
+            DialogTitle = "Add MainUser";
+            CurrentMainUser = new CreateUpdateMainUserDto();
+            await DialogRef.ShowAsync();
+        }
+        else if (args.Item.Text == "Edit" && selectedRow.Count > 0)
+        {
+            IsNew = false;
+            DialogTitle = "Edit MainUser";
+            var selected = selectedRow.First();
+            CurrentMainUser = new CreateUpdateMainUserDto
+                {
+                    Id = selected.Id,
+                    Name = selected.Name,
+                    Address = selected.Address,
+                    City = selected.Address,
+                    Mobile = selected.Mobile
+                };
+            await DialogRef.ShowAsync();
+        }
+        else if (args.Item.Text == "Delete" && selectedRow.Count > 0)
+        {
+            await DeleteMainuser(selectedRow.First().Id);
+        }
+        else if (args.Item.Text == "Refresh")
+        {
+            await LoadMainUsers();
+        }
+    }
+
+    private async Task SaveMainuser()
+    {
+        if (IsNew)
+        {
+            await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/mainuser/mainuser", CurrentMainUser);
+        }
+        else
+        {
+            await HttpClientFactory.CreateClient("ApiClient").PutAsJsonAsync($"/api/app/mainuser/mainuser/{CurrentMainUser.Id}", CurrentMainUser);
+        }
+
+        await LoadMainUsers();
+        await DialogRef.HideAsync();
+    }
+
+    private async Task DeleteMainuser(Guid id)
+    {
+        await HttpClientFactory.CreateClient("ApiClient").DeleteAsync($"/api/app/mainuser/mainuser/{id}");
+        await LoadMainUsers();
+    }
+
+    private async Task CloseDialog()
+    {
+        await DialogRef.HideAsync();
+    }
+}
