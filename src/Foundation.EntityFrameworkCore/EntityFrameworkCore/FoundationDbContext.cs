@@ -70,6 +70,8 @@ public class FoundationDbContext :
     public DbSet<TestUser> TestUsers { get; set; }
     public DbSet<TestMainUser> TestMainUsers { get; set; }
 
+    public DbSet<AdminTestUser> AdminTestUsers { get; set; }
+
     // SaaS
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<Edition> Editions { get; set; }
