@@ -75,6 +75,17 @@
 
 @code {
 
+    private List<ItemModel> Toolbari = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMainUsers();
+        Toolbaritems.Add(new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" });
+        Toolbaritems.Add(new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" });
+        Toolbaritems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
+        Toolbaritems.Add(new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" });
+    }
+
     private SfGrid<MainUserDto> MainUserGrid;
     private SfDialog DialogRef;
     private List<MainUserDto> MainUsers = new();
@@ -86,7 +97,7 @@
 
     private async Task LoadMainUsers()
     {
-        MainUsers = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<MainUserDto>>("api/app/mainuser/mainusers");
+        MainUsers = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<MainUserDto>>("api/app/main-user/main-user");
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
@@ -129,11 +140,11 @@
     {
         if (IsNew)
         {
-            await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/mainuser/mainuser", CurrentMainUser);
+            await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/main-user/main-user", CurrentMainUser);
         }
         else
         {
-            await HttpClientFactory.CreateClient("ApiClient").PutAsJsonAsync($"/api/app/mainuser/mainuser/{CurrentMainUser.Id}", CurrentMainUser);
+            await HttpClientFactory.CreateClient("ApiClient").PutAsJsonAsync($"/api/app/main-user/main-user/{CurrentMainUser.Id}", CurrentMainUser);
         }
 
         await LoadMainUsers();
@@ -142,7 +153,7 @@
 
     private async Task DeleteMainuser(Guid id)
     {
-        await HttpClientFactory.CreateClient("ApiClient").DeleteAsync($"/api/app/mainuser/mainuser/{id}");
+        await HttpClientFactory.CreateClient("ApiClient").DeleteAsync($"/api/app/main-user/main-user/{id}");
         await LoadMainUsers();
     }
 
