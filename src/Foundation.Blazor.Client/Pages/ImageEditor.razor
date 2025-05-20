@@ -5,11 +5,17 @@
 
 <SfSpinner @bind-Visible="ShowSpinner"></SfSpinner>
 <SfButton style="margin: auto" OnClick="SaveAsync">Save To Storage</SfButton>
-<SfImageEditor @ref="SfImageEditor" Height="80vh" Vertical="true"></SfImageEditor>
+
+<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; position: relative;">
+    <div style="width: 50px"></div>
+    <div style="width: calc(100% - 50px);">
+        <SfImageEditor @ref="SfImageEditor" Height="80vh" Vertical="true"></SfImageEditor>
+    </div>
+</div>
 
 <style>
     .e-image-editor {
-        position: relative;
+        position: static !important;
     }
 
     .e-toolbar-area {
@@ -21,15 +27,10 @@
         left: 46px;
         width: 80vh;
         border: 2px solid black;
+        z-index: 1;
     }
 
     .e-toolbar-item {
         transform: rotate(-90deg);
-    }
-
-    .e-canvas-wrapper {
-        width: 950px !important;
-        margin-left: 48px !important;
-        margin-right: 48px !important;
     }
 </style>
