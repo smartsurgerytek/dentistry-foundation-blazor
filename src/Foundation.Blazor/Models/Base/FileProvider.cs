@@ -768,7 +768,6 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                     var fileNameOnly = Path.GetFileNameWithoutExtension(file.FileName) + "_a";
                     var fileExtension = Path.GetExtension(file.FileName);
                     fileName = fileNameOnly + fileExtension;
-
                     if (uploadFiles != null)
                     {
                         // only images allowed for upload

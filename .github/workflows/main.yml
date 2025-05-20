@@ -3,7 +3,7 @@ name: main
 on:
   push:
     branches:
-      - test-16-05-2025-video
+      - FOND-20-research-on-github-action-cicd-idental-foundation
 
 jobs:
   build-and-push:
