@@ -20,6 +20,7 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
     <PackageReference Include="Syncfusion.Blazor.FileManager" Version="28.1.36" />
     <PackageReference Include="Syncfusion.Blazor.Grid" Version="28.2.11" />
+    <PackageReference Include="Syncfusion.Blazor.ImageEditor" Version="28.2.11" />
     <PackageReference Include="Syncfusion.Blazor.Inputs" Version="28.2.11" />
     <PackageReference Include="Syncfusion.Blazor.PdfViewerServer.Windows" Version="27.1.58" />
     <PackageReference Include="Syncfusion.Blazor.Popups" Version="28.2.11" />

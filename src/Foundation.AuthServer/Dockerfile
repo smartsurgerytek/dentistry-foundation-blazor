@@ -34,6 +34,5 @@ EXPOSE 80
 
 # Set environment variable for ASP.NET Core
 ENV ASPNETCORE_URLS=http://+:80
-
-# Run the app
+ENV ASPNETCORE_ENVIRONMENT=Production
 ENTRYPOINT ["dotnet", "Foundation.AuthServer.dll"]

@@ -3,56 +3,172 @@ using System.Drawing.Text;
 using System.IO;
 using FellowOakDicom;
 using FellowOakDicom.IO.Buffer;
+using System.IO.Compression;
+using System.Text;
+using System.Text.Json;
+using FellowOakDicom.Imaging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SkiaSharp;
 
 public class ImageOperationsHelper
-{
-    public static byte[] ConvertImageToDicom(byte[] imgBytes, string fdiData)
+{    
+    // Private tag configuration (odd group number, creator UID)
+    private const string PrivateCreatorUID = "SmartSurgeryTekTag";
+
+    public static byte[] ConvertToDicom(IFormFile imageFile, string fdiData = "")
     {
-        // Load the PNG image using SkiaSharp
-        using var skBitmap = SKBitmap.Decode(imgBytes) ?? throw new ArgumentException("Invalid image stream. Could not decode the image.");
+        using var image = Image.Load<Rgb24>(imageFile.OpenReadStream());
 
-        // Convert the bitmap to a byte array
-        var pixelData = GetPixelData(skBitmap);
+        var dataset = new DicomDataset();
+        AddBasicMetadata(dataset, "AnonymousPatient");
+        AddImageParameters(dataset, image);
+        AddPrivateTags(dataset, imageFile, fdiData);
 
-        // Create a new DICOM dataset
-        var dicomDataset = new DicomDataset
-        {
-            { DicomTag.PatientName, "John Doe" },
-            { DicomTag.PatientID, "12345" },
-            { DicomTag.StudyInstanceUID, DicomUID.Generate() },
-            { DicomTag.SeriesInstanceUID, DicomUID.Generate() },
-            { DicomTag.SOPInstanceUID, DicomUID.Generate() },
-            { DicomTag.SOPClassUID, DicomUID.SecondaryCaptureImageStorage },
-            { DicomTag.PhotometricInterpretation, "RGB" },
-            { DicomTag.Rows, (ushort)skBitmap.Height },
-            { DicomTag.Columns, (ushort)skBitmap.Width },
-            { DicomTag.BitsAllocated, (ushort)8 },
-            { DicomTag.BitsStored, (ushort)8 },
-            { DicomTag.HighBit, (ushort)7 },
-            { DicomTag.PixelRepresentation, (ushort)0 },
-            { DicomTag.PixelData, pixelData }
-        };
+        var pixelData = CreatePixelData(dataset, image);
+        AddPixelFrame(pixelData, image);
 
-        // Add FDI data as a private tag
-        var privateTag = new DicomTag(0x9999, 0x0010, "SmartSurgeryExtension");
-        // dicomDataset.Add(privateTag, DicomVR.LO, fdiData);
+        var dicomFile = new DicomFile(dataset);
+        dicomFile.FileMetaInfo.TransferSyntax = DicomTransferSyntax.ExplicitVRLittleEndian;
 
-        // Create a DICOM file and save it
-        var dicomFile = new DicomFile(dicomDataset);
-        // Save the DICOM file to a MemoryStream and return as byte[]
-        using var memoryStream = new MemoryStream();
-        dicomFile.Save(memoryStream);
+        // read the json back
+        var jsonString = ReadPrivateJsonTag(dicomFile);
 
-        return memoryStream.ToArray();
+        using var outputStream = new MemoryStream();
+        dicomFile.Save(outputStream);
+        return outputStream.ToArray();
     }
 
-    private static byte[] GetPixelData(SKBitmap skBitmap)
+    private static void AddBasicMetadata(DicomDataset dataset, string patientName)
     {
-        // Convert the SKBitmap pixel data to a byte array
-        var pixelData = new byte[skBitmap.ByteCount];
-        System.Runtime.InteropServices.Marshal.Copy(skBitmap.GetPixels(), pixelData, 0, pixelData.Length);
+        dataset.Add(DicomTag.PatientName, patientName);
+        dataset.Add(DicomTag.PatientID, Guid.NewGuid().ToString());
+        dataset.Add(DicomTag.StudyInstanceUID, DicomUID.Generate());
+        dataset.Add(DicomTag.SeriesInstanceUID, DicomUID.Generate());
+        dataset.Add(DicomTag.SOPInstanceUID, DicomUID.Generate());
+        dataset.Add(DicomTag.SOPClassUID, DicomUID.SecondaryCaptureImageStorage);
+    }
+
+    private static void AddImageParameters(DicomDataset dataset, Image<Rgb24> image)
+    {
+        dataset.Add(DicomTag.Rows, (ushort)image.Height);
+        dataset.Add(DicomTag.Columns, (ushort)image.Width);
+        dataset.Add(DicomTag.BitsAllocated, (ushort)8);
+        dataset.Add(DicomTag.BitsStored, (ushort)8);
+        dataset.Add(DicomTag.HighBit, (ushort)7);
+
+        // Corrected: Use string value instead of enum
+        dataset.Add(DicomTag.PhotometricInterpretation, PhotometricInterpretation.Rgb.Value);
+
+        dataset.Add(DicomTag.SamplesPerPixel, (ushort)3);
+        dataset.Add(DicomTag.PixelRepresentation, (ushort)PixelRepresentation.Unsigned);
+        dataset.Add(DicomTag.PlanarConfiguration, (ushort)PlanarConfiguration.Interleaved);
+    }
+
+    private static DicomPixelData CreatePixelData(DicomDataset dataset, Image<Rgb24> image)
+    {
+        var pixelData = DicomPixelData.Create(dataset, true);
+        pixelData.BitsStored = 8;
+        pixelData.SamplesPerPixel = 3;
+        pixelData.PlanarConfiguration = PlanarConfiguration.Interleaved;
         return pixelData;
+    }
+
+    private static void AddPixelFrame(DicomPixelData pixelData, Image<Rgb24> image)
+    {
+        byte[] pixelBytes = new byte[image.Width * image.Height * 3];
+        image.CopyPixelDataTo(pixelBytes);
+        pixelData.AddFrame(new MemoryByteBuffer(pixelBytes));
+    }
+
+    private static void AddPrivateTags(DicomDataset dataset, IFormFile imageFile, string fdiData = "")
+    {
+        // 1. Add private creator identification (required for private tags)
+        var privateCreatorTag = new DicomTag(0x1001, 0x0010);
+        dataset.Add(new DicomLongString(privateCreatorTag, PrivateCreatorUID));
+        // dataset.Add(new DicomUniqueIdentifier(DicomTag.PrivateCreator, PrivateCreatorUID));
+
+        // 2. Create JSON metadata
+        var jsonData = new
+        {
+            Conversion = new
+            {
+                Timestamp = DateTime.UtcNow.ToString("o"),
+                OriginalFilename = imageFile.FileName,
+                OriginalSize = imageFile.Length,
+                Software = "DICOM Converter v1.0",
+                Checksum = ComputeFileHash(imageFile)
+            },
+            ImageCharacteristics = new
+            {
+                Width = dataset.GetSingleValue<int>(DicomTag.Columns),
+                Height = dataset.GetSingleValue<int>(DicomTag.Rows),
+                ColorSpace = "RGB",
+                BitsPerPixel = 24,
+                OriginalFormat = imageFile.ContentType
+            },
+            FdiData = fdiData
+        };
+
+        // 3. Serialize and compress JSON
+        byte[] jsonBytes = CompressJson(jsonData);
+
+        // 4. Add to private tag with OB VR type
+        var privateTag = new DicomTag(0x1001, 0x0011, PrivateCreatorUID);
+        dataset.Add(new DicomOtherByte(privateTag, jsonBytes));
+
+        // 5. Add compression marker tag
+        var compressionTag = new DicomTag(0x1001, 0x0012, PrivateCreatorUID);
+        dataset.Add(new DicomCodeString(compressionTag, "ZLIB"));
+    }
+
+    private static byte[] CompressJson(object jsonData)
+    {
+        string jsonString = JsonSerializer.Serialize(jsonData);
+        byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+
+        using var output = new MemoryStream();
+        using (var compressor = new System.IO.Compression.DeflateStream(output, CompressionLevel.Optimal))
+        {
+            compressor.Write(jsonBytes, 0, jsonBytes.Length);
+        }
+        return output.ToArray();
+    }
+
+    private static string ComputeFileHash(IFormFile file)
+    {
+        using var stream = file.OpenReadStream();
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        byte[] hashBytes = sha256.ComputeHash(stream);
+        return BitConverter.ToString(hashBytes).Replace("-", "");
+    }
+
+    public static string ReadPrivateJsonTag(DicomFile dicomFile)
+    {
+        const string privateCreator = "SmartSurgeryTekTag";
+        var jsonTag = new DicomTag(0x1001, 0x0011, privateCreator);
+        var compressionTag = new DicomTag(0x1001, 0x0012, privateCreator);
+
+        if (dicomFile.Dataset.TryGetValues<byte>(jsonTag, out byte[] jsonBytes))
+        {
+            string compression = dicomFile.Dataset.GetString(compressionTag) ?? "NONE";
+
+            using var input = new MemoryStream(jsonBytes);
+            using var output = new MemoryStream();
+
+            if (compression == "ZLIB")
+            {
+                using var decompressor = new System.IO.Compression.DeflateStream(input, CompressionMode.Decompress);
+                decompressor.CopyTo(output);
+            }
+            else
+            {
+                input.CopyTo(output);
+            }
+
+            return Encoding.UTF8.GetString(output.ToArray());
+        }
+        return null;
     }
 
     public static Stream CombineTwoImages(byte[] firstImageStream, byte[] secondImageStream)

@@ -15,6 +15,7 @@ using Syncfusion.DocIO.DLS;
 using Syncfusion.Pdf;
 using Syncfusion.DocIORenderer;
 using System.Threading.Tasks;
+using Foundation.Dtos;
 
 namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 {
@@ -42,19 +43,14 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
             if (!string.IsNullOrEmpty(fileProvider))
             {
                 var bucketName = configuration[$"{fileProvider}:BucketName"];
-                var accessKey = configuration[$"{fileProvider}:AccessKey"];
-                var secretKey = configuration[$"{fileProvider}:SecretKey"];
-                var region = configuration[$"{fileProvider}:Region"];
-                var serviceUrl = configuration[$"{fileProvider}:ServiceUrl"];
 
                 if (fileProvider != null && string.Compare(fileProvider, "amazons3", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    this.operation.RegisterAmazonS3FileProvider(bucketName, accessKey, secretKey, region);
+                    this.operation.RegisterAmazonS3FileProvider(bucketName);
                 }
                 else
                 {
-                    this.operation.RegisterMinIOFileProvider(bucketName, accessKey, secretKey, serviceUrl);
-                    this.operation.RootFolder(bucketName);
+                    this.operation.RegisterMinIOFileProvider(bucketName);
                 }
 
                 return;
@@ -178,6 +174,42 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         public IActionResult AmazonS3GetImage(FileManagerDirectoryContent args)
         {
             return operation.GetImage(args.Path, args.Id, false, null, args.Data);
+        }
+
+        // uploads a single image to the bucket
+        // this is used by the image editor
+        [HttpPost]
+        [Route("UploadImageAsStream")]
+        public async Task UploadImageAsStream([FromBody]ImageEditorUploadAndReplaceDto replaceDto)
+        {
+            // replace the old image with the edited image
+            // check if the file exists
+            // if it does, delete it
+            var oldImagePath = replaceDto.FilePath;
+            var oldImageName = replaceDto.OldFileName;
+            if (oldImagePath != null && oldImageName != "")
+            {
+                var fileExists = this.operation.checkFileExist(oldImagePath, oldImageName);
+                if (fileExists)
+                {
+                    // delete the old image
+                    var fileManagerDirectoryContent = new FileManagerDirectoryContent
+                    {
+                        Path = oldImagePath,
+                        Id = oldImageName,
+                        Names = [oldImageName],
+                        IsFile = true,
+                        Data = null
+                    };
+                    this.operation.Delete(oldImagePath, [oldImageName], [fileManagerDirectoryContent]);
+                }
+            }
+
+            // upload the image
+            // set the root name
+            this.operation.GetBucketList();
+            using Stream stream = new MemoryStream(Convert.FromBase64String(replaceDto.FileStream.Split(",")[1]));
+            await this.operation.UploadFileToS3(stream, replaceDto.FileName, replaceDto.FilePath);
         }
 
         //save the document

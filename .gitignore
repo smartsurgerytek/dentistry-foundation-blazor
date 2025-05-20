@@ -276,3 +276,11 @@ tempkey.jwk
 /src/Foundation.AuthServer/Logs
 /src/Foundation.HttpApi.Host/Logs
 src/Foundation.HttpApi.Host/Logs/logs.txt
+src/Foundation.HttpApi.Host/Logs/logs.txt
+src/Foundation.HttpApi.Host/Logs/logs.txt
+/src/Foundation.AuthServer/wwwroot/libs/abp/core/abp.css
+/src/Foundation.AuthServer/wwwroot/libs/abp/core/abp.js
+/src/Foundation.AuthServer/wwwroot/libs/abp/core/abp.css
+/src/Foundation.AuthServer/wwwroot/libs/abp/core/abp.js
+/src/Foundation.AuthServer/wwwroot/libs/abp/core/abp.css
+/src/Foundation.AuthServer/wwwroot/libs/abp/core/abp.js

@@ -57,6 +57,7 @@ using Volo.Abp.Security.Claims;
 using Volo.Abp.Studio.Client.AspNetCore;
 using Volo.Abp.AspNetCore.Security;
 using Microsoft.AspNetCore.Http;
+using Volo.Abp.AspNetCore.Mvc.Libs;
 
 namespace Foundation;
 
@@ -283,6 +284,11 @@ public class FoundationAuthServerModule : AbpModule
         {
             options.UseContentSecurityPolicyHeader = true; //false by default
             options.ContentSecurityPolicyValue = "frame-ancestors https://localhost:44355 http://localhost:3000"; //default value
+        });
+
+        Configure<AbpMvcLibsOptions>(options =>
+        {
+            options.CheckLibs = false;
         });
     }
 

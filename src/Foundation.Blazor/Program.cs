@@ -1,3 +1,6 @@
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Transfer;
 using Blazored.SessionStorage;
 using Foundation.Blazor;
 using Foundation.Blazor.Client;
@@ -28,6 +31,43 @@ builder.Services.AddSyncfusionBlazor();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<FileProvider>();
+builder.Services.AddSingleton<IAmazonS3>((options) => {
+    var configuration = builder.Configuration;
+
+    var fileProvider = configuration["FileProvider"];
+    if (!string.IsNullOrEmpty(fileProvider))
+    {
+        var bucketName = configuration[$"{fileProvider}:BucketName"];
+        var accessKey = configuration[$"{fileProvider}:AccessKey"];
+        var secretKey = configuration[$"{fileProvider}:SecretKey"];
+        var region = configuration[$"{fileProvider}:Region"];
+        var serviceUrl = configuration[$"{fileProvider}:ServiceUrl"];
+
+        if (fileProvider != null && string.Compare(fileProvider, "amazons3", StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName(region);
+            return new AmazonS3Client(accessKey, secretKey, bucketRegion);
+        }
+        else
+        {
+            var config = new AmazonS3Config
+            {
+                AuthenticationRegion = "",
+                ServiceURL = serviceUrl,
+                ForcePathStyle = true // MUST be true to work correctly with MinIO server
+            };
+
+            return new AmazonS3Client(accessKey, secretKey, config);
+        }
+    }
+
+    throw new Exception("FileProvider configuration is missing.");
+});
+builder.Services.AddSingleton<TransferUtility>((options) =>
+{
+    var s3Client = options.GetRequiredService<IAmazonS3>();
+    return new TransferUtility(s3Client);
+});
 
 builder.Services.AddScoped<DentistryApiService>();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);

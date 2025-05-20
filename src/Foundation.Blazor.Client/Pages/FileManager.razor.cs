@@ -6,13 +6,27 @@ using System.Threading.Tasks;
 using Foundation.Application.Contracts.Dtos;
 using Foundation.Dtos;
 using Syncfusion.Blazor.FileManager;
+using Syncfusion.Blazor.Popups;
+using Syncfusion.Blazor.ImageEditor;
 using Volo.Abp.EventBus.Distributed;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Components;
+using System.IO;
+using System.Linq;
 
 namespace Foundation.Blazor.Client.Pages;
 
 public partial class FileManager
 {
+    public bool IsImageEditorVisible { get; set; } = false;
+    public bool IsOpenImageEditorBtnDisabled { get; set; } = true;
+    public bool IsExaminationRecordDisabled { get; set; } = false;
     public SfFileManager<FileManagerDirectoryContent>? SfFileManager;
+    public SfImageEditor? ImageEditor;
+
+    [Inject]
+    public HttpClient httpClient { get; set; }
+
     public List<ToolBarItemModel> Items = new List<ToolBarItemModel>(){
         new ToolBarItemModel() { Name = "NewFolder" },
         new ToolBarItemModel() { Name = "Cut" },
@@ -25,12 +39,11 @@ public partial class FileManager
         new ToolBarItemModel() { Name = "SortBy" },
         new ToolBarItemModel() { Name = "Refresh" },
         new ToolBarItemModel() { Name = "ExaminationRecord" , TooltipText ="Click to generate an examination record" },
+        new ToolBarItemModel() { Name = "OpenImageEditor" , TooltipText ="Click to edit the selected image" },
         new ToolBarItemModel() { Name = "Selection" },
         new ToolBarItemModel() { Name = "View" },
         new ToolBarItemModel() { Name = "Details" },
     };
-
-    public bool IsExaminationRecordDisabled { get; set; } = false;
 
     public Task HandleEventAsync(ImageUploadEto eventData)
     {
@@ -39,53 +52,76 @@ public partial class FileManager
 
     public async void OpenFilePreview(FileOpenEventArgs<FileManagerDirectoryContent> args)
     {
-        if (args.FileDetails.Type?.ToLower() == ".pdf")
+        string[] imageExtensions = { ".jpg", ".jpeg", ".png" };
+        if (args.FileDetails.IsFile && args.FileDetails.Type?.ToLower() == ".pdf")
         {
             await Task.Delay(50);
             NavigationManager.NavigateTo("/RecordViewer?fileName=" + args.FileDetails.Name);
         }
+        else if (args.FileDetails.IsFile && imageExtensions.Contains(args.FileDetails.Type?.ToLower()))
+        {
+            await Task.Delay(50);
+            await OpenImageEditor(null);
+        }
+    }
+
+    public async void SuppressImagePreview(BeforePopupOpenCloseEventArgs args)
+    {
+        if (args.PopupName == "Image Preview")
+        {
+            args.Cancel = true;
+            await OpenImageEditor(null);
+        }
+    }
+
+    public async Task OpenImageEditor(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    {
+        var selectedItem = this.SfFileManager?.GetSelectedFiles()[0];
+        var imagePath = selectedItem?.FilterPath + selectedItem?.Name;
+        NavigationManager.NavigateTo($"/ImageEditor?Path={imagePath}");
     }
 
     public async Task GenerateRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
     {
         Console.WriteLine("Generate Record");
-        // download the image as byte[]
-        var selectedFile = this.SfFileManager?.GetSelectedFiles()[0];
-        var imagePath = selectedFile?.FilterPath;
-        var imageName = selectedFile?.Name;
-        
-        NavigationManager.NavigateTo($"/ExaminationRecord?imagePath={imagePath}&imageName={imageName}");
+        var selectedItems = this.SfFileManager?.GetSelectedFiles();
+        Console.WriteLine(selectedItems?.Count ?? 0);
+        var selectedFileNames = selectedItems?.Select(i => i.FilterPath + i.Name).ToArray();
+        var selectedFileNamesString = string.Join(",", selectedFileNames ?? Array.Empty<string>());
+        Console.WriteLine(selectedFileNamesString);
+
+        NavigationManager.NavigateTo($"/ExaminationRecord?imageNames={selectedFileNamesString}");
     }
 
     public void OnSelectedItemsChanged(string[] args)
     {
-        // get total selections: if more than 1 disable the button
+        IsExaminationRecordDisabled = false;
+        IsOpenImageEditorBtnDisabled = false;
+
+        // check if any of the selected items is a folder or
+        // check if any of the selected files is a non-image
+        var imageExtensions = new[] { ".jpg", ".jpeg", ".png" }; // ".dcm" removed for now
+        var selectedItem = this.SfFileManager?.GetSelectedFiles();
+        if (selectedItem?.Any(i => !i.IsFile && !imageExtensions.Contains(i.Type?.ToLower())) ?? true)
+        {
+            IsExaminationRecordDisabled = true;
+            IsOpenImageEditorBtnDisabled = true;
+            return;
+        }
+
+        // get total selections: if 0 disable the buttons
+        // if 1 enable the image editor button
         var totalSelections = args.Length;
-        if (totalSelections != 1)
+        if (totalSelections == 0)
         {
             IsExaminationRecordDisabled = true;
+            IsOpenImageEditorBtnDisabled = true;
             return;
         }
-
-        // check if the selected item is a folder
-        var selectedItem = this.SfFileManager?.GetSelectedFiles()[0];
-        if (!(selectedItem?.IsFile ?? true))
+        else if (totalSelections > 1)
         {
-            IsExaminationRecordDisabled = true;
+            IsOpenImageEditorBtnDisabled = true;
             return;
         }
-
-        // get the selected item
-        var allSeparated = selectedItem?.Name?.Split(".");
-        var selectedItemName = allSeparated != null ? string.Join(".", allSeparated[..^1]) : "";
-        Console.WriteLine(selectedItemName);
-        // get the selected item extension
-        var selectedItemExtension = allSeparated?[^1] ?? "";
-        Console.WriteLine(selectedItemExtension);
-
-        // check if the selected item is an original image: contains _a with jpg,png,jpeg extensions
-        var isOriginalImage = selectedItemName.EndsWith("_a") && (selectedItemExtension == "jpg" || selectedItemExtension == "png" || selectedItemExtension == "jpeg");
-        // if it is an image, enable the button
-        IsExaminationRecordDisabled = !isOriginalImage;
     }
 }

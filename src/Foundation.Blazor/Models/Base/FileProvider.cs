@@ -34,51 +34,56 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         AccessDetails AccessDetails = new AccessDetails();
         long sizeValue = 0;
         List<FileManagerDirectoryContent> s3ObjectFiles = new List<FileManagerDirectoryContent>();
-        TransferUtility fileTransferUtility = new TransferUtility(client);
+        TransferUtility fileTransferUtility;
         private static List<PartETag> partETags;
         private static string uploadId;
         private readonly HttpClient _httpClient;
         private readonly DentistryApiService _imageService;
 
-        public FileProvider(HttpClient httpClient, DentistryApiService imageService)
+        public FileProvider(HttpClient httpClient, DentistryApiService imageService, IAmazonS3 amazonS3Client, TransferUtility transferUtility)
         {
+            client = amazonS3Client;
             _httpClient = httpClient;
             _imageService = imageService;
+            fileTransferUtility = transferUtility;
         }
 
         // Register the amazon client details
-        public void RegisterAmazonS3FileProvider(string name, string awsAccessKeyId, string awsSecretAccessKey, string region)
+        public void RegisterAmazonS3FileProvider(string name)
         {
             bucketName = name;
-            RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName(region);
-            client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, bucketRegion);
+            CreateBucket(bucketName).Wait();
+            // RootFolder(bucketName);
             GetBucketList();
         }
 
         // Register the amazon client details
-        public void RegisterMinIOFileProvider(string name, string awsAccessKeyId, string awsSecretAccessKey, string serviceUrl)
+        public void RegisterMinIOFileProvider(string name)
         {
             bucketName = name;
-            //RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName(region);
-            //client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, bucketRegion);
-            var config = new AmazonS3Config
-            {
-                // AuthenticationRegion = RegionEndpoint.USEast1.SystemName, // Should match the `MINIO_REGION` environment variable.
-
-                // DEFAULT in Minio Docker Container is no `MINIO_REGION` environment variable.
-                AuthenticationRegion = "",
-                ServiceURL = serviceUrl, // replace http://localhost:9000 with URL of your MinIO server
-                ForcePathStyle = true // MUST be true to work correctly with MinIO server
-            };
-            client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, config);
-            fileTransferUtility = new TransferUtility(client);
-            CreateBucket(bucketName);
+            CreateBucket(bucketName).Wait();
+            RootFolder(bucketName);
         }
 
-        public void CreateBucket(string bucketName)
+        public async Task CreateBucket(string bucketName)
         {
-            if (client != null)
-                client.EnsureBucketExistsAsync(bucketName);
+            try
+            {
+                if (client != null)
+                    await client.EnsureBucketExistsAsync(bucketName);
+            }
+            catch (AmazonS3Exception s3Exception)
+            {
+                // if (s3Exception.ErrorCode != "BucketAlreadyOwnedByYou" && s3Exception.ErrorCode != "BucketAlreadyExists")
+                // {
+                //     throw;
+                // }
+            }
+            catch (Exception ex)
+            {
+                // Some other error occurred
+                throw;
+            }
         }
 
         public void RootFolder(string name)
@@ -86,9 +91,13 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             this.RootName = name;
             ListingObjectsAsync("", name, false).Wait();
             if (response.S3Objects.Count > 0)
+            {
                 RootName = response.S3Objects.First().Key;
+            }
             else
+            {
                 CreateFolder(name);
+            }
         }
 
         public void CreateFolder(string name)
@@ -759,7 +768,6 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                     var fileNameOnly = Path.GetFileNameWithoutExtension(file.FileName) + "_a";
                     var fileExtension = Path.GetExtension(file.FileName);
                     fileName = fileNameOnly + fileExtension;
-                    
                     if (uploadFiles != null)
                     {
                         // only images allowed for upload
@@ -879,9 +887,8 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         {
             try
             {
-                using var stream = file.OpenReadStream();
+                // using var stream = file.OpenReadStream();
                 // upload the first/original image
-                await UploadFileToS3(stream, fileName, path);
 
                 // if (_imageService.IsImageFile(file))
                 {
@@ -971,6 +978,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             // generate the combined a+b image
             var combinedImageStream = ImageOperationsHelper.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
 
+            var originalImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
             var enhancedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
             var combinedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ab." + "png";
 
@@ -982,8 +990,8 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                 var fdiDataString = JsonConvert.SerializeObject(fdiData);
 
                 // create a dicom image from ai image and fdi data
-                var dicomImage = ImageOperationsHelper.ConvertImageToDicom(enhancedImageBytes, fdiDataString);
-                var dicomImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_dicom." + "dcm";
+                var dicomImage = ImageOperationsHelper.ConvertToDicom(file, fdiDataString);
+                var dicomImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a.dcm";
                 using var dicomImageStream = new MemoryStream(dicomImage);
 
                 // upload the dicom image
@@ -991,15 +999,18 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             }
             else
             {
-                // upload the ai image
-                await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
+                // upload the original image
+                await UploadFileToS3(originalImageStream, originalImageFileName, path);
             }
+
+            // upload the ai image
+            await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
 
             // upload the combined image
             await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
         }
 
-        private async Task UploadFileToS3(Stream stream, string fileName, string path)
+        public async Task UploadFileToS3(Stream stream, string fileName, string path)
         {
             var s3Path = RootName.Replace("/", "") + path + fileName;
             await fileTransferUtility.UploadAsync(stream, bucketName, s3Path);

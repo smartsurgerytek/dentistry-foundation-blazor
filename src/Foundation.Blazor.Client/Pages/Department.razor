@@ -1,14 +1,7 @@
 ﻿@page "/Department"
 
-@using Microsoft.AspNetCore.Components.Forms
-@using Foundation.Dtos
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Inputs
-@using Syncfusion.Blazor.Navigations
-@using Syncfusion.Blazor.Popups
-@using System.Net.Http.Json
-@using System.ComponentModel.DataAnnotations
-@inject HttpClient Http
+
+@inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 
 <h3>Department - @OrganizationName</h3>
@@ -32,7 +25,7 @@
 <SfDialog @ref="Dialog" Width="400px" ShowCloseIcon="true" Header="@DialogTitle" Visible="false">
     <DialogTemplates>
         <Content>
-            <EditForm Model="@CurrentDepartment" OnValidSubmit="SaveDepartment">                
+            <EditForm Model="@CurrentDepartment" OnValidSubmit="SaveDepartment">
                 <DataAnnotationsValidator />
 
                 <div class="mb-3">
@@ -87,9 +80,9 @@
     {
         if (!string.IsNullOrEmpty(OrganizationId))
         {
-            Departments = await Http.GetFromJsonAsync<List<DepartmentDto>>(
-                $"https://localhost:44337/api/app/department/departments-by/{OrganizationId}"
-            ) ?? new();
+            Departments = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<DepartmentDto>>(
+               $"/api/app/department/departments-by/{OrganizationId}"
+           ) ?? new();
         }
     }
 
@@ -110,11 +103,11 @@
             DialogTitle = "Edit Department";
             var selected = selectedRow.First();
             CurrentDepartment = new CreateUpdateDepartmentDto
-            {
-                Id = selected.Id,
-                Name = selected.Name,
-                OrganizationId = selected.OrganizationId
-            };
+                {
+                    Id = selected.Id,
+                    Name = selected.Name,
+                    OrganizationId = selected.OrganizationId
+                };
             await Dialog.ShowAsync();
         }
         else if (args.Item.Text == "Delete" && selectedRow.Any())
@@ -131,14 +124,11 @@
     {
         if (IsNew)
         {
-            await Http.PostAsJsonAsync("https://localhost:44337/api/app/department/department", CurrentDepartment);
+            await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/department/department", CurrentDepartment);
         }
         else
         {
-            await Http.PutAsJsonAsync(
-                $"https://localhost:44337/api/app/department/department/{CurrentDepartment.Id}", 
-                CurrentDepartment
-            );
+            await HttpClientFactory.CreateClient("ApiClient").PutAsJsonAsync($"/api/app/department/department/{CurrentDepartment.Id}",CurrentDepartment);
         }
 
         await LoadDepartments();
@@ -147,7 +137,7 @@
 
     private async Task DeleteDepartment(Guid id)
     {
-        await Http.DeleteAsync($"https://localhost:44337/api/app/department/department/{id}");
+        await HttpClientFactory.CreateClient("ApiClient").DeleteAsync($"/api/app/department/department/{id}");        
         await LoadDepartments();
     }
 

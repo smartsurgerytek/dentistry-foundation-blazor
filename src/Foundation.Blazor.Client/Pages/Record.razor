@@ -1,14 +1,7 @@
 ﻿@page "/Records"
 
-@using Foundation.Dtos
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Inputs
-@using Syncfusion.Blazor.Navigations
-@using Syncfusion.Blazor.Popups
-@using System.Net.Http.Json
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
-
 
 <h3>Records</h3>
 
@@ -45,10 +38,9 @@
         Toolbaritems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
     }
 
-
     private async Task LoadRecords()
     {
-        Records = await Http.GetFromJsonAsync<List<RecordDto>>("https://localhost:44337/api/app/record/records") ?? new();
+        Records = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<RecordDto>>("/api/app/record/records") ?? new();
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
@@ -68,13 +60,11 @@
         }
     }
 
-
     private async Task DeleteRecord(Guid id)
     {
-        await Http.DeleteAsync($"https://localhost:44337/api/app/record/record/{id}");
+        await HttpClientFactory.CreateClient("ApiClient").DeleteAsync($"/api/app/record/record/{id}");
         await LoadRecords();
     }
-
 
     private void NavigateFile(RecordDto recordDto)
     {

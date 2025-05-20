@@ -1,16 +1,12 @@
 ﻿@page "/ExaminationRecord"
 
 @inject ISessionStorageService SessionStorage
+@inject IHttpClientFactory HttpClientFactory
 @using Blazored.SessionStorage
 @inject NavigationManager NavigationManager
 @using Foundation.Dtos
 @using Foundation.Services
 @using Newtonsoft.Json
-@using Syncfusion.Blazor.Inputs
-@using Syncfusion.Blazor.DropDowns
-@using Syncfusion.Blazor.Buttons
-@using Syncfusion.Blazor.Popups
-@using Syncfusion.Blazor.Spinner
 @inject IJSRuntime JS
 @inject HttpClient Http
 @using System.Net.Http.Json
@@ -29,8 +25,6 @@
     <DialogButtons>
         <DialogButton Content="OK" IsPrimary="true" OnClick="@DialogButtonClick" />
     </DialogButtons>
-    @* <DialogEvents OnOpen="@DialogOpen" Closed="@DialogClose" OnOverlayModalClick="@OverlayClick"></DialogEvents>
-    <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings> *@
 </SfDialog>
 
 
@@ -38,20 +32,28 @@
 <hr />
 <SfSpinner @ref="spinnerObj" CssClass="custom-spinner"></SfSpinner>
 <div class="jaw-selection mb-3">
-    <label class="me-3">
-        <input type="radio" name="jaw" value="Maxilla" @onchange="@(() => SelectedJaw = "Maxilla")" checked="@IsMaxillaSelected" />
-        Maxilla
+    <label>
+        <input type="radio" name="jaw" value="Upper left" @onchange="@(() => SelectedJaw = "Upper left")" checked="@IsUpperLeftSelected" />
+        Upper left
     </label>
     <label>
-        <input type="radio" name="jaw" value="Mandible" @onchange="@(() => SelectedJaw = "Mandible")" checked="@IsMandibleSelected" />
-        Mandible
+        <input type="radio" name="jaw" value="Upper right" @onchange="@(() => SelectedJaw = "Upper right")" checked="@IsUpperRightSelected" />
+        Upper right
+    </label>
+    <label>
+        <input type="radio" name="jaw" value="Lower left" @onchange="@(() => SelectedJaw = "Lower left")" checked="@IsLowerLeftSelected" />
+        Lower left
+    </label>
+    <label>
+        <input type="radio" name="jaw" value="Lower right" @onchange="@(() => SelectedJaw = "Lower right")" checked="@IsLowerRightSelected" />
+        Lowert right
     </label>
 </div>
 <hr />
 
-@if (SelectedJaw == "Maxilla")
+@if (SelectedJaw == "Upper left")
 {
-    @foreach (var tooth in TeethMaxilla)
+    @foreach (var tooth in UpperLeft)
     {
         <div class="tooth-row">
             <div class="tooth-col">
@@ -59,22 +61,11 @@
                 <div class="tooth-number">@tooth.ToothNumber</div>
             </div>
 
-            @*  <div class="caries-section">
+            <div class="caries-section">
                 <label class="me-2">Caries</label>
                 <label class="me-1">YES <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
                 <label>NO <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
-            </div> *@
-
-            <label class="me-2">Caries</label>
-            <label class="me-1">
-                YES <SfCheckBox @bind-Checked="@tooth.CariesYes" ValueChanged="@( (bool _) => OnCariesChanged(tooth, true) )" />
-            </label>
-            <label>
-                NO <SfCheckBox @bind-Checked="@tooth.CariesNo" ValueChanged="@( (bool _) => OnCariesChanged(tooth, false) )" />
-            </label>
-
-
-
+            </div>
 
             <div class="dropdown-section">
                 <label>PE</label>
@@ -90,9 +81,69 @@
         <hr />
     }
 }
-else if (SelectedJaw == "Mandible")
+else if (SelectedJaw == "Upper right")
 {
-    @foreach (var tooth in TeethMandible)
+    @foreach (var tooth in UpperRight)
+    {
+        <div class="tooth-row">
+            <div class="tooth-col">
+                <img src="/images/tooth.png" alt="ToothIcon" class="tooth-icon" />
+                <div class="tooth-number">@tooth.ToothNumber</div>
+            </div>
+
+            <div class="caries-section">
+                <label class="me-2">Caries</label>
+                <label class="me-1">YES <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
+                <label>NO <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+            </div>
+
+            <div class="dropdown-section">
+                <label>PE</label>
+                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
+                    <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+            </div>
+
+            <div class="description-section">
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder="Detailed Description" CssClass="custom-description" Rows="3" />
+            </div>
+        </div>
+        <hr />
+    }
+}
+else if (SelectedJaw == "Lower left")
+{
+    @foreach (var tooth in LowerLeft)
+    {
+        <div class="tooth-row">
+            <div class="tooth-col">
+                <img src="/images/tooth.png" alt="ToothIcon" class="tooth-icon" />
+                <div class="tooth-number">@tooth.ToothNumber</div>
+            </div>
+
+            <div class="caries-section">
+                <label class="me-2">Caries</label>
+                <label class="me-1">YES <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
+                <label>NO <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+            </div>
+
+            <div class="dropdown-section">
+                <label>PE</label>
+                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
+                    <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+            </div>
+
+            <div class="description-section">
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder="Detailed Description" CssClass="custom-description" Rows="3" />
+            </div>
+        </div>
+        <hr />
+    }
+}
+else if (SelectedJaw == "Lower right")
+{
+    @foreach (var tooth in LowerRight)
     {
         <div class="tooth-row">
             <div class="tooth-col">
@@ -121,6 +172,7 @@ else if (SelectedJaw == "Mandible")
     }
 }
 
+
 <div class="text-center mt-4">
     <SfButton CssClass="e-primary" OnClick="SubmitRecord">Submit Record</SfButton>
 </div>
@@ -131,19 +183,22 @@ else if (SelectedJaw == "Mandible")
     [SupplyParameterFromQuery]
     public string PatientId { get; set; }
 
-    [Parameter]
+    @* [Parameter]
     [SupplyParameterFromQuery]
-    public string imagePath { get; set; }
+    public string imagePath { get; set; } *@
 
     [Parameter]
     [SupplyParameterFromQuery]
-    public string imageName { get; set; }
+    public string imageNames { get; set; }
 
 
     public SfSpinner spinnerObj;
-    private string SelectedJaw { get; set; } = "Maxilla";
-    private bool IsMaxillaSelected => SelectedJaw == "Maxilla";
-    private bool IsMandibleSelected => SelectedJaw == "Mandible";
+    private string SelectedJaw { get; set; } = "Upper left";
+    private bool IsUpperLeftSelected => SelectedJaw == "Upper left";
+    private bool IsUpperRightSelected => SelectedJaw == "Upper right";
+    private bool IsLowerLeftSelected => SelectedJaw == "Lower left";
+    private bool IsLowerRightSelected => SelectedJaw == "Lower right";
+
     private SfCheckBox<bool> CheckboxObj;
     private bool Visibility { get; set; } = true;
     private bool ShowButton { get; set; } = false;
@@ -162,33 +217,40 @@ else if (SelectedJaw == "Mandible")
     {
         new PEList() { ID = "I", Text = "Stage I" },
         new PEList() { ID = "II", Text = "Stage II" },
-        new PEList() { ID = "III", Text = "Stage III" },
-        new PEList() { ID = "IV", Text = "Stage IV" }
+        new PEList() { ID = "III", Text = "Stage III" }
     };
 
-    List<ToothInfoDto> TeethMaxilla = new()
+    List<ToothInfoDto> UpperRight = new()
     {
         new ToothInfoDto { ToothNumber = 18 }, new ToothInfoDto { ToothNumber = 17 },
         new ToothInfoDto { ToothNumber = 16 }, new ToothInfoDto { ToothNumber = 15 },
         new ToothInfoDto { ToothNumber = 14 }, new ToothInfoDto { ToothNumber = 13 },
-        new ToothInfoDto { ToothNumber = 12 }, new ToothInfoDto { ToothNumber = 11 },
+        new ToothInfoDto { ToothNumber = 12 }, new ToothInfoDto { ToothNumber = 11 }
+    };
+    List<ToothInfoDto> UpperLeft = new()
+    {
         new ToothInfoDto { ToothNumber = 21 }, new ToothInfoDto { ToothNumber = 22 },
         new ToothInfoDto { ToothNumber = 23 }, new ToothInfoDto { ToothNumber = 24 },
         new ToothInfoDto { ToothNumber = 25 }, new ToothInfoDto { ToothNumber = 26 },
         new ToothInfoDto { ToothNumber = 27 }, new ToothInfoDto { ToothNumber = 28 }
     };
-
-    List<ToothInfoDto> TeethMandible = new()
+    List<ToothInfoDto> LowerRight = new()
     {
         new ToothInfoDto { ToothNumber = 48 }, new ToothInfoDto { ToothNumber = 47 },
         new ToothInfoDto { ToothNumber = 46 }, new ToothInfoDto { ToothNumber = 45 },
         new ToothInfoDto { ToothNumber = 44 }, new ToothInfoDto { ToothNumber = 43 },
-        new ToothInfoDto { ToothNumber = 42 }, new ToothInfoDto { ToothNumber = 41 },
-        new ToothInfoDto { ToothNumber = 31 }, new ToothInfoDto { ToothNumber = 32 },
+        new ToothInfoDto { ToothNumber = 42 }, new ToothInfoDto { ToothNumber = 41 }
+    };
+    List<ToothInfoDto> LowerLeft = new()
+    {
+         new ToothInfoDto { ToothNumber = 31 }, new ToothInfoDto { ToothNumber = 32 },
         new ToothInfoDto { ToothNumber = 33 }, new ToothInfoDto { ToothNumber = 34 },
         new ToothInfoDto { ToothNumber = 35 }, new ToothInfoDto { ToothNumber = 36 },
         new ToothInfoDto { ToothNumber = 37 }, new ToothInfoDto { ToothNumber = 38 }
     };
+
+    [Inject]
+    private HttpClient HttpClient { get; set; } = default!;
 
     private void OnCariesChanged(ToothInfoDto tooth, bool isYes)
     {
@@ -196,12 +258,10 @@ else if (SelectedJaw == "Mandible")
         tooth.CariesNo = !isYes;
     }
     protected override async Task OnInitializedAsync()
-    {       
+    {
         if (!string.IsNullOrEmpty(PatientId))
         {
-            
-            var returnData = await Http.GetFromJsonAsync<PatientRecordDto>(
-                $"https://localhost:44337/api/app/patient/patient-record-by/{PatientId}");
+            var returnData = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<PatientRecordDto>($"/api/app/patient/patient-record-by/{PatientId}");
 
             if (returnData != null)
             {
@@ -212,7 +272,7 @@ else if (SelectedJaw == "Mandible")
         }
         else
         {
-            var responseMessage = await Http.GetAsync($"/api/FileProvider/OriginalImageDownload?path={imagePath}&name={imageName}");
+            @* var responseMessage = await Http.GetAsync($"/api/FileProvider/OriginalImageDownload?path={imagePath}&name={imageName}");
             var fileStreamResult = await responseMessage.Content.ReadAsStreamAsync();
             string base64Image;
             using (var memoryStream = new MemoryStream())
@@ -221,30 +281,26 @@ else if (SelectedJaw == "Mandible")
                 byte[] fileBytes = memoryStream.ToArray();
                 base64Image = Convert.ToBase64String(fileBytes);
             }
-
-            // get pa/pano image
-            var httpClient = new HttpClient();
             var imagePaPanoRequest = new SegmentationApiRequestDto
                 {
                     Image = base64Image
                 };
-            var paPanoResponse = await httpClient.PostAsJsonAsync("https://localhost:44337/api/app/dentistry-api/pa-pano-classification", imagePaPanoRequest);
+            var paPanoResponse = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/dentistry-api/pa-pano-classification", imagePaPanoRequest);
             var paPanoResponseMessage = await paPanoResponse.Content.ReadFromJsonAsync<PaPanoClassificationResponseDto>();
             var isPeriapicalImage = paPanoResponseMessage?.Predicted_Class?.Contains("periapical", StringComparison.OrdinalIgnoreCase) ?? false;
 
-            // get fdi data if available for the selected image
             string fdiData = "";
             if (!isPeriapicalImage)
             {
                 var imageRequest = new SegmentationApiRequestDto { Image = base64Image };
-                var fdiDataResponse = await httpClient.PostAsJsonAsync($"https://localhost:44337/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
+                var fdiDataResponse = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync($"/api/app/dentistry-api/pano-fdi-segmentation-cvat", new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
                 fdiData = await fdiDataResponse.Content.ReadAsStringAsync();
-            }
-            
-            Console.WriteLine("======= Fdi Data =======");
-            Console.WriteLine(fdiData);
+            } *@
+
+            @* Console.WriteLine("======= Fdi Data =======");
+            Console.WriteLine(fdiData); *@
             // pass the fdi data to examination record form
-        }      
+        }
     }
     private async Task SubmitRecord()
     {
@@ -252,16 +308,22 @@ else if (SelectedJaw == "Mandible")
 
         var record = new PatientExaminationRecordDto
             {
-                MaxillaTeeth = TeethMaxilla,
-                MandibleTeeth = TeethMandible,
+                LowerLeft = LowerLeft,
+                LowerRight = LowerRight,
+                UpperLeft = UpperLeft,
+                UpperRight = UpperRight,
                 PatientId = PatientId,
                 DoctorName = DoctorName,
                 PatientName = PatientName,
-                PatientDob = PatientDob
+                PatientDob = PatientDob,
+                FileBaseAddress = Http.BaseAddress.ToString(),
+                DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/WordDefaultFile.docx"),
+                DefaultJawImageBytes = await HttpClient.GetByteArrayAsync("/FileData/withnum.jpg"),
             };
-        var response = await Http.PostAsJsonAsync("https://localhost:44337/api/app/Examination", record);
+        record.ImageNames = imageNames;
+        var response = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/Examination", record);
         var fNmae = await response.Content.ReadAsStringAsync();
-        NavigationManager.NavigateTo($"WordProcessor?fNmae={Uri.EscapeDataString(fNmae)}&PatientId={PatientId}");
+        NavigationManager.NavigateTo($"WordProcessor?fNmae={Uri.EscapeDataString(fNmae)}&PatientId={PatientId}&imageNames={imageNames}");
         spinnerObj.HideAsync();
     }
     private void DialogOpen(Object args)
