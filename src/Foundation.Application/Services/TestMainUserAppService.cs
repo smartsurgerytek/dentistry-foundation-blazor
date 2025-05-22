@@ -14,11 +14,11 @@ using Volo.Abp.ObjectMapping;
 
 namespace Foundation.Services
 {
-    public class MainUserAppService : ApplicationService, IMainUserAppService, ITransientDependency
+    public class TestMainUserAppService : ApplicationService, IMainUserAppService, ITransientDependency
     {
 
         private readonly IRepository<MainUser, Guid> _mainUserRepository;
-        public MainUserAppService(IRepository<MainUser, Guid> mainUserRepository)
+        public TestMainUserAppService(IRepository<MainUser, Guid> mainUserRepository)
         {
             _mainUserRepository = mainUserRepository;
         }
