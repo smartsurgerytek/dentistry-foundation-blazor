@@ -52,6 +52,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         public void RegisterAmazonS3FileProvider(string name)
         {
             bucketName = name;
+            RootName = name;
             CreateBucket(bucketName).Wait();
             // RootFolder(bucketName);
             GetBucketList();
@@ -61,8 +62,10 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         public void RegisterMinIOFileProvider(string name)
         {
             bucketName = name;
+            RootName = name;
             CreateBucket(bucketName).Wait();
             RootFolder(bucketName);
+            GetBucketList();
         }
 
         public async Task CreateBucket(string bucketName)
@@ -119,7 +122,8 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         public void GetBucketList()
         {
             ListingObjectsAsync("", "", false).Wait();
-            RootName = response.S3Objects.Where(x => x.Key.Split(".").Length != 2).First().Key;
+            var allObjects = response.S3Objects.Where(x => x.Key.Split(".").Length != 2);
+            RootName = allObjects.Count() == 0 ? RootName : allObjects.First().Key;
             RootName = RootName.Replace("../", "");
         }
         public void SetRules(AccessDetails details)
@@ -132,7 +136,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         // Reads the file(s) and folder(s)
         public FileManagerResponse GetFiles(string path, bool showHiddenItems, params FileManagerDirectoryContent[] data)
         {
-            FileManagerDirectoryContent cwd = new FileManagerDirectoryContent();
+            FileManagerDirectoryContent cwd = null;
             List<FileManagerDirectoryContent> files = new List<FileManagerDirectoryContent>();
             List<FileManagerDirectoryContent> filesS3 = new List<FileManagerDirectoryContent>();
             FileManagerResponse readResponse = new FileManagerResponse();
@@ -168,7 +172,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             readResponse.CWD = cwd;
             try
             {
-                if ((cwd.Permission != null && !cwd.Permission.Read))
+                if (cwd != null && (cwd.Permission != null && !cwd.Permission.Read))
                 {
                     readResponse.Files = null;
                     accessMessage = cwd.Permission.Message;
