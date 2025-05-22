@@ -1,60 +1,50 @@
 name: main
-
+ 
 on:
   push:
     branches:
       - test-16-05-2025-video
-
+ 
 jobs:
-  build-push-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-
+ 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+ 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
+ 
       - name: Restore dependencies
         run: dotnet restore ./Foundation.sln
-
+ 
       - name: Install ABP CLI
         run: dotnet tool install -g Volo.Abp.Cli --version 8.1.2
-
+ 
       - name: Restore ABP libraries
         run: abp install-libs
-
-      - name: Publish DbMigrator
-        run: dotnet publish ./src/Foundation.DbMigrator/Foundation.DbMigrator.csproj -c Release
-
-      - name: Publish AuthServer
+ 
+      - name: Publish Foundation.AuthServer
         run: dotnet publish ./src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release
-
-      - name: Publish HttpApi.Host
+ 
+      - name: Publish Foundation.HttpApi.Host
         run: dotnet publish ./src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj -c Release
-
-      - name: Publish Blazor
+ 
+      - name: Publish Foundation.Blazor
         run: dotnet publish ./src/Foundation.Blazor/Foundation.Blazor.csproj -c Release
-
+ 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
-
+ 
       - name: Configure Docker to use gcloud as a credential helper
         run: |
           gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev
-
-      - name: Build and push DbMigrator image
-        run: |
-          docker build -f src/Foundation.DbMigrator/Dockerfile \
-            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-dbmigrator:latest \
-            src/Foundation.DbMigrator
-          docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-dbmigrator:latest
-
+ 
       - name: Build and push AuthServer image
         run: |
           docker build \
@@ -64,45 +54,17 @@ jobs:
             -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest \
             src/Foundation.AuthServer
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest
-
+ 
       - name: Build and push HttpApi.Host image
         run: |
           docker build -f src/Foundation.HttpApi.Host/Dockerfile \
             -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest \
             src/Foundation.HttpApi.Host
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest
-
+ 
       - name: Build and push Blazor image
         run: |
           docker build -f src/Foundation.Blazor/Dockerfile \
             -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest \
             src/Foundation.Blazor
           docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest
-
-      - name: Deploy on GCP VM via SSH
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: 34.47.222.252
-          username: krishtopher
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            echo "Logging in to Docker..."
-            gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev
-
-            echo "Pulling latest Docker images..."
-            docker pull ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-dbmigrator:latest
-            docker pull ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest
-            docker pull ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest
-            docker pull ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest
-
-            echo "Stopping running containers..."
-            docker stop foundation-dbmigrator || true && docker rm foundation-dbmigrator || true
-            docker stop foundation-authserver || true && docker rm foundation-authserver || true
-            docker stop foundation-httpapi-host || true && docker rm foundation-httpapi-host || true
-            docker stop foundation-blazor || true && docker rm foundation-blazor || true
-
-            echo "Starting containers with new images..."
-            docker run -d --name foundation-dbmigrator --network foundation-network ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-dbmigrator:latest
-            docker run -d --name foundation-authserver --network foundation-network -p 443:443 -p 80:80 ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest
-            docker run -d --name foundation-httpapi-host --network foundation-network -p 5000:80 ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest
-            docker run -d --name foundation-blazor --network foundation-network -p 5001:80 ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest
