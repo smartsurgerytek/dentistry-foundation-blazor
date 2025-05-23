@@ -43,17 +43,15 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
             if (!string.IsNullOrEmpty(fileProvider))
             {
                 var bucketName = configuration[$"{fileProvider}:BucketName"];
+                var rootFolder = configuration[$"{fileProvider}:RootFolder"];
 
-                if (fileProvider != null && string.Compare(fileProvider, "amazons3", StringComparison.OrdinalIgnoreCase) == 0)
+                if (fileProvider != null &&
+                    (string.Compare(fileProvider, "amazons3", StringComparison.OrdinalIgnoreCase) == 0
+                    || string.Compare(fileProvider, "minio", StringComparison.OrdinalIgnoreCase) == 0))
                 {
-                    this.operation.RegisterAmazonS3FileProvider(bucketName);
+                    this.operation.RegisterAmazonS3OrMinioFileProvider(bucketName, rootFolder);
+                    return;
                 }
-                else
-                {
-                    this.operation.RegisterMinIOFileProvider(bucketName);
-                }
-
-                return;
             }
 
             throw new Exception("FileProvider configuration is missing.");
@@ -180,7 +178,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         // this is used by the image editor
         [HttpPost]
         [Route("UploadImageAsStream")]
-        public async Task UploadImageAsStream([FromBody]ImageEditorUploadAndReplaceDto replaceDto)
+        public async Task UploadImageAsStream([FromBody] ImageEditorUploadAndReplaceDto replaceDto)
         {
             // replace the old image with the edited image
             // check if the file exists
@@ -213,9 +211,9 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         }
 
         //save the document
-        //[HttpPost("SaveDocument")]
-        //public async Task<IActionResult> SaveDocument([FromBody] SaveDocumentRequest request)
-        //{
+        // [HttpPost("SaveDocument")]
+        // public async Task<IActionResult> SaveDocument([FromBody] SaveDocumentRequest request)
+        // {
         //    bool uploadSuccess = false;
         //    try
         //    {
@@ -232,7 +230,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         //        _logger.LogError($"Error in SaveDocument: {ex.Message}");
         //        return StatusCode(500, new { message = "Error saving the document", error = ex.Message });
         //    }
-        //}
+        // }
 
         [HttpPost("SaveDocument")]
         public async Task<IActionResult> SaveDocument([FromBody] SaveDocumentRequest request)

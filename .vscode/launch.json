@@ -48,7 +48,7 @@
     "compounds": [
         {
             "name": "Debug Blazor and HttpApi.Host",
-            "configurations": ["Launch Blazor App", "Launch HttpApi.Host"]
+            "configurations": ["Launch HttpApi.Host", "Launch Blazor App"]
         }
     ]
 }
