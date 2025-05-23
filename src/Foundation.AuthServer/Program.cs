@@ -19,6 +19,7 @@ public class Program
 
         try
         {
+            System.Net.ServicePointManager.Expect100Continue = false;
             Log.Information("Starting Foundation.AuthServer.");
             var builder = WebApplication.CreateBuilder(args);
             builder.Host

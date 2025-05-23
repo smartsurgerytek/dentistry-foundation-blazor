@@ -20,6 +20,7 @@ public class Program
 
         try
         {
+            System.Net.ServicePointManager.Expect100Continue = false;
             Log.Information("Starting Foundation.HttpApi.Host.");
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddScoped<IOrganizationAppService, OrganizationAppService>();

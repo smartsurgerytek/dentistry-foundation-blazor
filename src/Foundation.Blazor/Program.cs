@@ -68,7 +68,7 @@ builder.Services.AddSingleton<TransferUtility>((options) =>
     var s3Client = options.GetRequiredService<IAmazonS3>();
     return new TransferUtility(s3Client);
 });
-
+System.Net.ServicePointManager.Expect100Continue = false;
 builder.Services.AddScoped<DentistryApiService>();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Services.AddBlazoredSessionStorage();
