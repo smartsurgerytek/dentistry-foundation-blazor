@@ -235,6 +235,8 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         [HttpPost("SaveDocument")]
         public async Task<IActionResult> SaveDocument([FromBody] SaveDocumentRequest request)
         {
+
+            Console.WriteLine("====C3====");
             try
             {
                 byte[] documentBytes = Convert.FromBase64String(request.Content);
@@ -250,7 +252,11 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                         {
                             pdfDocument.Save(pdfMemoryStream);
                             pdfMemoryStream.Position = 0;
+                            Console.WriteLine("====C4====");
                             string pdfS3Path = "foundation/documents/" + request.FileName;
+                            Console.WriteLine("====C5====");
+                            Console.WriteLine(pdfS3Path);
+                            Console.WriteLine("====C6====");
                             bool uploadSuccess = await operation.UploadAsync(pdfS3Path, pdfMemoryStream);
                             renderer.Dispose();
                             pdfDocument.Close(true);
