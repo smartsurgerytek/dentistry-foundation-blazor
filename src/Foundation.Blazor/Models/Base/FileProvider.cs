@@ -1429,8 +1429,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             return filePermission;
         }
         public async Task<bool> UploadAsync(string path, Stream stream)
-        {
-            Console.WriteLine("====C7====");
+        {            
             var s3Client = new AmazonS3Client("AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", RegionEndpoint.USWest2);
 
             var putRequest = new PutObjectRequest
@@ -1438,10 +1437,8 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                 BucketName = "smartsurgerytek.foundation",
                 Key = path,
                 InputStream = stream
-            };
-            Console.WriteLine("====C8====");
-            var response = await s3Client.PutObjectAsync(putRequest);
-            Console.WriteLine("====C9====");
+            };            
+            var response = await s3Client.PutObjectAsync(putRequest);            
             return response.HttpStatusCode == HttpStatusCode.OK;
         }
 

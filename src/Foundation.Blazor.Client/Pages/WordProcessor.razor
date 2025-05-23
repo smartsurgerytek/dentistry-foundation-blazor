@@ -118,11 +118,7 @@
             FileName = fileName
         };
 
-
-        Console.WriteLine("====C1====");
-
-        var response = await Http.PostAsJsonAsync("api/FileProvider/SaveDocument", documentData);
-        Console.WriteLine("====C2====");
+        var response = await Http.PostAsJsonAsync("api/FileProvider/SaveDocument", documentData);        
         spinnerObj.HideAsync();
 
         if (response.IsSuccessStatusCode)
