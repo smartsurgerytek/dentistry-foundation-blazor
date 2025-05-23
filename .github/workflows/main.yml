@@ -1,4 +1,4 @@
-name: FOND-32-add-Patient-id-to-create-patient-panel
+name: main
 
 on:
   push:
