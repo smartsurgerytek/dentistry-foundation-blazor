@@ -1,8 +1,9 @@
 ﻿@page "/Organization"
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
+@inherits FoundationComponentBase
 
-<h3>Organization Details</h3>
+<h3>@L["Organization"]</h3>
 
 <SfGrid DataSource="@Organizations" @ref="OrganizationGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="OrganizationDto"></GridEvents>
