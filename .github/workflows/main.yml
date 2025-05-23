@@ -3,7 +3,7 @@ name: main
 on:
   push:
     branches:
-      - FOND-32-add-Patient-id-to-create-patient-panel
+      - FOND-32-add-patient-id-to-create-patient-panel
 
 jobs:
   build-and-push:
