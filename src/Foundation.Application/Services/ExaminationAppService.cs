@@ -44,12 +44,16 @@ using PointF = SixLabors.ImageSharp.PointF;
 using FontStyle = SixLabors.Fonts.FontStyle;
 using Microsoft.AspNetCore.Http;
 using DocumentFormat.OpenXml.Office2010.Word;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Foundation.Services
 {
     [Audited]
     public class ExaminationAppService : ApplicationService, IExaminationAppService, ITransientDependency
     {
+        
+        private string accessKey = "AKIAZI2LGNNVDTFYF57P";
+        private string secretKey = "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";
         private readonly IRepository<ExaminationReport, Guid> _examinationRepository;
         private readonly IRepository<AuditLog, Guid> _auditLogRepository;
 
@@ -66,13 +70,8 @@ namespace Foundation.Services
             try
             {
                 await LogAudit("DocEditor - Create Examination", string.Empty);
-
-                //using HttpClient httpClient = new HttpClient();
-                var fileBytes = input.DefaultFileBytes;
-                //var fileBytes = await httpClient.GetByteArrayAsync("/FileData/DefaultFile.docx");
-                //var fileBytes = await httpClient.GetByteArrayAsync(input.FileBaseAddress + "/FileData/DefaultFile.docx");
-                //var fileBytes = await httpClient.GetByteArrayAsync("http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/DefaultFile.docx");
-                await LogAudit("DocEditor - Read DefaultFile", string.Empty);
+                
+                var fileBytes = input.DefaultFileBytes;                                
                 using var stream = new MemoryStream();
                 stream.Write(fileBytes, 0, fileBytes.Length);
                 stream.Position = 0;
@@ -103,7 +102,6 @@ namespace Foundation.Services
                         }
                         header.Save();
                     }
-
 
                     #region Header And Body
 
@@ -145,20 +143,13 @@ namespace Foundation.Services
                     cellDoctorName.Append(paraDentist);
                     cellDob.Append(paraDob);
 
-                    await LogAudit("DocEditor - Header Create", string.Empty);
+                    await LogAudit("DocEditor - Header Created", string.Empty);
 
                     #endregion
 
                     #region Image Creation using ImageSharp
 
                     var cellPic = tbFourRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
-
-                    //var imageUrl = "http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/FileData/withnum.jpg";
-                    //var imageUrl = input.DefaultJawImageBytes;
-                    //using HttpClient httpClientImg = new();
-                    //using var responseData = await httpClientImg.GetAsync(imageUrl);
-                    //responseData.EnsureSuccessStatusCode();
-
 
                     await using var remoteStream = new MemoryStream(input.DefaultJawImageBytes);
 
@@ -377,33 +368,31 @@ namespace Foundation.Services
 
                     #endregion
 
-                    #region Dycom Images
-
-                    var targetCell = tblSixteenRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().First();
-                    var allImages = await GetAllSelectedImages(input.ImageNames,input.FileBaseAddress);
-
-                    foreach (var imageBytes in allImages)
+                    #region Dycom Images                    
+                    if (!string.IsNullOrEmpty(input.ImageNames))
                     {
-                        var imagePartDc = wordDocument.MainDocumentPart.AddImagePart(ImagePartType.Jpeg);
-                        using (var streamDc = new MemoryStream(imageBytes))
+                        var targetCell = tblSixteenRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().First();
+                        var allImages = await GetAllSelectedImages(input.ImageNames, input.FileBaseAddress);
+
+                        foreach (var imageBytes in allImages)
                         {
-                            imagePartDc.FeedData(streamDc);
+                            var imagePartDc = wordDocument.MainDocumentPart.AddImagePart(ImagePartType.Jpeg);
+                            using (var streamDc = new MemoryStream(imageBytes))
+                            {
+                                imagePartDc.FeedData(streamDc);
+                            }
+
+                            string relationshipId = wordDocument.MainDocumentPart.GetIdOfPart(imagePartDc);
+                            var imageDrawing = CreateImageElement(relationshipId, 200, 150);
+                            var imageParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(imageDrawing));
+                            targetCell.Append(imageParagraph);
                         }
-
-                        string relationshipId = wordDocument.MainDocumentPart.GetIdOfPart(imagePartDc);
-                        var imageDrawing = CreateImageElement(relationshipId, 200, 150);
-                        var imageParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(imageDrawing));
-                        targetCell.Append(imageParagraph);
                     }
-
                     #endregion
-
-
 
                     wordDocument.MainDocumentPart.Document.Save();
                     await LogAudit("DocEditor - File Create", string.Empty);
                 }
-
 
                 #region File Creation And Upload On S3 Bucket
 
@@ -411,16 +400,14 @@ namespace Foundation.Services
 
                 // S3 configuration
                 var bucketName = "smartsurgerytek.foundation";
-                var region = RegionEndpoint.USWest2;
-                var accessKey = "AKIAZI2LGNNVDTFYF57P";
-                var secretKey = "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";
+                
 
                 // Generate S3 file key
                 var root = "foundation/reports/";
                 var fileNameOnly = $"{input.PatientId}_{DateTime.UtcNow:yyyyMMddHHmmss}.docx";
                 var s3Key = root + fileNameOnly;
 
-                using var s3Client = new AmazonS3Client(accessKey, secretKey, region);
+                using var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.USWest2);
                 using var streamData = new MemoryStream(modifiedFileBytes);
 
                 // Upload file to S3
@@ -527,13 +514,8 @@ namespace Foundation.Services
                 });
         }
 
-        private async Task<List<byte[]>> GetAllSelectedImages(string imageNames,string bAddress)
+        private async Task<List<byte[]>> GetAllSelectedImages(string imageNames, string bAddress)
         {
-            Console.WriteLine("===============Test 123===========");
-            Console.WriteLine(imageNames);
-            Console.WriteLine(bAddress);
-            Console.WriteLine("===============Test 456===========");
-            Console.WriteLine($"{imageNames}");
             var allImages = new List<byte[]>();
             var imageNamesList = imageNames.Split(',');
             var handler = new HttpClientHandler
@@ -541,22 +523,14 @@ namespace Foundation.Services
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
             };
             var httpClient = new HttpClient(handler);
-           
+
             foreach (var imageName in imageNamesList)
             {
-                Console.WriteLine("===============Test 789===========");
                 string urlImg = bAddress + "api/FileProvider/AmazonS3GetImage?Path=" + imageName;
-                Console.WriteLine(urlImg);
                 var imageStream = await httpClient.GetStreamAsync(urlImg);
-                //var imageStream = await httpClient.GetStreamAsync(bAddress + "api/FileProvider/AmazonS3GetImage?Path="+ imageName);
-                Console.WriteLine(imageStream);
-                Console.WriteLine(imageStream);
-                Console.WriteLine("===============Test 101112===========");
                 var imageBytes = await imageStream.GetAllBytesAsync();
-                Console.WriteLine($"{imageName} {imageBytes.Length}");
                 allImages.Add(imageBytes);
             }
-
             return allImages;
         }
 
@@ -587,7 +561,6 @@ namespace Foundation.Services
                 ExecutionTime = Clock.Now,
                 ExecutionDuration = 150
             });
-        }
-
+        }              
     }
 }

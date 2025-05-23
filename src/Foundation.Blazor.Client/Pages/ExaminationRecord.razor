@@ -15,7 +15,7 @@
 @using System.IO
 
 
-<SfDialog Width="335px" IsModal="true" @bind-Visible="Visibility">
+@* <SfDialog Width="335px" IsModal="true" @bind-Visible="Visibility">
     <DialogTemplates>
         <Header> Warning </Header>
         <Content>
@@ -25,7 +25,7 @@
     <DialogButtons>
         <DialogButton Content="OK" IsPrimary="true" OnClick="@DialogButtonClick" />
     </DialogButtons>
-</SfDialog>
+</SfDialog> *@
 
 
 <h3>Examination Record</h3>
@@ -215,6 +215,7 @@ else if (SelectedJaw == "Lower right")
 
     List<PEList> LocalData = new()
     {
+        new PEList() { ID = "I", Text = "Stage 0" },
         new PEList() { ID = "I", Text = "Stage I" },
         new PEList() { ID = "II", Text = "Stage II" },
         new PEList() { ID = "III", Text = "Stage III" }
