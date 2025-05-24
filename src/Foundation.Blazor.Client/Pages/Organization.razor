@@ -1,8 +1,9 @@
 ﻿@page "/Organization"
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
+@inherits FoundationComponentBase
 
-<h3>Organization</h3>
+<h3> @L["Organization"]</h3>
 
 <SfGrid DataSource="@Organizations" @ref="OrganizationGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="OrganizationDto"></GridEvents>
@@ -68,10 +69,10 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadOrganizations();
-        Toolbaritems.Add(new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" });
-        Toolbaritems.Add(new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" });
-        Toolbaritems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
-        Toolbaritems.Add(new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" });
+        Toolbaritems.Add(new ItemModel() { TabIndex=0 ,  Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" });
+        Toolbaritems.Add(new ItemModel() { TabIndex = 1, Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" });
+        Toolbaritems.Add(new ItemModel() { TabIndex = 2, Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" });
+        Toolbaritems.Add(new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" });
     }
 
     private async Task LoadOrganizations()
@@ -83,14 +84,14 @@
     {
         var selectedRow = await OrganizationGrid.GetSelectedRecordsAsync();
 
-        if (args.Item.Text == "Add")
+        if (args.Item.TabIndex == 0)
         {
             IsNew = true;
             DialogTitle = "Add Organization";
             CurrentOrganization = new CreateUpdateOrganizationDto();
             await DialogRef.ShowAsync();
         }
-        else if (args.Item.Text == "Edit" && selectedRow.Count > 0)
+        else if (args.Item.TabIndex == 1 && selectedRow.Count > 0)
         {
             IsNew = false;
             DialogTitle = "Edit Organization";
@@ -103,11 +104,11 @@
                 };
             await DialogRef.ShowAsync();
         }
-        else if (args.Item.Text == "Delete" && selectedRow.Count > 0)
+        else if (args.Item.TabIndex == 2 && selectedRow.Count > 0)
         {
             await DeleteOrganization(selectedRow.First().Id);
         }
-        else if (args.Item.Text == "Refresh")
+        else if (args.Item.TabIndex == 3)
         {
             await LoadOrganizations();
         }

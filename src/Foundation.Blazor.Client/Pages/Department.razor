@@ -3,8 +3,9 @@
 
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
+@inherits FoundationComponentBase
 
-<h3>Department - @OrganizationName</h3>
+<h3> @L["Department"] </h3>
 
 <SfGrid DataSource="@Departments" @ref="DepartmentGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="DepartmentDto"></GridEvents>
@@ -63,17 +64,15 @@
     private string DialogTitle = "";
     private bool IsNew = true;
 
-    private List<ItemModel> Toolbaritems = new()
-    {
-        new ItemModel() { Text = "Add", TooltipText = "Add Department", PrefixIcon = "e-add" },
-        new ItemModel() { Text = "Edit", TooltipText = "Edit Department", PrefixIcon = "e-edit" },
-        new ItemModel() { Text = "Delete", TooltipText = "Delete Department", PrefixIcon = "e-delete" },
-        new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" }
-    };
+    private List<ItemModel> Toolbaritems = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadDepartments();
+        Toolbaritems.Add(new ItemModel() { TabIndex = 0, Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" });
+        Toolbaritems.Add(new ItemModel() { TabIndex = 1,Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" });
+        Toolbaritems.Add(new ItemModel() { TabIndex = 2,Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" });
+        Toolbaritems.Add(new ItemModel() { TabIndex = 3,Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" });
     }
 
     private async Task LoadDepartments()
@@ -90,14 +89,14 @@
     {
         var selectedRow = await DepartmentGrid.GetSelectedRecordsAsync();
 
-        if (args.Item.Text == "Add")
+        if (args.Item.TabIndex == 0)
         {
             IsNew = true;
             DialogTitle = "Add Department";
             CurrentDepartment = new CreateUpdateDepartmentDto { OrganizationId = Guid.Parse(OrganizationId) };
             await Dialog.ShowAsync();
         }
-        else if (args.Item.Text == "Edit" && selectedRow.Any())
+        else if (args.Item.TabIndex == 1 && selectedRow.Any())
         {
             IsNew = false;
             DialogTitle = "Edit Department";
@@ -110,11 +109,11 @@
                 };
             await Dialog.ShowAsync();
         }
-        else if (args.Item.Text == "Delete" && selectedRow.Any())
+        else if (args.Item.TabIndex == 2 && selectedRow.Any())
         {
             await DeleteDepartment(selectedRow.First().Id);
         }
-        else if (args.Item.Text == "Refresh")
+        else if (args.Item.TabIndex == 3)
         {
             await LoadDepartments();
         }

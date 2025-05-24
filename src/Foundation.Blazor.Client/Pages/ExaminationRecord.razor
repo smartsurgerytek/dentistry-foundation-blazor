@@ -13,6 +13,7 @@
 @using System.Text;
 @using System.Text.Json;
 @using System.IO
+@inherits FoundationComponentBase
 
 
 @* <SfDialog Width="335px" IsModal="true" @bind-Visible="Visibility">
@@ -28,25 +29,25 @@
 </SfDialog> *@
 
 
-<h3>Examination Record</h3>
+<h3>@L["ExaminationRecord"]</h3>
 <hr />
 <SfSpinner @ref="spinnerObj" CssClass="custom-spinner"></SfSpinner>
 <div class="jaw-selection mb-3">
     <label>
         <input type="radio" name="jaw" value="Upper left" @onchange="@(() => SelectedJaw = "Upper left")" checked="@IsUpperLeftSelected" />
-        Upper left
+        @L["Upperleft"]
     </label>
     <label>
         <input type="radio" name="jaw" value="Upper right" @onchange="@(() => SelectedJaw = "Upper right")" checked="@IsUpperRightSelected" />
-        Upper right
+        @L["Upperright"]
     </label>
     <label>
         <input type="radio" name="jaw" value="Lower left" @onchange="@(() => SelectedJaw = "Lower left")" checked="@IsLowerLeftSelected" />
-        Lower left
+       @L["Lowerleft"]
     </label>
     <label>
         <input type="radio" name="jaw" value="Lower right" @onchange="@(() => SelectedJaw = "Lower right")" checked="@IsLowerRightSelected" />
-        Lowert right
+        @L["Lowertright"]
     </label>
 </div>
 <hr />
@@ -62,13 +63,13 @@
             </div>
 
             <div class="caries-section">
-                <label class="me-2">Caries</label>
-                <label class="me-1">YES <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
-                <label>NO <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+                <label class="me-2">  @L["Caries"] </label>
+                <label class="me-1">@L["YES"]  <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
+                <label>@L["NO"] <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
             </div>
 
             <div class="dropdown-section">
-                <label>PE</label>
+                <label>@L["PE"] </label>
                 <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
                     <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>
@@ -92,13 +93,13 @@ else if (SelectedJaw == "Upper right")
             </div>
 
             <div class="caries-section">
-                <label class="me-2">Caries</label>
-                <label class="me-1">YES <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
-                <label>NO <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+                <label class="me-2">@L["Caries"]</label>
+                <label class="me-1">@L["YES"] <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
+                <label>@L["NO"] <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
             </div>
 
             <div class="dropdown-section">
-                <label>PE</label>
+                <label>@L["PE"]</label>
                 <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
                     <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>
@@ -122,13 +123,13 @@ else if (SelectedJaw == "Lower left")
             </div>
 
             <div class="caries-section">
-                <label class="me-2">Caries</label>
-                <label class="me-1">YES <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
-                <label>NO <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+                <label class="me-2">@L["Caries"]</label>
+                <label class="me-1">@L["YES"] <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
+                <label>@L["NO"] <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
             </div>
 
             <div class="dropdown-section">
-                <label>PE</label>
+                <label>@L["PE"]</label>
                 <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
                     <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>
@@ -152,13 +153,13 @@ else if (SelectedJaw == "Lower right")
             </div>
 
             <div class="caries-section">
-                <label class="me-2">Caries</label>
-                <label class="me-1">YES <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
-                <label>NO <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+                <label class="me-2"> @L["Caries"]</label>
+                <label class="me-1">@L["YES"] <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
+                <label>@L["NO"] <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
             </div>
 
             <div class="dropdown-section">
-                <label>PE</label>
+                <label>@L["PE"]</label>
                 <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
                     <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>

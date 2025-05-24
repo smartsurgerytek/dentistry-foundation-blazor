@@ -2,8 +2,9 @@
 
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
+@inherits FoundationComponentBase
 
-<h3>Records</h3>
+<h3> @L["Records"] </h3>
 
 <SfGrid DataSource="@Records" @ref="RecordGrid" AllowPaging="true" AllowSorting="true" Toolbar=@Toolbaritems>
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="RecordDto"></GridEvents>
@@ -34,8 +35,8 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadRecords();
-        Toolbaritems.Add(new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" });
-        Toolbaritems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
+        Toolbaritems.Add(new ItemModel() { Text = L["Refresh"], TooltipText = "Refresh", PrefixIcon = "e-refresh" });
+        Toolbaritems.Add(new ItemModel() { Text = L["Delete"], TooltipText = "Delete", PrefixIcon = "e-delete" });
     }
 
     private async Task LoadRecords()

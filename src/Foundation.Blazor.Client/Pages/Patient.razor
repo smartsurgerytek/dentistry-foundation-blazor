@@ -1,8 +1,9 @@
 ﻿@page "/Patient"
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
+@inherits FoundationComponentBase
 
-<h3 class="text-xl font-semibold mb-4">Patients</h3>
+<h3 class="text-xl font-semibold mb-4">@L["Patients"]</h3>
 
 <SfGrid DataSource="@Patients" @ref="PatientGrid" AllowPaging="true" AllowSorting="true" Toolbar="@ToolbarItems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="PatientDto"></GridEvents>
@@ -95,10 +96,10 @@
 
         ToolbarItems.AddRange(new[]
         {
-            new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" },
-            new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" },
-            new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" },
-            new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-refresh" }
+            new ItemModel() { TabIndex=0 , Text = L["Add"], TooltipText = "Add", PrefixIcon = "e-add" },
+            new ItemModel() { TabIndex = 1,Text = L["Edit"], TooltipText = "Edit", PrefixIcon = "e-edit" },
+            new ItemModel() { TabIndex = 2,Text = L["Delete"], TooltipText = "Delete", PrefixIcon = "e-delete" },
+            new ItemModel() { TabIndex = 3,Text = L["Refresh"], TooltipText = "Refresh", PrefixIcon = "e-refresh" }
         });
     }
 
@@ -115,9 +116,9 @@
     {
         var selectedRow = await PatientGrid.GetSelectedRecordsAsync();
 
-        switch (args.Item.Text)
+        switch (args.Item.TabIndex)
         {
-            case "Add":
+            case 0:
                 IsNew = true;
                 DialogTitle = "Add Patient";
                 CurrentPatient = new CreateUpdatePatientDto
@@ -128,7 +129,7 @@
                 await Dialog.ShowAsync();
                 break;
 
-            case "Edit" when selectedRow.Any():
+            case 1 when selectedRow.Any():
                 IsNew = false;
                 DialogTitle = "Edit Patient";
                 var selected = selectedRow.First();
@@ -143,11 +144,11 @@
                 await Dialog.ShowAsync();
                 break;
 
-            case "Delete" when selectedRow.Any():
+            case 2 when selectedRow.Any():
                 await DeletePatient(selectedRow.First().Id);
                 break;
 
-            case "Refresh":
+            case 3:
                 await LoadPatients();
                 break;
         }

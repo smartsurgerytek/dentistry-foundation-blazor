@@ -37,6 +37,23 @@
     "Unspecified": "System",
     "SeeAllUsers": "查看所有用户",
     "TakePhoto": "拍摄照片",
-    "ChoosePhoto": "选择照片"
+    "ChoosePhoto": "选择照片",
+    "Add": "添加",
+    "Edit": "编辑",
+    "Delete": "删除",
+    "Organization": "组织",
+    "Department": "部门",
+    "Doctors": "医生",
+    "Patients": "患者",
+    "ExaminationRecord": "考试记录",
+    "Upperleft": "左上",
+    "Upperright": "右上",
+    "Lowerleft": "左下",
+    "Lowertright": "右下",
+    "Caries": "龋齿",
+    "YES": "是的",
+    "NO": "不",
+    "PE": "聚乙烯醇",
+    "Records": "记录"
   }
 }

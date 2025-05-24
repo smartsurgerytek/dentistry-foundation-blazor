@@ -38,6 +38,19 @@
     "Menu:Home": "Home",
     "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information visit",
     "Welcome": "Welcome",
-    "Organization": "Organization"
+    "Organization": "Organization",
+    "Department": "Department",
+    "Doctors": "Doctors",
+    "Patients": "Patients",
+    "ExaminationRecord": "Examination Record",
+    "Upperleft": "Upper left",
+    "Upperright": "Upper right",
+    "Lowerleft": "Lower left",
+    "Lowertright": "Lowert right",
+    "Caries": "Caries",
+    "YES": "YES",
+    "NO": "NO",
+    "PE": "PE",
+    "Records": "Records"
   }
 }

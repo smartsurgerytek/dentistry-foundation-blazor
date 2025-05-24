@@ -3,8 +3,9 @@
 
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
+@inherits FoundationComponentBase
 
-<h3>Doctors</h3>
+<h3>@L["Doctors"]</h3>
 
 <SfGrid DataSource="@Doctors" @ref="DoctorGrid" AllowPaging="true" AllowSorting="true" Toolbar=@ToolbarItems>
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="DoctorDto"></GridEvents>
@@ -81,9 +82,10 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadDoctors();
-        ToolbarItems.Add(new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" });
-        ToolbarItems.Add(new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" });
-        ToolbarItems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
+        ToolbarItems.Add(new ItemModel() { TabIndex = 0, Text = L["Add"], TooltipText = "Add", PrefixIcon = "e-add" });
+        ToolbarItems.Add(new ItemModel() {TabIndex = 1, Text = L["Edit"], TooltipText = "Edit", PrefixIcon = "e-edit" });
+        ToolbarItems.Add(new ItemModel() {TabIndex = 2, Text = L["Delete"], TooltipText = "Delete", PrefixIcon = "e-delete" });
+        ToolbarItems.Add(new ItemModel() {TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" });
     }
 
     private async Task LoadDoctors()
@@ -100,14 +102,14 @@
     {
         var selectedRow = await DoctorGrid.GetSelectedRecordsAsync();
 
-        if (args.Item.Text == "Add")
+        if (args.Item.TabIndex == 0)
         {
             IsNew = true;
             DialogTitle = "Add Doctor";
             CurrentDoctor = new CreateUpdateDoctorDto { DepartmentId = Guid.Parse(DepartmentId) };
             await Dialog.ShowAsync();
         }
-        else if (args.Item.Text == "Edit" && selectedRow.Any())
+        else if (args.Item.TabIndex == 1 && selectedRow.Any())
         {
             IsNew = false;
             DialogTitle = "Edit Doctor";
@@ -121,11 +123,11 @@
             };
             await Dialog.ShowAsync();
         }
-        else if (args.Item.Text == "Delete" && selectedRow.Any())
+        else if (args.Item.TabIndex == 2 && selectedRow.Any())
         {
             await DeleteDoctor(selectedRow.First().Id);
         }
-        else if (args.Item.Text == "Refresh")
+        else if (args.Item.TabIndex == 3)
         {
             await LoadDoctors();
         }
