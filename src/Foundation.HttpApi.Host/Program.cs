@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Foundation.Services;
 using Microsoft.AspNetCore.Builder;
@@ -23,6 +24,26 @@ public class Program
             System.Net.ServicePointManager.Expect100Continue = false;
             Log.Information("Starting Foundation.HttpApi.Host.");
             var builder = WebApplication.CreateBuilder(args);
+
+
+            if (builder.Environment.IsDevelopment())
+            {
+                System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+                    (sender, cert, chain, sslPolicyErrors) => true;
+
+                builder.Services.AddHttpClient("HealthCheckHttpClient")
+                    .ConfigurePrimaryHttpMessageHandler(() =>
+                        new HttpClientHandler
+                        {
+                            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                        });
+            }
+            else
+            {
+                builder.Services.AddHttpClient("HealthCheckHttpClient");
+            }
+
+
             builder.Services.AddScoped<IOrganizationAppService, OrganizationAppService>();
             builder.Host
                 .AddAppSettingsSecretsJson()

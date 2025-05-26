@@ -63,21 +63,21 @@ public class FoundationMenuContributor : IMenuContributor
             order: 2
         ));
 
-        context.Menu.AddItem(new ApplicationMenuItem(
-            FoundationMenus.WordProcessor,
-            "WordProcessor",
-            "/WordProcessor",
-            icon: "fa-solid fa-folder-open",
-            order: 3
-        ));
+        //context.Menu.AddItem(new ApplicationMenuItem(
+        //    FoundationMenus.WordProcessor,
+        //    "WordProcessor",
+        //    "/WordProcessor",
+        //    icon: "fa-solid fa-folder-open",
+        //    order: 3
+        //));
 
-        context.Menu.AddItem(new ApplicationMenuItem(
-            FoundationMenus.RecordViewer,
-            "RecordViewer",
-            "/RecordViewer",
-            icon: "fa-solid fa-file-lines",
-            order: 4
-        ));
+        //context.Menu.AddItem(new ApplicationMenuItem(
+        //    FoundationMenus.RecordViewer,
+        //    "RecordViewer",
+        //    "/RecordViewer",
+        //    icon: "fa-solid fa-file-lines",
+        //    order: 4
+        //));
 
         context.Menu.AddItem(new ApplicationMenuItem(
             FoundationMenus.Organization,
