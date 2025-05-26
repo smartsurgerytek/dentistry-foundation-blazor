@@ -15,6 +15,8 @@ public class Program
     public async static Task Main(string[] args)
     {        
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+
         builder.Services.AddSyncfusionBlazor();
         builder.Services.AddBlazoredSessionStorage();
 

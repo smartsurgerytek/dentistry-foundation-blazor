@@ -17,6 +17,16 @@ using Volo.Abp.AspNetCore.Components.WebAssembly.WebApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.AllowSynchronousIO = true;
+    options.AddServerHeader = false;
+    options.Limits.MaxRequestBodySize = 52428800; // 50 MB
+});
+
+
 //https://github.com/dotnet/aspnetcore/issues/52530
 builder.Services.Configure<RouteOptions>(options =>
 {

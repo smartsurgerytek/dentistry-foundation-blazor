@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Foundation.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -24,6 +25,14 @@ public class Program
             System.Net.ServicePointManager.Expect100Continue = false;
             Log.Information("Starting Foundation.HttpApi.Host.");
             var builder = WebApplication.CreateBuilder(args);
+
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.AllowSynchronousIO = true;
+                options.AddServerHeader = false;
+                options.Limits.MaxRequestBodySize = 52428800; // 50 MB
+            });
 
 
             if (builder.Environment.IsDevelopment())
