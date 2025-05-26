@@ -127,8 +127,13 @@
 
             if (result)
             {
-                StatusMessage = "Document saved successfully!";
-                await SaveRecordToDatabase(fileName);
+                StatusMessage = "Document saved successfully!";                
+                if (!string.IsNullOrEmpty(PatientId)){                    
+                    await SaveRecordToDatabase(fileName);
+                }
+                else{                    
+                    NavigationManager.NavigateTo("Records");
+                }
             }
             else
             {
