@@ -111,39 +111,49 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         [Route("AmazonS3Upload")]
         public IActionResult AmazonS3Upload(string path, IList<IFormFile> uploadFiles, string action, string data)
         {
-            FileManagerResponse uploadResponse;
-            FileManagerDirectoryContent[] dataObject = new FileManagerDirectoryContent[1];
-            var options = new JsonSerializerOptions
+            try
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            };
-            dataObject[0] = JsonSerializer.Deserialize<FileManagerDirectoryContent>(data, options);
-            foreach (var file in uploadFiles)
-            {
-                var folders = (file.FileName).Split('/');
-                // checking the folder upload
-                if (folders.Length > 1)
+                FileManagerResponse uploadResponse;
+                FileManagerDirectoryContent[] dataObject = new FileManagerDirectoryContent[1];
+                var options = new JsonSerializerOptions
                 {
-                    for (var i = 0; i < folders.Length - 1; i++)
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                };
+                dataObject[0] = JsonSerializer.Deserialize<FileManagerDirectoryContent>(data, options);
+                foreach (var file in uploadFiles)
+                {
+                    var folders = (file.FileName).Split('/');
+                    // checking the folder upload
+                    if (folders.Length > 1)
                     {
-                        if (!this.operation.checkFileExist(path, folders[i]))
+                        for (var i = 0; i < folders.Length - 1; i++)
                         {
-                            this.operation.ToCamelCase(this.operation.Create(path, folders[i], dataObject));
+                            if (!this.operation.checkFileExist(path, folders[i]))
+                            {
+                                this.operation.ToCamelCase(this.operation.Create(path, folders[i], dataObject));
+                            }
+                            path += folders[i] + "/";
                         }
-                        path += folders[i] + "/";
                     }
                 }
+                int chunkIndex = int.TryParse(HttpContext.Request.Form["chunk-index"], out int parsedChunkIndex) ? parsedChunkIndex : 0;
+                int totalChunk = int.TryParse(HttpContext.Request.Form["total-chunk"], out int parsedTotalChunk) ? parsedTotalChunk : 0;
+                uploadResponse = operation.Upload(path, uploadFiles, action, dataObject, chunkIndex, totalChunk);
+                if (uploadResponse.Error != null)
+                {
+                    Response.Clear();
+                    Response.ContentType = "application/json; charset=utf-8";
+                    Response.StatusCode = Convert.ToInt32(uploadResponse.Error.Code);
+                    Response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = uploadResponse.Error.Message;
+                }
             }
-            int chunkIndex = int.TryParse(HttpContext.Request.Form["chunk-index"], out int parsedChunkIndex) ? parsedChunkIndex : 0;
-            int totalChunk = int.TryParse(HttpContext.Request.Form["total-chunk"], out int parsedTotalChunk) ? parsedTotalChunk : 0;
-            uploadResponse = operation.Upload(path, uploadFiles, action, dataObject, chunkIndex, totalChunk);
-            if (uploadResponse.Error != null)
+            catch (Exception ex)
             {
-                Response.Clear();
-                Response.ContentType = "application/json; charset=utf-8";
-                Response.StatusCode = Convert.ToInt32(uploadResponse.Error.Code);
-                Response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = uploadResponse.Error.Message;
+                Console.WriteLine("===Error",ex.ToString());
+                throw;
             }
+
+            
             return Content("");
         }
 

@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 @inherits FoundationComponentBase
 
-<h3> @L["Organization"] Details</h3>
+<h3> @L["Organization"]</h3>
 
 <SfGrid DataSource="@Organizations" @ref="OrganizationGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="OrganizationDto"></GridEvents>
@@ -69,7 +69,7 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadOrganizations();
-        Toolbaritems.Add(new ItemModel() { TabIndex=0 ,  Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" });
+        Toolbaritems.Add(new ItemModel() { TabIndex = 0,Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" });
         Toolbaritems.Add(new ItemModel() { TabIndex = 1, Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" });
         Toolbaritems.Add(new ItemModel() { TabIndex = 2, Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" });
         Toolbaritems.Add(new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" });
