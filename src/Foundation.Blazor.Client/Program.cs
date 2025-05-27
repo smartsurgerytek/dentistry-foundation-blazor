@@ -13,7 +13,8 @@ namespace Foundation.Blazor.Client;
 public class Program
 {
     public async static Task Main(string[] args)
-    {        
+    {
+        System.Net.ServicePointManager.Expect100Continue = false;
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
         builder.Services.AddSyncfusionBlazor();
         builder.Services.AddBlazoredSessionStorage();
