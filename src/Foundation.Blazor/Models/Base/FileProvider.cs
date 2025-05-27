@@ -792,15 +792,14 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                             }
                             else
                             {
-                                await PerformDefaultUpload(file, fileName, path);
-                                //if (isValidChunkUpload)
-                                //{
-                                //    await PerformChunkedUpload(file, bucketName, chunkIndex, totalChunk, RootName.Replace("/", "") + path + fileName);
-                                //}
-                                //else
-                                //{
-                                //    await PerformDefaultUpload(file, fileName, path);
-                                //}
+                                if (isValidChunkUpload)
+                                {
+                                    await PerformChunkedUpload(file, bucketName, chunkIndex, totalChunk, RootName.Replace("/", "") + path + fileName);
+                                }
+                                else
+                                {
+                                    await PerformDefaultUpload(file, fileName, path);
+                                }
                             }
                         }
                         else if (action == "replace")
@@ -1444,6 +1443,17 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             return response.HttpStatusCode == HttpStatusCode.OK;
         }
 
+    }
+    public class PutObjectRequest : Amazon.S3.Model.PutObjectRequest
+    {
+        protected override bool Expect100Continue => false;
+
+        //public PutObjectRequest(string bucketName, string path, Stream stream)
+        //{
+        //    BucketName = "smartsurgerytek.foundation";
+        //    Key = path;
+        //    InputStream = stream;
+        //}
     }
 }
 #endregion new
