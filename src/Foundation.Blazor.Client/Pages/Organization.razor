@@ -3,15 +3,15 @@
 @inject NavigationManager NavigationManager
 @inherits FoundationComponentBase
 
-<h3> @L["Organization"] - Detail 1</h3>
+<h3> @L["Organization"].</h3>
 
 <SfGrid DataSource="@Organizations" @ref="OrganizationGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="OrganizationDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
-        <GridColumn Field="Name" HeaderText="Name" Width="200"></GridColumn>
-        <GridColumn Field="Address" HeaderText="Address" Width="300"></GridColumn>
-        <GridColumn HeaderText="Manage Department" Width="150">
+        <GridColumn Field="Name" HeaderText=@L["Name"] Width="200"></GridColumn>
+        <GridColumn Field="Address" HeaderText=@L["Address"] Width="300"></GridColumn>
+        <GridColumn HeaderText=@L["ManageDepartment"] Width="150">
             <Template>
                 @{
                     var organization = (context as OrganizationDto);

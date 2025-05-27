@@ -51,6 +51,11 @@
     "YES": "YES",
     "NO": "NO",
     "PE": "PE",
-    "Records": "Records"
+    "Records": "Records",
+    "FileManager": "FileManager",
+    "AuditLog": "AuditLog",
+    "Name": "Name",
+    "Address": "Address",
+    "ManageDepartment": "Manage Department"
   }
 }

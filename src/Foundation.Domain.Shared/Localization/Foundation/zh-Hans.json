@@ -54,6 +54,11 @@
     "YES": "是的",
     "NO": "不",
     "PE": "聚乙烯醇",
-    "Records": "记录"
+    "Records": "记录",
+    "FileManager": "文件管理器",
+    "AuditLog": "审计日志",
+    "Name": "姓名",
+    "Address": "地址",
+    "ManageDepartment": "管理部门"
   }
 }

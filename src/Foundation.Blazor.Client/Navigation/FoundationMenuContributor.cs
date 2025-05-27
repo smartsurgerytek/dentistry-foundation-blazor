@@ -57,7 +57,7 @@ public class FoundationMenuContributor : IMenuContributor
 
         context.Menu.AddItem(new ApplicationMenuItem(
             FoundationMenus.FileManager,
-            "FileManager",
+            l["FileManager"],
             "/FileManager",
             icon: "fa-solid fa-file",
             order: 2
@@ -81,7 +81,7 @@ public class FoundationMenuContributor : IMenuContributor
 
         context.Menu.AddItem(new ApplicationMenuItem(
             FoundationMenus.Organization,
-            "Organization",
+            l["Organization"],
             "/Organization",
             icon: "fa-solid fa-university",
             order: 5
@@ -89,7 +89,7 @@ public class FoundationMenuContributor : IMenuContributor
 
         context.Menu.AddItem(new ApplicationMenuItem(
             FoundationMenus.Record,
-            "Records",
+            l["Records"],
             "/Records",
             icon: "fa-solid fa-file",
             order: 6
@@ -97,7 +97,7 @@ public class FoundationMenuContributor : IMenuContributor
 
         context.Menu.AddItem(new ApplicationMenuItem(
             FoundationMenus.AuditLog,
-            "AuditLog",
+            l["AuditLog"],
             "/AuditLog",
             icon: "fa-solid fa-file",
             order: 7

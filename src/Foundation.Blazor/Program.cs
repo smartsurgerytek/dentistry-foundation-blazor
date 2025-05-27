@@ -102,7 +102,11 @@ else
 app.UseHttpsRedirection();
 app.MapControllers();
 //app.MapStaticAssets();
-
+app.Use(async (context, next) =>
+{
+    context.Request.Headers.Remove("Expect");
+    await next();
+});
 app.UseStaticFiles();
 app.UseAntiforgery();
 
