@@ -792,14 +792,15 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                             }
                             else
                             {
-                                if (isValidChunkUpload)
-                                {
-                                    await PerformChunkedUpload(file, bucketName, chunkIndex, totalChunk, RootName.Replace("/", "") + path + fileName);
-                                }
-                                else
-                                {
-                                    await PerformDefaultUpload(file, fileName, path);
-                                }
+                                await PerformDefaultUpload(file, fileName, path);
+                                //if (isValidChunkUpload)
+                                //{
+                                //    await PerformChunkedUpload(file, bucketName, chunkIndex, totalChunk, RootName.Replace("/", "") + path + fileName);
+                                //}
+                                //else
+                                //{
+                                //    await PerformDefaultUpload(file, fileName, path);
+                                //}
                             }
                         }
                         else if (action == "replace")
