@@ -108,6 +108,45 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         // when upload happens, call the dentistry ai api
         // the response returned will be an image
         // upload this image into aws bucket
+        //[Route("AmazonS3Upload")]
+        //public IActionResult AmazonS3Upload(string path, IList<IFormFile> uploadFiles, string action, string data)
+        //{
+        //    FileManagerResponse uploadResponse;
+        //    FileManagerDirectoryContent[] dataObject = new FileManagerDirectoryContent[1];
+        //    var options = new JsonSerializerOptions
+        //    {
+        //        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        //    };
+        //    dataObject[0] = JsonSerializer.Deserialize<FileManagerDirectoryContent>(data, options);
+        //    foreach (var file in uploadFiles)
+        //    {
+        //        var folders = (file.FileName).Split('/');
+        //        // checking the folder upload
+        //        if (folders.Length > 1)
+        //        {
+        //            for (var i = 0; i < folders.Length - 1; i++)
+        //            {
+        //                if (!this.operation.checkFileExist(path, folders[i]))
+        //                {
+        //                    this.operation.ToCamelCase(this.operation.Create(path, folders[i], dataObject));
+        //                }
+        //                path += folders[i] + "/";
+        //            }
+        //        }
+        //    }
+        //    int chunkIndex = int.TryParse(HttpContext.Request.Form["chunk-index"], out int parsedChunkIndex) ? parsedChunkIndex : 0;
+        //    int totalChunk = int.TryParse(HttpContext.Request.Form["total-chunk"], out int parsedTotalChunk) ? parsedTotalChunk : 0;
+        //    uploadResponse = operation.Upload(path, uploadFiles, action, dataObject, chunkIndex, totalChunk);
+        //    if (uploadResponse.Error != null)
+        //    {
+        //        Response.Clear();
+        //        Response.ContentType = "application/json; charset=utf-8";
+        //        Response.StatusCode = Convert.ToInt32(uploadResponse.Error.Code);
+        //        Response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = uploadResponse.Error.Message;
+        //    }
+        //    return Content("");
+        //}
+
         [Route("AmazonS3Upload")]
         public IActionResult AmazonS3Upload(string path, IList<IFormFile> uploadFiles, string action, string data)
         {
@@ -120,10 +159,10 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 };
                 dataObject[0] = JsonSerializer.Deserialize<FileManagerDirectoryContent>(data, options);
+
                 foreach (var file in uploadFiles)
                 {
                     var folders = (file.FileName).Split('/');
-                    // checking the folder upload
                     if (folders.Length > 1)
                     {
                         for (var i = 0; i < folders.Length - 1; i++)
@@ -136,8 +175,10 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                         }
                     }
                 }
+
                 int chunkIndex = int.TryParse(HttpContext.Request.Form["chunk-index"], out int parsedChunkIndex) ? parsedChunkIndex : 0;
                 int totalChunk = int.TryParse(HttpContext.Request.Form["total-chunk"], out int parsedTotalChunk) ? parsedTotalChunk : 0;
+
                 uploadResponse = operation.Upload(path, uploadFiles, action, dataObject, chunkIndex, totalChunk);
                 if (uploadResponse.Error != null)
                 {
@@ -146,16 +187,27 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                     Response.StatusCode = Convert.ToInt32(uploadResponse.Error.Code);
                     Response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = uploadResponse.Error.Message;
                 }
+
+                return Content("");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("===Error",ex.ToString());
-                throw;
-            }
+                string logPath = "/home/krishtopher/Documents/UploadErrorLog.txt";
+                string errorMessage = $"[{DateTime.Now}] Error in AmazonS3Upload:\n{ex.Message}\n{ex.StackTrace}\n\n";
 
-            
-            return Content("");
+                try
+                {
+                    System.IO.File.AppendAllText(logPath, errorMessage);
+                }
+                catch (Exception logEx)
+                {
+                    Console.WriteLine("Failed to write to log file: " + logEx.Message);
+                }
+
+                return StatusCode(500, "Internal server error. Check UploadErrorLog.txt for more details.");
+            }
         }
+
 
         // downloads the selected file(s) and folder(s)
         [Route("AmazonS3Download")]
