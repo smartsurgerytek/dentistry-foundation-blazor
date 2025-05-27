@@ -16,6 +16,7 @@ using Syncfusion.Pdf;
 using Syncfusion.DocIORenderer;
 using System.Threading.Tasks;
 using Foundation.Dtos;
+using Syncfusion.Blazor.PdfViewerServer;
 
 namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 {
@@ -104,54 +105,21 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
             return null;
         }
 
-        // uploads the file(s) into a specified path
-        // when upload happens, call the dentistry ai api
+        //uploads the file (s) into a specified path
+        //when upload happens, call the dentistry ai api
         // the response returned will be an image
         // upload this image into aws bucket
-        //[Route("AmazonS3Upload")]
-        //public IActionResult AmazonS3Upload(string path, IList<IFormFile> uploadFiles, string action, string data)
-        //{
-        //    FileManagerResponse uploadResponse;
-        //    FileManagerDirectoryContent[] dataObject = new FileManagerDirectoryContent[1];
-        //    var options = new JsonSerializerOptions
-        //    {
-        //        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        //    };
-        //    dataObject[0] = JsonSerializer.Deserialize<FileManagerDirectoryContent>(data, options);
-        //    foreach (var file in uploadFiles)
-        //    {
-        //        var folders = (file.FileName).Split('/');
-        //        // checking the folder upload
-        //        if (folders.Length > 1)
-        //        {
-        //            for (var i = 0; i < folders.Length - 1; i++)
-        //            {
-        //                if (!this.operation.checkFileExist(path, folders[i]))
-        //                {
-        //                    this.operation.ToCamelCase(this.operation.Create(path, folders[i], dataObject));
-        //                }
-        //                path += folders[i] + "/";
-        //            }
-        //        }
-        //    }
-        //    int chunkIndex = int.TryParse(HttpContext.Request.Form["chunk-index"], out int parsedChunkIndex) ? parsedChunkIndex : 0;
-        //    int totalChunk = int.TryParse(HttpContext.Request.Form["total-chunk"], out int parsedTotalChunk) ? parsedTotalChunk : 0;
-        //    uploadResponse = operation.Upload(path, uploadFiles, action, dataObject, chunkIndex, totalChunk);
-        //    if (uploadResponse.Error != null)
-        //    {
-        //        Response.Clear();
-        //        Response.ContentType = "application/json; charset=utf-8";
-        //        Response.StatusCode = Convert.ToInt32(uploadResponse.Error.Code);
-        //        Response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = uploadResponse.Error.Message;
-        //    }
-        //    return Content("");
-        //}
-
         [Route("AmazonS3Upload")]
         public IActionResult AmazonS3Upload(string path, IList<IFormFile> uploadFiles, string action, string data)
         {
             try
             {
+                string path1 = Request.Form["path"];
+                string action1 = Request.Form["action"];
+                string data1 = Request.Form["data"];
+                string logPath = "/home/krishtopher/Documents/UploadErrorLog.txt";
+                System.IO.File.AppendAllText(logPath, "test 123");
+
                 FileManagerResponse uploadResponse;
                 FileManagerDirectoryContent[] dataObject = new FileManagerDirectoryContent[1];
                 var options = new JsonSerializerOptions
@@ -159,10 +127,10 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 };
                 dataObject[0] = JsonSerializer.Deserialize<FileManagerDirectoryContent>(data, options);
-
                 foreach (var file in uploadFiles)
                 {
                     var folders = (file.FileName).Split('/');
+                    // checking the folder upload
                     if (folders.Length > 1)
                     {
                         for (var i = 0; i < folders.Length - 1; i++)
@@ -175,10 +143,8 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                         }
                     }
                 }
-
                 int chunkIndex = int.TryParse(HttpContext.Request.Form["chunk-index"], out int parsedChunkIndex) ? parsedChunkIndex : 0;
                 int totalChunk = int.TryParse(HttpContext.Request.Form["total-chunk"], out int parsedTotalChunk) ? parsedTotalChunk : 0;
-
                 uploadResponse = operation.Upload(path, uploadFiles, action, dataObject, chunkIndex, totalChunk);
                 if (uploadResponse.Error != null)
                 {
@@ -187,7 +153,6 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                     Response.StatusCode = Convert.ToInt32(uploadResponse.Error.Code);
                     Response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = uploadResponse.Error.Message;
                 }
-
                 return Content("");
             }
             catch (Exception ex)
@@ -205,7 +170,10 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                 }
 
                 return StatusCode(500, "Internal server error. Check UploadErrorLog.txt for more details.");
+                throw;
             }
+
+            
         }
 
 
