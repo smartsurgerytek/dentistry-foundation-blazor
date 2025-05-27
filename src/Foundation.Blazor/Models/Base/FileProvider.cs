@@ -1011,7 +1011,8 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         public async Task UploadFileToS3(Stream stream, string fileName, string path)
         {
             var s3Path = RootName.Replace("/", "") + path + fileName;
-            await fileTransferUtility.UploadAsync(stream, bucketName, s3Path);
+            //await fileTransferUtility.UploadAsync(stream, bucketName, s3Path);
+            await this.UploadAsync(s3Path, stream);
         }
         #endregion X-Ray Image Uploading/Processing
 
