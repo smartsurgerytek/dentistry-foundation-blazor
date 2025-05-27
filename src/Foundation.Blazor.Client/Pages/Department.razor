@@ -1,23 +1,22 @@
 ﻿@page "/Department"
 
-
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 @inherits FoundationComponentBase
 
-<h3> @L["Department"] </h3>
+<h3>@L["Department"]</h3>
 
 <SfGrid DataSource="@Departments" @ref="DepartmentGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="DepartmentDto"></GridEvents>
     <GridColumns>
-        <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
-        <GridColumn Field="Name" HeaderText="Department Name" Width="250"></GridColumn>
-        <GridColumn HeaderText="Manage Doctor" Width="150">
+        <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false" />
+        <GridColumn Field="Name" HeaderText="@L["DepartmentName"]" Width="250" />
+        <GridColumn HeaderText="@L["ManageDoctor"]" Width="150">
             <Template>
                 @{
                     var department = (context as DepartmentDto);
                 }
-                <button class="e-btn" @onclick="@(() => NavigateDoctor(department))">Doctor</button>
+                <button class="e-btn" @onclick="@(() => NavigateDoctor(department))">@L["Doctor"]</button>
             </Template>
         </GridColumn>
     </GridColumns>
@@ -31,16 +30,16 @@
 
                 <div class="mb-3">
                     <label class="form-label">
-                        Department <span style="color: red">*</span>
+                        @L["DepartmentName"] <span style="color: red">*</span>
                     </label>
                     <SfTextBox TValue="string" @bind-Value="CurrentDepartment.Name"
-                               Placeholder="Enter Department Name" FloatLabelType="FloatLabelType.Auto" />
+                               Placeholder="@L["EnterDepartmentName"]" FloatLabelType="FloatLabelType.Auto" />
                     <ValidationMessage style="color: red" For="@(() => CurrentDepartment.Name)" />
                 </div>
 
                 <div class="text-end mt-4">
-                    <button type="submit" class="e-btn e-primary">Save</button>
-                    <button type="button" class="e-btn" @onclick="CloseDialog">Cancel</button>
+                    <button type="submit" class="e-btn e-primary">@L["Save"]</button>
+                    <button type="button" class="e-btn" @onclick="CloseDialog">@L["Cancel"]</button>
                 </div>
             </EditForm>
         </Content>
@@ -68,11 +67,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Toolbaritems = new()
+        {
+            new ItemModel() { TabIndex = 0, Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" },
+            new ItemModel() { TabIndex = 1, Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" },
+            new ItemModel() { TabIndex = 2, Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" },
+            new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" }
+        };
+
         await LoadDepartments();
-        Toolbaritems.Add(new ItemModel() { TabIndex = 0, Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" });
-        Toolbaritems.Add(new ItemModel() { TabIndex = 1,Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" });
-        Toolbaritems.Add(new ItemModel() { TabIndex = 2,Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" });
-        Toolbaritems.Add(new ItemModel() { TabIndex = 3,Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" });
     }
 
     private async Task LoadDepartments()
@@ -89,45 +92,49 @@
     {
         var selectedRow = await DepartmentGrid.GetSelectedRecordsAsync();
 
-        if (args.Item.TabIndex == 0)
+        switch (args.Item.TabIndex)
         {
-            IsNew = true;
-            DialogTitle = "Add Department";
-            CurrentDepartment = new CreateUpdateDepartmentDto { OrganizationId = Guid.Parse(OrganizationId) };
-            await Dialog.ShowAsync();
-        }
-        else if (args.Item.TabIndex == 1 && selectedRow.Any())
-        {
-            IsNew = false;
-            DialogTitle = "Edit Department";
-            var selected = selectedRow.First();
-            CurrentDepartment = new CreateUpdateDepartmentDto
-                {
-                    Id = selected.Id,
-                    Name = selected.Name,
-                    OrganizationId = selected.OrganizationId
-                };
-            await Dialog.ShowAsync();
-        }
-        else if (args.Item.TabIndex == 2 && selectedRow.Any())
-        {
-            await DeleteDepartment(selectedRow.First().Id);
-        }
-        else if (args.Item.TabIndex == 3)
-        {
-            await LoadDepartments();
+            case 0:
+                IsNew = true;
+                DialogTitle = L["AddDepartment"];
+                CurrentDepartment = new CreateUpdateDepartmentDto { OrganizationId = Guid.Parse(OrganizationId) };
+                await Dialog.ShowAsync();
+                break;
+
+            case 1 when selectedRow.Any():
+                IsNew = false;
+                DialogTitle = L["EditDepartment"];
+                var selected = selectedRow.First();
+                CurrentDepartment = new CreateUpdateDepartmentDto
+                    {
+                        Id = selected.Id,
+                        Name = selected.Name,
+                        OrganizationId = selected.OrganizationId
+                    };
+                await Dialog.ShowAsync();
+                break;
+
+            case 2 when selectedRow.Any():
+                await DeleteDepartment(selectedRow.First().Id);
+                break;
+
+            case 3:
+                await LoadDepartments();
+                break;
         }
     }
 
     private async Task SaveDepartment()
     {
+        var client = HttpClientFactory.CreateClient("ApiClient");
+
         if (IsNew)
         {
-            await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/department/department", CurrentDepartment);
+            await client.PostAsJsonAsync("/api/app/department/department", CurrentDepartment);
         }
         else
         {
-            await HttpClientFactory.CreateClient("ApiClient").PutAsJsonAsync($"/api/app/department/department/{CurrentDepartment.Id}",CurrentDepartment);
+            await client.PutAsJsonAsync($"/api/app/department/department/{CurrentDepartment.Id}", CurrentDepartment);
         }
 
         await LoadDepartments();
@@ -136,7 +143,7 @@
 
     private async Task DeleteDepartment(Guid id)
     {
-        await HttpClientFactory.CreateClient("ApiClient").DeleteAsync($"/api/app/department/department/{id}");        
+        await HttpClientFactory.CreateClient("ApiClient").DeleteAsync($"/api/app/department/department/{id}");
         await LoadDepartments();
     }
 

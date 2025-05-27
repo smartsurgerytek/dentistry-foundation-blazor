@@ -16,17 +16,6 @@
 @inherits FoundationComponentBase
 
 
-@* <SfDialog Width="335px" IsModal="true" @bind-Visible="Visibility">
-    <DialogTemplates>
-        <Header> Warning </Header>
-        <Content>
-            <p>FDI is invalid or not found.</p>
-        </Content>
-    </DialogTemplates>
-    <DialogButtons>
-        <DialogButton Content="OK" IsPrimary="true" OnClick="@DialogButtonClick" />
-    </DialogButtons>
-</SfDialog> *@
 
 
 <h3>@L["ExaminationRecord"]</h3>
@@ -43,7 +32,7 @@
     </label>
     <label>
         <input type="radio" name="jaw" value="Lower left" @onchange="@(() => SelectedJaw = "Lower left")" checked="@IsLowerLeftSelected" />
-       @L["Lowerleft"]
+        @L["Lowerleft"]
     </label>
     <label>
         <input type="radio" name="jaw" value="Lower right" @onchange="@(() => SelectedJaw = "Lower right")" checked="@IsLowerRightSelected" />
@@ -76,7 +65,7 @@
             </div>
 
             <div class="description-section">
-                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder="Detailed Description" CssClass="custom-description" Rows="3" />
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"] CssClass="custom-description" Rows="3" />
             </div>
         </div>
         <hr />
@@ -106,7 +95,7 @@ else if (SelectedJaw == "Upper right")
             </div>
 
             <div class="description-section">
-                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder="Detailed Description" CssClass="custom-description" Rows="3" />
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"] CssClass="custom-description" Rows="3" />
             </div>
         </div>
         <hr />
@@ -136,7 +125,7 @@ else if (SelectedJaw == "Lower left")
             </div>
 
             <div class="description-section">
-                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder="Detailed Description" CssClass="custom-description" Rows="3" />
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"] CssClass="custom-description" Rows="3" />
             </div>
         </div>
         <hr />
@@ -166,7 +155,7 @@ else if (SelectedJaw == "Lower right")
             </div>
 
             <div class="description-section">
-                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder="Detailed Description" CssClass="custom-description" Rows="3" />
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"] CssClass="custom-description" Rows="3" />
             </div>
         </div>
         <hr />
@@ -175,10 +164,12 @@ else if (SelectedJaw == "Lower right")
 
 
 <div class="text-center mt-4">
-    <SfButton CssClass="e-primary" OnClick="SubmitRecord">Submit Record</SfButton>
+    <SfButton CssClass="e-primary" OnClick="SubmitRecord">@L["SubmitRecord"]</SfButton>
 </div>
 
 @code {
+
+    
 
     [Parameter]
     [SupplyParameterFromQuery]
@@ -214,9 +205,11 @@ else if (SelectedJaw == "Lower right")
         public string Text { get; set; }
     }
 
+    
+
     List<PEList> LocalData = new()
     {
-        new PEList() { ID = "0", Text = "Stage 0" },
+        new PEList() { ID = "0", Text = "Stage 0"},
         new PEList() { ID = "I", Text = "Stage I" },
         new PEList() { ID = "II", Text = "Stage II" },
         new PEList() { ID = "III", Text = "Stage III" }

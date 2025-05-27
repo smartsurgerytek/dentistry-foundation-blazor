@@ -10,12 +10,12 @@
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="RecordDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"  Width="10"></GridColumn>
-        <GridColumn Field="OrganizationName" HeaderText="Organization" Width="15"></GridColumn>
-        <GridColumn Field="DepartmentName" HeaderText="Department" Width="15"></GridColumn>
-        <GridColumn Field="PatientName" HeaderText="Patient" Width="15"></GridColumn>
-        <GridColumn Field="DoctorName" HeaderText="Doctor" Width="15"></GridColumn>
-        <GridColumn Field="CreatedDate" HeaderText="Date" Width="15" Format="yyyy-MM-dd"></GridColumn>
-        <GridColumn HeaderText="File" Width="15">
+        <GridColumn Field="OrganizationName" HeaderText=@L["Organization"] Width="15"></GridColumn>
+        <GridColumn Field="DepartmentName" HeaderText=@L["Department"] Width="15"></GridColumn>
+        <GridColumn Field="PatientName" HeaderText=@L["Patient"] Width="15"></GridColumn>
+        <GridColumn Field="DoctorName" HeaderText=@L["Doctor"] Width="15"></GridColumn>
+        <GridColumn Field="CreatedDate" HeaderText=@L["Date"] Width="15" Format="yyyy-MM-dd"></GridColumn>
+        <GridColumn HeaderText=@L["File" ] Width="15">
             <Template>
                 @{
                     var record = (context as RecordDto);

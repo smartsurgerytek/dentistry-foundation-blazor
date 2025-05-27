@@ -6,7 +6,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
 
-@* <div class="posRelative"> *@
+
 <SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"
     SelectedItemsChanged="OnSelectedItemsChanged">
     <FileManagerAjaxSettings Url="/api/FileProvider/AmazonS3FileOperations" UploadUrl="/api/FileProvider/AmazonS3Upload"
@@ -14,26 +14,18 @@
          DownloadUrl="/api/FileProvider/AmazonS3Download">
     </FileManagerAjaxSettings>
     <FileManagerToolbarSettings ToolbarItems="@Items">
-        <FileManagerCustomToolbarItems>
-            @* ExaminationRecord *@
+        <FileManagerCustomToolbarItems>            
             <FileManagerCustomToolbarItem Name="ExaminationRecord">
                 <Template>
                     <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Examination Record"
                         OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled"></SfButton>
+
                 </Template>
-            </FileManagerCustomToolbarItem>
-            @* OnFileOpen GetImageUrl Editor *@
-            @* <FileManagerCustomToolbarItem Name="OpenImageEditor">
-                <Template>
-                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Edit Image" OnClick="OpenImageEditor"
-                        Disabled="@IsOpenImageEditorBtnDisabled"></SfButton>
-                </Template>
-            </FileManagerCustomToolbarItem> *@
+            </FileManagerCustomToolbarItem>           
         </FileManagerCustomToolbarItems>
     </FileManagerToolbarSettings>
     <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
-    <FileManagerEvents TValue="FileManagerDirectoryContent" BeforePopupOpen="SuppressImagePreview"></FileManagerEvents>
-    @* <FileManagerContextMenuSettings File="@ContextMenuItems"></FileManagerContextMenuSettings> *@
+    <FileManagerEvents TValue="FileManagerDirectoryContent" BeforePopupOpen="SuppressImagePreview"></FileManagerEvents>    
 </SfFileManager>
 @* <div class="posAbsolute"> *@
 @* </div> *@

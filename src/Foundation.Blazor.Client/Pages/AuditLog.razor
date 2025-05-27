@@ -1,21 +1,23 @@
 ﻿@page "/AuditLog"
 @inject IHttpClientFactory HttpClientFactory
+@inherits FoundationComponentBase
 
-<h3>AuditLog</h3>
+<h3>@L["AuditLog"]</h3>
 
-
-<SfGrid DataSource="@AuditLogDtos" @ref="AuditLogDtoGrid" AllowPaging="true" AllowSorting="true"  Toolbar="@Toolbaritems">
+<SfGrid DataSource="@AuditLogDtos" @ref="AuditLogDtoGrid" AllowPaging="true" AllowSorting="true" Toolbar="@Toolbaritems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="AuditLogDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
-        <GridColumn Field="UserName" HeaderText="UserName" Width="200"></GridColumn>
-        <GridColumn Field="ServiceName" HeaderText="ServiceName" Width="200"></GridColumn>
-        <GridColumn Field="MethodName" HeaderText="MethodName" Width="200"></GridColumn>
-        <GridColumn Field="Parameters" HeaderText="Parameters" Width="200"></GridColumn>
-        <GridColumn Field="ExecutionTime" HeaderText="ExecutionTime" Width="100"></GridColumn>
-        <GridColumn Field="ExecutionDuration" HeaderText="ExecutionDuration" Width="100"></GridColumn>
+        <GridColumn Field="UserName" HeaderText="@L["UserName"]" Width="200"></GridColumn>
+        <GridColumn Field="ServiceName" HeaderText="@L["ServiceName"]" Width="200"></GridColumn>
+        <GridColumn Field="MethodName" HeaderText="@L["MethodName"]" Width="200"></GridColumn>
+        <GridColumn Field="Parameters" HeaderText="@L["Parameters"]" Width="200"></GridColumn>
+        <GridColumn Field="ExecutionTime" HeaderText="@L["ExecutionTime"]" Width="180" Format="yMd h:mm:ss"></GridColumn>
+        <GridColumn Field="ExecutionDuration" HeaderText="@L["ExecutionDuration"]" Width="150"></GridColumn>
     </GridColumns>
 </SfGrid>
+
+
 
 @code {
 

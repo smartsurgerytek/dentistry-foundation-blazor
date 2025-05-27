@@ -9,15 +9,15 @@
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="PatientDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
-        <GridColumn Field="Name" HeaderText="Patient Name" Width="250"></GridColumn>
-        <GridColumn Field="DateOfBirth" HeaderText="Date of Birth" Width="250"></GridColumn>
-        <GridColumn Field="PatientNumber" HeaderText="Patient Id" Width="250"></GridColumn>
-        <GridColumn HeaderText="Manage Records" Width="250">
+        <GridColumn Field="Name" HeaderText="@L["PatientName"]" Width="250"></GridColumn>
+        <GridColumn Field="DateOfBirth" HeaderText="@L["DateOfBirth"]" Width="250"></GridColumn>
+        <GridColumn Field="PatientNumber" HeaderText="@L["PatientId"]" Width="250"></GridColumn>
+        <GridColumn HeaderText="@L["ManageRecords"]" Width="250">
             <Template>
                 @{
                     var patient = (context as PatientDto);
                 }
-                <button class="e-btn" @onclick="() => NavigateRecord(patient)">Records</button>
+                <button class="e-btn" @onclick="() => NavigateRecord(patient)">@L["Records"]</button>
             </Template>
         </GridColumn>
     </GridColumns>
@@ -30,27 +30,27 @@
                 <DataAnnotationsValidator />
 
                 <div class="form-group">
-                    <label class="form-label">Patient Id<span class="text-red-500">*</span></label>
+                    <label class="form-label">@L["PatientId"]<span class="text-red-500">*</span></label>
                     <SfTextBox TValue="string"
-                               Placeholder="Enter Patient Id"
+                               Placeholder="@L["EnterPatientId"]"
                                FloatLabelType="FloatLabelType.Auto"
                                @bind-Value="CurrentPatient.PatientNumber" />
                     <ValidationMessage For="@(() => CurrentPatient.PatientNumber)" class="text-red-500" />
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Patient Name<span class="text-red-500">*</span></label>
+                    <label class="form-label">@L["PatientName"]<span class="text-red-500">*</span></label>
                     <SfTextBox TValue="string"
-                               Placeholder="Enter Patient Name"
+                               Placeholder="@L["EnterPatientName"]"
                                FloatLabelType="FloatLabelType.Auto"
                                @bind-Value="CurrentPatient.Name" />
                     <ValidationMessage For="@(() => CurrentPatient.Name)" class="text-red-500" />
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Date of Birth</label>
+                    <label class="form-label">@L["DateOfBirth"]</label>
                     <SfDatePicker TValue="DateTime?"
-                                  Placeholder="Select Date of Birth"
+                                  Placeholder="@L["SelectDateOfBirth"]"
                                   FloatLabelType="FloatLabelType.Auto"
                                   @bind-Value="SelectedDate" />
                     <ValidationMessage For="@(() => CurrentPatient.DateOfBirth)" class="text-red-500" />
@@ -60,8 +60,8 @@
     </DialogTemplates>
 
     <DialogButtons>
-        <DialogButton Content="Save" IsPrimary="true" OnClick="TriggerFormSubmit"></DialogButton>
-        <DialogButton Content="Cancel" OnClick="CloseDialog"></DialogButton>
+        <DialogButton Content="@L["Save"]" IsPrimary="true" OnClick="TriggerFormSubmit"></DialogButton>
+        <DialogButton Content="@L["Cancel"]" OnClick="CloseDialog"></DialogButton>
     </DialogButtons>
 </SfDialog>
 
@@ -96,10 +96,10 @@
 
         ToolbarItems.AddRange(new[]
         {
-            new ItemModel() { TabIndex=0 , Text = L["Add"], TooltipText = "Add", PrefixIcon = "e-add" },
-            new ItemModel() { TabIndex = 1,Text = L["Edit"], TooltipText = "Edit", PrefixIcon = "e-edit" },
-            new ItemModel() { TabIndex = 2,Text = L["Delete"], TooltipText = "Delete", PrefixIcon = "e-delete" },
-            new ItemModel() { TabIndex = 3,Text = L["Refresh"], TooltipText = "Refresh", PrefixIcon = "e-refresh" }
+            new ItemModel() { TabIndex=0 , Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" },
+            new ItemModel() { TabIndex = 1, Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" },
+            new ItemModel() { TabIndex = 2, Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" },
+            new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" }
         });
     }
 
@@ -120,7 +120,7 @@
         {
             case 0:
                 IsNew = true;
-                DialogTitle = "Add Patient";
+                DialogTitle = L["AddPatient"];
                 CurrentPatient = new CreateUpdatePatientDto
                     {
                         DoctorId = Guid.Parse(DoctorId),
@@ -131,7 +131,7 @@
 
             case 1 when selectedRow.Any():
                 IsNew = false;
-                DialogTitle = "Edit Patient";
+                DialogTitle = L["EditPatient"];
                 var selected = selectedRow.First();
                 CurrentPatient = new CreateUpdatePatientDto
                     {
