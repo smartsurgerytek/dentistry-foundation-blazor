@@ -7,7 +7,6 @@ namespace Foundation.Blazor.Services
     public class DentistryApiService
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
         private readonly string ApiUrlInternal;
 
         public DentistryApiService(HttpClient httpClient, IConfiguration configuration)
