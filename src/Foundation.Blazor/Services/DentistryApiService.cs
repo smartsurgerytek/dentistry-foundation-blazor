@@ -33,6 +33,7 @@ namespace Foundation.Blazor.Services
             {
                 _logger.LogInformation("Checking if the image is periapical.");
                 _logger.LogInformation("Expect:100 Continue Header value: {0}", _httpClient.DefaultRequestHeaders.ExpectContinue);
+                _logger.LogInformation("HttpApi Host Url value: {0}", ApiUrlInternal);
 
                 var imageRequest = new PaPanoClassificationRequestDto { Image = base64Img };
                 var httpResponse = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrlInternal, "dentistry-api/pa-pano-classification"), imageRequest);
