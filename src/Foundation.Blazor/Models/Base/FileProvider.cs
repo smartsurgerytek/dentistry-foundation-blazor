@@ -40,13 +40,15 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         private static string uploadId;
         private readonly HttpClient _httpClient;
         private readonly DentistryApiService _imageService;
+        private readonly ILogger<FileProvider> _logger;
 
-        public FileProvider(HttpClient httpClient, DentistryApiService imageService, IAmazonS3 amazonS3Client, TransferUtility transferUtility)
+        public FileProvider(HttpClient httpClient, DentistryApiService imageService, IAmazonS3 amazonS3Client, TransferUtility transferUtility, ILogger<FileProvider> logger)
         {
             client = amazonS3Client;
             _httpClient = httpClient;
             _imageService = imageService;
             fileTransferUtility = transferUtility;
+            _logger = logger;
         }
 
         // Register the amazon client details
@@ -877,6 +879,9 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                 er.Code = er.Message.Contains("is not accessible. You need permission") ? "401" : "417";
                 if ((er.Code == "401") && !string.IsNullOrEmpty(accessMessage)) { er.Message = accessMessage; }
                 uploadResponse.Error = er;
+
+                _logger.LogError(ex, "Error during file upload: {Message}", ex.Message);
+
                 return uploadResponse;
             }
         }
@@ -895,6 +900,8 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             }
             catch (System.Exception ex)
             {
+                _logger.LogError(ex, "Error during default file upload: {Message}", ex.Message);
+                _logger.LogError(ex, "Error during default file upload: {Message}", ex.StackTrace);
                 throw;
             }
         }
