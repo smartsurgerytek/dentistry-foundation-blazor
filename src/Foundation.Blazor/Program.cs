@@ -8,6 +8,8 @@ using Foundation.Blazor.Components;
 using Foundation.Blazor.Services;
 using Foundation.Dtos;
 using Foundation.Services;
+using NUglify.JavaScript.Syntax;
+
 
 
 // using Foundation.Services;
@@ -29,9 +31,22 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddControllers();
-builder.Services.AddHttpClient();
+
+builder.Services.AddHttpClient("DentistryHttpClient", client =>
+{
+    // client.BaseAddress = new Uri(builder.Configuration["ApiUrl"]);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    return new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+    };
+});
+
 builder.Services.AddScoped<FileProvider>();
-builder.Services.AddSingleton<IAmazonS3>((options) => {
+builder.Services.AddSingleton<IAmazonS3>((options) =>
+{
     var configuration = builder.Configuration;
 
     var fileProvider = configuration["FileProvider"];

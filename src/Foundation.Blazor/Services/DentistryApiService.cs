@@ -10,9 +10,9 @@ namespace Foundation.Blazor.Services
         private readonly string ApiUrlInternal;
         private readonly ILogger<DentistryApiService> _logger;
 
-        public DentistryApiService(HttpClient httpClient, IConfiguration configuration, ILogger<DentistryApiService> logger)
+        public DentistryApiService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<DentistryApiService> logger)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("DentistryApiClient");
             ApiUrlInternal = configuration["ApiUrlInternal"];
             _logger = logger;
 

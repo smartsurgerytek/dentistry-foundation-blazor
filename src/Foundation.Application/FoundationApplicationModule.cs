@@ -74,6 +74,13 @@ public class FoundationApplicationModule : AbpModule
 
             client.BaseAddress = new Uri(apiUrl);
         })
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            return new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+            };
+        })
         .AddPolicyHandler(GetRetryPolicy())
         .AddPolicyHandler(GetCircuitBreakerPolicy());
 
