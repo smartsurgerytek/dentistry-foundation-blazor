@@ -41,7 +41,7 @@ public partial class ImageEditor
         this.IsImageEditorVisible = true;
         // load the selected image in the image editor
         // convert the selected file to a base64 string
-        var imageStream = await this.httpClient.GetStreamAsync($"https://localhost:44355/api/FileProvider/AmazonS3GetImage?Path={Path}");
+        var imageStream = await this.httpClient.GetStreamAsync($"/api/FileProvider/AmazonS3GetImage?Path={Path}");
         var imageBytes = await imageStream.GetAllBytesAsync();
         var imageBase64 = Convert.ToBase64String(imageBytes);
         Console.WriteLine(imageBase64);
@@ -75,7 +75,7 @@ public partial class ImageEditor
             FilePath = filterPath,
             FileStream = imageDataUrl
         };
-        await httpClient.PostAsJsonAsync("https://localhost:44355/api/FileProvider/UploadImageAsStream", uploadStreamDto);
+        await httpClient.PostAsJsonAsync("/api/FileProvider/UploadImageAsStream", uploadStreamDto);
 
         // close the image editor
         this.IsImageEditorVisible = false;

@@ -14,6 +14,7 @@ namespace Foundation.Blazor.Services
         {
             _httpClient = httpClient;
             ApiUrlInternal = configuration["ApiUrlInternal"];
+            _httpClient.DefaultRequestHeaders.ExpectContinue = false;
         }
 
         public bool IsImageFile(IFormFile file)
