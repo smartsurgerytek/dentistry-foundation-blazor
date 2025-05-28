@@ -124,14 +124,14 @@ public class FoundationHttpApiHostModule : AbpModule
 
         if (hostingEnvironment.IsDevelopment())
         {
-            Configure<AbpVirtualFileSystemOptions>(options =>
-            {
-                options.FileSets.ReplaceEmbeddedByPhysical<FoundationDomainSharedModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.Domain.Shared", Path.DirectorySeparatorChar)));
-                options.FileSets.ReplaceEmbeddedByPhysical<FoundationDomainModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.Domain", Path.DirectorySeparatorChar)));
-                options.FileSets.ReplaceEmbeddedByPhysical<FoundationApplicationContractsModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.Application.Contracts", Path.DirectorySeparatorChar)));
-                options.FileSets.ReplaceEmbeddedByPhysical<FoundationApplicationModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.Application", Path.DirectorySeparatorChar)));
-                options.FileSets.ReplaceEmbeddedByPhysical<FoundationHttpApiModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.HttpApi", Path.DirectorySeparatorChar)));
-            });
+            // Configure<AbpVirtualFileSystemOptions>(options =>
+            // {
+            //     options.FileSets.ReplaceEmbeddedByPhysical<FoundationDomainSharedModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.Domain.Shared", Path.DirectorySeparatorChar)));
+            //     options.FileSets.ReplaceEmbeddedByPhysical<FoundationDomainModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.Domain", Path.DirectorySeparatorChar)));
+            //     options.FileSets.ReplaceEmbeddedByPhysical<FoundationApplicationContractsModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.Application.Contracts", Path.DirectorySeparatorChar)));
+            //     options.FileSets.ReplaceEmbeddedByPhysical<FoundationApplicationModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.Application", Path.DirectorySeparatorChar)));
+            //     options.FileSets.ReplaceEmbeddedByPhysical<FoundationHttpApiModule>(Path.Combine(hostingEnvironment.ContentRootPath, string.Format("..{0}..{0}src{0}Foundation.HttpApi", Path.DirectorySeparatorChar)));
+            // });
         }
     }
 
