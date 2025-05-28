@@ -985,7 +985,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
 
             // 3.
             // generate the combined a+b image
-            var combinedImageStream = ImageOperationsHelper.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
+            // var combinedImageStream = ImageOperationsHelper.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
 
             var originalImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
             var enhancedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
@@ -1019,8 +1019,8 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             _logger.LogInformation("Uploaded AI-enhanced image: {EnhancedImageFileName}", enhancedImageFileName);
 
             // upload the combined image
-            await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
-            _logger.LogInformation("Uploaded combined image: {CombinedImageFileName}", combinedImageFileName);
+            // await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
+            // _logger.LogInformation("Uploaded combined image: {CombinedImageFileName}", combinedImageFileName);
         }
 
         public async Task UploadFileToS3(Stream stream, string fileName, string path)
