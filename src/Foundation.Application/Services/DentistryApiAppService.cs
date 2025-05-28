@@ -17,6 +17,8 @@ using Polly.CircuitBreaker;
 using System.IO;
 using Foundation.Application.Contracts.Dtos;
 using JetBrains.Annotations;
+using Volo.Abp.Domain.Repositories;
+using Foundation.Entities;
 
 namespace Foundation.Services
 {
@@ -25,13 +27,16 @@ namespace Foundation.Services
         private readonly string ApiUrl;
         private readonly string ApiKey;
         private readonly HttpClient _httpClient;
+        private IRepository<AuditLog, Guid> _auditLogRepository;
 
-        public DentistryApiAppService(IConfiguration configuration, HttpClient httpClient)
+        public DentistryApiAppService(IConfiguration configuration, HttpClient httpClient, IRepository<AuditLog, Guid> auditLogRepository)
+            : base()
         {
             ApiUrl = configuration["ApiUrl"];
             ApiKey = configuration["ApiKey"];
             _httpClient = httpClient;
-            
+            _auditLogRepository = auditLogRepository;
+
             _httpClient.DefaultRequestHeaders.ExpectContinue = false;
         }
 
@@ -55,6 +60,17 @@ namespace Foundation.Services
         {
             try
             {
+                await _auditLogRepository.InsertAsync(new AuditLog(Guid.NewGuid())
+                {
+                    UserName = "System",
+                    ServiceName = nameof(DentistryApiAppService),
+                    MethodName = nameof(PostPaPanoClassificationAsync),
+                    // Parameters = JsonConvert.SerializeObject(imageRequest),
+                    Parameters = $"Expect:100Continue Header value: {_httpClient.DefaultRequestHeaders.ExpectContinue}",
+                    ExecutionTime = DateTime.UtcNow,
+                    ExecutionDuration = 0,
+                });
+                
                 _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ApiKey);
 
                 var response = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrl, $"pa_pano_classification_dict?apikey={ApiKey}"), imageRequest);
@@ -62,6 +78,16 @@ namespace Foundation.Services
             }
             catch (Exception ex)
             {
+                await _auditLogRepository.InsertAsync(new AuditLog(Guid.NewGuid())
+                {
+                    UserName = "System",
+                    ServiceName = nameof(DentistryApiAppService),
+                    MethodName = nameof(PostPaPanoClassificationAsync),
+                    // Parameters = JsonConvert.SerializeObject(imageRequest),
+                    Parameters = $"Exception message: {ex.Message}",
+                    ExecutionTime = DateTime.UtcNow,
+                    ExecutionDuration = 0,
+                });
                 throw;
             }
         }

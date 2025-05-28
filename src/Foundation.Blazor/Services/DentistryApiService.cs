@@ -8,11 +8,15 @@ namespace Foundation.Blazor.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string ApiUrlInternal;
+        private readonly ILogger<DentistryApiService> _logger;
 
-        public DentistryApiService(HttpClient httpClient, IConfiguration configuration)
+        public DentistryApiService(HttpClient httpClient, IConfiguration configuration, ILogger<DentistryApiService> logger)
         {
             _httpClient = httpClient;
             ApiUrlInternal = configuration["ApiUrlInternal"];
+            _logger = logger;
+
+            // Set default headers for the HttpClient
             _httpClient.DefaultRequestHeaders.ExpectContinue = false;
         }
 
@@ -25,13 +29,25 @@ namespace Foundation.Blazor.Services
 
         public async Task<bool> IsPeriapicalImage(string base64Img)
         {
-            var imageRequest = new PaPanoClassificationRequestDto { Image = base64Img };
-            var httpResponse = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrlInternal, "dentistry-api/pa-pano-classification"), imageRequest);
+            try
+            {
+                _logger.LogInformation("Checking if the image is periapical.");
+                _logger.LogInformation("Expect:100 Continue Header value: {0}", _httpClient.DefaultRequestHeaders.ExpectContinue);
 
-            httpResponse.EnsureSuccessStatusCode();
-            var paPanoClassification = await httpResponse.Content.ReadAsAsync<PaPanoClassificationResponseDto>();
+                var imageRequest = new PaPanoClassificationRequestDto { Image = base64Img };
+                var httpResponse = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrlInternal, "dentistry-api/pa-pano-classification"), imageRequest);
 
-            return paPanoClassification?.Predicted_Class?.Contains("periapical", StringComparison.OrdinalIgnoreCase) ?? false;
+                httpResponse.EnsureSuccessStatusCode();
+                var paPanoClassification = await httpResponse.Content.ReadAsAsync<PaPanoClassificationResponseDto>();
+
+                return paPanoClassification?.Predicted_Class?.Contains("periapical", StringComparison.OrdinalIgnoreCase) ?? false;
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An error occurred while checking if the image is periapical. {ex.Message}");
+                // throw;
+                return false;
+            }
         }
 
         public async Task<SegmentationApiResponseDto> GetEnhancedImage(bool isPeriapicalImage, string base64Img)
