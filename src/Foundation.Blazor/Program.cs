@@ -70,7 +70,7 @@ builder.Services.AddSingleton<TransferUtility>((options) =>
 });
 
 builder.Services.AddScoped<DentistryApiService>();
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+// builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Services.AddBlazoredSessionStorage();
 
 var app = builder.Build();

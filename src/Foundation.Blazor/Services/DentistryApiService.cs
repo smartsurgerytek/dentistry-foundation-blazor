@@ -45,8 +45,8 @@ namespace Foundation.Blazor.Services
             catch (System.Exception ex)
             {
                 _logger.LogError($"An error occurred while checking if the image is periapical. {ex.Message}");
-                // throw;
-                return false;
+                throw;
+                // return false;
             }
         }
 
