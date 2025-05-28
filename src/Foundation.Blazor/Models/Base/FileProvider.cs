@@ -973,6 +973,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
 
             // 1. get image type pe/pano
             var isPeriapicalImage = await _imageService.IsPeriapicalImage(originalImageBase64);
+            _logger.LogInformation("Image type determined: {IsPeriapicalImage}", isPeriapicalImage);
 
             // 2.
             // get the ai image from api
@@ -1004,18 +1005,22 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
 
                 // upload the dicom image
                 await UploadFileToS3(dicomImageStream, dicomImageFileName, path);
+                _logger.LogInformation("Uploaded DICOM image: {DicomImageFileName}", dicomImageFileName);
             }
             else
             {
                 // upload the original image
                 await UploadFileToS3(originalImageStream, originalImageFileName, path);
+                _logger.LogInformation("Uploaded original image: {OriginalImageFileName}", originalImageFileName);
             }
 
             // upload the ai image
             await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
+            _logger.LogInformation("Uploaded AI-enhanced image: {EnhancedImageFileName}", enhancedImageFileName);
 
             // upload the combined image
             await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
+            _logger.LogInformation("Uploaded combined image: {CombinedImageFileName}", combinedImageFileName);
         }
 
         public async Task UploadFileToS3(Stream stream, string fileName, string path)
