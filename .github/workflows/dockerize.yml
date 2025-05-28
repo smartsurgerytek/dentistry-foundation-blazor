@@ -1,0 +1,70 @@
+name: main
+
+on:
+  push:
+    branches:
+      - FOND-37-resolving-417-expectation-failed-issue
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ./Foundation.sln
+
+      - name: Install ABP CLI
+        run: dotnet tool install -g Volo.Abp.Cli --version 8.1.2
+
+      - name: Restore ABP libraries
+        run: abp install-libs
+
+      - name: Publish Foundation.AuthServer
+        run: dotnet publish ./src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release
+
+      - name: Publish Foundation.HttpApi.Host
+        run: dotnet publish ./src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj -c Release
+
+      - name: Publish Foundation.Blazor
+        run: dotnet publish ./src/Foundation.Blazor/Foundation.Blazor.csproj -c Release
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Configure Docker to use gcloud as a credential helper
+        run: |
+          gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev
+
+      - name: Build and push AuthServer image
+        run: |
+          docker build \
+            --build-arg CERT_BASE64="${{ secrets.AUTH_CERT_BASE64 }}" \
+            --build-arg CERT_PASSWORD="${{ secrets.AUTH_CERT_PASSWORD }}" \
+            -f src/Foundation.AuthServer/Dockerfile \
+            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest \
+            src/Foundation.AuthServer
+          docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-authserver:latest
+
+      - name: Build and push HttpApi.Host image
+        run: |
+          docker build -f src/Foundation.HttpApi.Host/Dockerfile \
+            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest \
+            src/Foundation.HttpApi.Host
+          docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-httpapi-host:latest
+
+      - name: Build and push Blazor image
+        run: |
+          docker build -f src/Foundation.Blazor/Dockerfile \
+            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest \
+            src/Foundation.Blazor
+          docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-blazor:latest
