@@ -31,6 +31,7 @@ namespace Foundation.Services
             ApiUrl = configuration["ApiUrl"];
             ApiKey = configuration["ApiKey"];
             _httpClient = httpClient;
+            
             _httpClient.DefaultRequestHeaders.ExpectContinue = false;
         }
 
