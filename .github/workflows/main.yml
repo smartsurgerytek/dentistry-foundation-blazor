@@ -3,7 +3,7 @@ name: main
 on:
   push:
     branches:
-      - FOND-20-research-on-github-action-cicd-idental-foundation
+      - FOND-37-resolving-417-expectation-failed-issue
 
 jobs:
   build-and-push:
