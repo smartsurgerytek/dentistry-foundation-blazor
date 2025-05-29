@@ -169,7 +169,7 @@ else if (SelectedJaw == "Lower right")
 
 @code {
 
-    
+
 
     [Parameter]
     [SupplyParameterFromQuery]
@@ -204,8 +204,6 @@ else if (SelectedJaw == "Lower right")
         public string ID { get; set; }
         public string Text { get; set; }
     }
-
-    
 
     List<PEList> LocalData = new()
     {
@@ -312,7 +310,7 @@ else if (SelectedJaw == "Lower right")
                 PatientName = PatientName,
                 PatientDob = PatientDob,
                 FileBaseAddress = Http.BaseAddress.ToString(),
-                DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/WordDefaultFile.docx"),
+                DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/DefaultFileV1.docx"),
                 DefaultJawImageBytes = await HttpClient.GetByteArrayAsync("/FileData/withnum.jpg"),
             };
         record.ImageNames = imageNames;

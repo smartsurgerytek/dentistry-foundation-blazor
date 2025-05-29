@@ -961,61 +961,57 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             var orignialImageBytes = await originalImageStream.GetAllBytesAsync();
             var originalImageBase64 = Convert.ToBase64String(orignialImageBytes);
 
-            var originalImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a." + ".png";
-            await UploadFileToS3(originalImageStream, originalImageFileName, path);
-
             // 1. get image type pe/pano
-            //var isPeriapicalImage = await _imageService.IsPeriapicalImage(originalImageBase64);
+            var isPeriapicalImage = await _imageService.IsPeriapicalImage(originalImageBase64);
 
-            //// 2.
-            //// get the ai image from api
-            //var enhancedImage = await _imageService.GetEnhancedImage(isPeriapicalImage, originalImageBase64);
-            //if (enhancedImage == null) return;
+            // 2.
+            // get the ai image from api
+            var enhancedImage = await _imageService.GetEnhancedImage(isPeriapicalImage, originalImageBase64);
+            if (enhancedImage == null) return;
 
-            //var enhancedImageBytes = Convert.FromBase64String(enhancedImage.Image);
-            //using var enhancedImageStream = new MemoryStream(enhancedImageBytes);
+            var enhancedImageBytes = Convert.FromBase64String(enhancedImage.Image);
+            using var enhancedImageStream = new MemoryStream(enhancedImageBytes);
 
-            //// 3.
-            //// generate the combined a+b image
-            //var combinedImageStream = ImageOperationsHelper.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
+            // 3.
+            // generate the combined a+b image
+            var combinedImageStream = ImageOperationsHelper.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
 
-            //var originalImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
-            //var enhancedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
-            //var combinedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ab." + "png";
+            var originalImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
+            var enhancedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
+            var combinedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ab." + "png";
 
-            //if (!isPeriapicalImage)
-            //{
-            //    // 4.
-            //    // get the fdi data from the original image
-            //    var fdiData = await _imageService.GetFDIData(isPeriapicalImage, originalImageBase64);
-            //    var fdiDataString = JsonConvert.SerializeObject(fdiData);
+            if (!isPeriapicalImage)
+            {
+                // 4.
+                // get the fdi data from the original image
+                var fdiData = await _imageService.GetFDIData(isPeriapicalImage, originalImageBase64);
+                var fdiDataString = JsonConvert.SerializeObject(fdiData);
 
-            //    // create a dicom image from ai image and fdi data
-            //    var dicomImage = ImageOperationsHelper.ConvertToDicom(file, fdiDataString);
-            //    var dicomImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a.dcm";
-            //    using var dicomImageStream = new MemoryStream(dicomImage);
+                // create a dicom image from ai image and fdi data
+                var dicomImage = ImageOperationsHelper.ConvertToDicom(file, fdiDataString);
+                var dicomImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a.dcm";
+                using var dicomImageStream = new MemoryStream(dicomImage);
 
-            //    // upload the dicom image
-            //    await UploadFileToS3(dicomImageStream, dicomImageFileName, path);
-            //}
-            //else
-            //{
-            //    // upload the original image
-            //    await UploadFileToS3(originalImageStream, originalImageFileName, path);
-            //}
+                // upload the dicom image
+                await UploadFileToS3(dicomImageStream, dicomImageFileName, path);
+            }
+            else
+            {
+                // upload the original image
+                await UploadFileToS3(originalImageStream, originalImageFileName, path);
+            }
 
-            //// upload the ai image
-            //await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
+            // upload the ai image
+            await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
 
-            //// upload the combined image
-            //await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
+            // upload the combined image
+            await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
         }
 
         public async Task UploadFileToS3(Stream stream, string fileName, string path)
         {
             var s3Path = RootName.Replace("/", "") + path + fileName;
-            //await fileTransferUtility.UploadAsync(stream, bucketName, s3Path);
-            await this.UploadAsync(s3Path, stream);
+            await fileTransferUtility.UploadAsync(stream, bucketName, s3Path);
         }
         #endregion X-Ray Image Uploading/Processing
 
@@ -1433,7 +1429,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             return filePermission;
         }
         public async Task<bool> UploadAsync(string path, Stream stream)
-        {            
+        {
             var s3Client = new AmazonS3Client("AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", RegionEndpoint.USWest2);
 
             var putRequest = new PutObjectRequest
@@ -1441,22 +1437,11 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                 BucketName = "smartsurgerytek.foundation",
                 Key = path,
                 InputStream = stream
-            };            
-            var response = await s3Client.PutObjectAsync(putRequest);            
+            };
+            var response = await s3Client.PutObjectAsync(putRequest);
             return response.HttpStatusCode == HttpStatusCode.OK;
         }
 
-    }
-    public class PutObjectRequest : Amazon.S3.Model.PutObjectRequest
-    {
-        protected override bool Expect100Continue => false;
-
-        //public PutObjectRequest(string bucketName, string path, Stream stream)
-        //{
-        //    BucketName = "smartsurgerytek.foundation";
-        //    Key = path;
-        //    InputStream = stream;
-        //}
     }
 }
 #endregion new

@@ -16,7 +16,6 @@ using Syncfusion.Pdf;
 using Syncfusion.DocIORenderer;
 using System.Threading.Tasks;
 using Foundation.Dtos;
-using Syncfusion.Blazor.PdfViewerServer;
 
 namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 {
@@ -105,7 +104,10 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
             return null;
         }
 
-
+        // uploads the file(s) into a specified path
+        // when upload happens, call the dentistry ai api
+        // the response returned will be an image
+        // upload this image into aws bucket
         [Route("AmazonS3Upload")]
         public IActionResult AmazonS3Upload(string path, IList<IFormFile> uploadFiles, string action, string data)
         {
@@ -144,7 +146,6 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
             }
             return Content("");
         }
-
 
         // downloads the selected file(s) and folder(s)
         [Route("AmazonS3Download")]
@@ -234,8 +235,6 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         [HttpPost("SaveDocument")]
         public async Task<IActionResult> SaveDocument([FromBody] SaveDocumentRequest request)
         {
-
-            
             try
             {
                 byte[] documentBytes = Convert.FromBase64String(request.Content);
@@ -250,8 +249,8 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                         using (var pdfMemoryStream = new MemoryStream())
                         {
                             pdfDocument.Save(pdfMemoryStream);
-                            pdfMemoryStream.Position = 0;                            
-                            string pdfS3Path = "foundation/documents/" + request.FileName;                                                     
+                            pdfMemoryStream.Position = 0;
+                            string pdfS3Path = "foundation/documents/" + request.FileName;
                             bool uploadSuccess = await operation.UploadAsync(pdfS3Path, pdfMemoryStream);
                             renderer.Dispose();
                             pdfDocument.Close(true);

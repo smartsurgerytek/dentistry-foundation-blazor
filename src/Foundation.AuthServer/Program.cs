@@ -19,7 +19,6 @@ public class Program
 
         try
         {
-            System.Net.ServicePointManager.Expect100Continue = false;
             Log.Information("Starting Foundation.AuthServer.");
             var builder = WebApplication.CreateBuilder(args);
             builder.Host
@@ -28,11 +27,11 @@ public class Program
                 .UseSerilog((context, services, loggerConfiguration) =>
                 {
                     loggerConfiguration
-                    #if DEBUG
+#if DEBUG
                         .MinimumLevel.Debug()
-                    #else
+#else
                         .MinimumLevel.Information()
-                    #endif
+#endif
                         .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                         .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
                         .Enrich.FromLogContext()

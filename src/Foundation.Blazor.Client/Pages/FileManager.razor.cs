@@ -82,15 +82,15 @@ public partial class FileManager
     }
 
     public async Task GenerateRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
-    {
-        Console.WriteLine("Generate Record");
-        var selectedItems = this.SfFileManager?.GetSelectedFiles();
-        Console.WriteLine(selectedItems?.Count ?? 0);
+    {        
+        var selectedItems = this.SfFileManager?.GetSelectedFiles();        
         var selectedFileNames = selectedItems?.Select(i => i.FilterPath + i.Name).ToArray();
-        var selectedFileNamesString = string.Join(",", selectedFileNames ?? Array.Empty<string>());
-        Console.WriteLine(selectedFileNamesString);
-
-        NavigationManager.NavigateTo($"/ExaminationRecord?imageNames={selectedFileNamesString}");
+        var selectedFileNamesString = string.Join(",", selectedFileNames ?? Array.Empty<string>());        
+        string patientId = string.Empty;
+        var firstFilterPath = selectedItems[0].FilterPath; 
+        var folderName = firstFilterPath.TrimEnd('/').Split('/').LastOrDefault();
+        patientId = folderName?.Split('_').LastOrDefault()?.Trim();
+        NavigationManager.NavigateTo($"/ExaminationRecord?imageNames={selectedFileNamesString}&patientId={patientId}");
     }
 
     public void OnSelectedItemsChanged(string[] args)
