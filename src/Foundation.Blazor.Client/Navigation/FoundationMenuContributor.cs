@@ -57,31 +57,31 @@ public class FoundationMenuContributor : IMenuContributor
 
         context.Menu.AddItem(new ApplicationMenuItem(
             FoundationMenus.FileManager,
-            "FileManager",
+            l["FileManager"],
             "/FileManager",
             icon: "fa-solid fa-file",
             order: 2
         ));
 
-        context.Menu.AddItem(new ApplicationMenuItem(
-            FoundationMenus.WordProcessor,
-            "WordProcessor",
-            "/WordProcessor",
-            icon: "fa-solid fa-folder-open",
-            order: 3
-        ));
+        //context.Menu.AddItem(new ApplicationMenuItem(
+        //    FoundationMenus.WordProcessor,
+        //    "WordProcessor",
+        //    "/WordProcessor",
+        //    icon: "fa-solid fa-folder-open",
+        //    order: 3
+        //));
 
-        context.Menu.AddItem(new ApplicationMenuItem(
-            FoundationMenus.RecordViewer,
-            "RecordViewer",
-            "/RecordViewer",
-            icon: "fa-solid fa-file-lines",
-            order: 4
-        ));
+        //context.Menu.AddItem(new ApplicationMenuItem(
+        //    FoundationMenus.RecordViewer,
+        //    "RecordViewer",
+        //    "/RecordViewer",
+        //    icon: "fa-solid fa-file-lines",
+        //    order: 4
+        //));
 
         context.Menu.AddItem(new ApplicationMenuItem(
             FoundationMenus.Organization,
-            "Organization",
+            l["Organization"],
             "/Organization",
             icon: "fa-solid fa-university",
             order: 5
@@ -89,7 +89,7 @@ public class FoundationMenuContributor : IMenuContributor
 
         context.Menu.AddItem(new ApplicationMenuItem(
             FoundationMenus.Record,
-            "Records",
+            l["Records"],
             "/Records",
             icon: "fa-solid fa-file",
             order: 6
@@ -97,7 +97,7 @@ public class FoundationMenuContributor : IMenuContributor
 
         context.Menu.AddItem(new ApplicationMenuItem(
             FoundationMenus.AuditLog,
-            "AuditLog",
+            l["AuditLog"],
             "/AuditLog",
             icon: "fa-solid fa-file",
             order: 7

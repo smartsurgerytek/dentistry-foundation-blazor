@@ -27,13 +27,16 @@ jobs:
       - name: Restore ABP libraries
         run: abp install-libs
 
-      - name: Publish Foundation.AuthServer
+      - name: Publish DbMigrator
+        run: dotnet publish ./src/Foundation.DbMigrator/Foundation.DbMigrator.csproj -c Release
+
+      - name: Publish AuthServer
         run: dotnet publish ./src/Foundation.AuthServer/Foundation.AuthServer.csproj -c Release
 
-      - name: Publish Foundation.HttpApi.Host
+      - name: Publish HttpApi.Host
         run: dotnet publish ./src/Foundation.HttpApi.Host/Foundation.HttpApi.Host.csproj -c Release
 
-      - name: Publish Foundation.Blazor
+      - name: Publish Blazor
         run: dotnet publish ./src/Foundation.Blazor/Foundation.Blazor.csproj -c Release
 
       - name: Authenticate to Google Cloud
@@ -44,6 +47,13 @@ jobs:
       - name: Configure Docker to use gcloud as a credential helper
         run: |
           gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev
+
+      - name: Build and push DbMigrator image
+        run: |
+          docker build -f src/Foundation.DbMigrator/Dockerfile \
+            -t ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-dbmigrator:latest \
+            src/Foundation.DbMigrator
+          docker push ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO_NAME }}/foundation-dbmigrator:latest
 
       - name: Build and push AuthServer image
         run: |

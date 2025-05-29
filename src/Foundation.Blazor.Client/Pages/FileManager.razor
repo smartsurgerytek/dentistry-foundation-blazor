@@ -11,7 +11,7 @@
 @inject ILogger<FileManager> Logger
 @using Syncfusion.Blazor.Spinner
 
-@* <div class="posRelative"> *@
+
 <SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"
     SelectedItemsChanged="OnSelectedItemsChanged">
 
@@ -38,13 +38,13 @@
                 <Template>
                     <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Examination Record"
                         OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled"></SfButton>
+
                 </Template>
             </FileManagerCustomToolbarItem> *@
         </FileManagerCustomToolbarItems>
     </FileManagerToolbarSettings>
     <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
-    <FileManagerEvents TValue="FileManagerDirectoryContent" BeforePopupOpen="SuppressImagePreview"></FileManagerEvents>
-    @* <FileManagerContextMenuSettings File="@ContextMenuItems"></FileManagerContextMenuSettings> *@
+    <FileManagerEvents TValue="FileManagerDirectoryContent" BeforePopupOpen="SuppressImagePreview"></FileManagerEvents>    
 </SfFileManager>
 @* <div class="posAbsolute"> *@
 @* </div> *@

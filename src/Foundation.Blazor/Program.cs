@@ -89,7 +89,7 @@ builder.Services.AddScoped<DentistryApiService>();
 builder.Services.AddBlazoredSessionStorage();
 
 var app = builder.Build();
-var syncFusionAPIKey = Environment.GetEnvironmentVariable("SyncFusionAPIKey");
+var syncFusionAPIKey = "MzY0MjIzMEAzMjM4MmUzMDJlMzBDWGVhMGYreWNZTlJQYkdNWjRFczkxZkdxSFh5UW1wNHpiaVRaRFFBT1cwPQ==";
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncFusionAPIKey);
 
 app.MapGet("/environment", (IWebHostEnvironment env) =>

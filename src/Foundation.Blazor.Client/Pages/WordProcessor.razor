@@ -37,11 +37,11 @@
     <div>
         <div id='documenteditor_titlebar' class="e-de-ctn-title">
             <div class="single-line" id="documenteditor_title_contentEditor" style="border: 1px solid transparent;"
-                title="Document Name." contenteditable="false">
+            title="Document Name." contenteditable="false">
                 <label id="documenteditor_title_name" class="doc-edit-title"> @DocumentName</label>
             </div>
             <div class="single-line" id="documenteditor_title_contentEditor" style="border: 1px solid transparent;"
-                title="Document Status." contenteditable="false">
+            title="Document Status." contenteditable="false">
                 <label style="color: white;" class="doc-edit-title"> @StatusMessage</label>
             </div>
             <div style="float: right">
@@ -58,7 +58,7 @@
             <SfSpinner @ref="spinnerObj" CssClass="custom-spinner"></SfSpinner>
 
             <SfDocumentEditorContainer @ref="_containerRef" Height="590px" RestrictEditing="@ReadOnly"
-                ShowPropertiesPane="@ShowProperties" DocumentEditorSettings="_settings">
+            ShowPropertiesPane="@ShowProperties" DocumentEditorSettings="_settings">
                 <DocumentEditorContainerEvents Created="OnCreated" DocumentChanged="OnDocumentChange" />
             </SfDocumentEditorContainer>
         </div>
@@ -118,7 +118,7 @@
             FileName = fileName
         };
 
-        var response = await Http.PostAsJsonAsync("api/FileProvider/SaveDocument", documentData);
+        var response = await Http.PostAsJsonAsync("api/FileProvider/SaveDocument", documentData);        
         spinnerObj.HideAsync();
 
         if (response.IsSuccessStatusCode)
@@ -127,8 +127,13 @@
 
             if (result)
             {
-                StatusMessage = "Document saved successfully!";
-                await SaveRecordToDatabase(fileName);
+                StatusMessage = "Document saved successfully!";                
+                if (!string.IsNullOrEmpty(PatientId)){                    
+                    await SaveRecordToDatabase(fileName);
+                }
+                else{                    
+                    NavigationManager.NavigateTo("Records");
+                }
             }
             else
             {
