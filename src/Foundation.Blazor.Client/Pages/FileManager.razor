@@ -1,32 +1,43 @@
 ﻿@page "/FileManager"
+@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Logging
 @using Syncfusion.Blazor.FileManager
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.ImageEditor
 @using Syncfusion.Blazor.Popups
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
+@inject IConfiguration Configuration
+@inject ILogger<FileManager> Logger
+@using Syncfusion.Blazor.Spinner
 
 @* <div class="posRelative"> *@
 <SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"
     SelectedItemsChanged="OnSelectedItemsChanged">
+
+    <SfSpinner @bind-Visible="ShowSpinner"></SfSpinner>
     <FileManagerAjaxSettings Url="/api/FileProvider/AmazonS3FileOperations" UploadUrl="/api/FileProvider/AmazonS3Upload"
-        GetImageUrl="/api/FileProvider/AmazonS3GetImage"
-         DownloadUrl="/api/FileProvider/AmazonS3Download">
+        GetImageUrl="/api/FileProvider/AmazonS3GetImage" DownloadUrl="/api/FileProvider/AmazonS3Download">
     </FileManagerAjaxSettings>
     <FileManagerToolbarSettings ToolbarItems="@Items">
         <FileManagerCustomToolbarItems>
+            <FileManagerCustomToolbarItem Name="AIImage">
+                <Template>
+                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="AI" OnClick="GetAISegmentedImage"
+                        Disabled="@IsAIImageBtnDisabled"></SfButton>
+                </Template>
+            </FileManagerCustomToolbarItem>
+            <FileManagerCustomToolbarItem Name="MeasurementImage">
+                <Template>
+                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Measure"
+                        OnClick="GetAIMeasurementImage" Disabled="@IsAIMeasurementBtnDisabled"></SfButton>
+                </Template>
+            </FileManagerCustomToolbarItem>
             @* ExaminationRecord *@
-            <FileManagerCustomToolbarItem Name="ExaminationRecord">
+            @* <FileManagerCustomToolbarItem Name="ExaminationRecord">
                 <Template>
                     <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Examination Record"
                         OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled"></SfButton>
-                </Template>
-            </FileManagerCustomToolbarItem>
-            @* OnFileOpen GetImageUrl Editor *@
-            @* <FileManagerCustomToolbarItem Name="OpenImageEditor">
-                <Template>
-                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Edit Image" OnClick="OpenImageEditor"
-                        Disabled="@IsOpenImageEditorBtnDisabled"></SfButton>
                 </Template>
             </FileManagerCustomToolbarItem> *@
         </FileManagerCustomToolbarItems>

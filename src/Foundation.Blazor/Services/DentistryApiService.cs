@@ -51,14 +51,23 @@ namespace Foundation.Blazor.Services
             }
         }
 
-        public async Task<SegmentationApiResponseDto> GetEnhancedImage(bool isPeriapicalImage, string base64Img)
+        public async Task<SegmentationApiResponseDto> GetSegmentedImage(bool isPeriapicalImage, string base64Img)
         {
-            var imageRequest = new SegmentationApiRequestDto { Image = base64Img };
+            try
+            {
+                _logger.LogInformation("Getting segmented image for isPeriapicalImage: {IsPeriapicalImage}", isPeriapicalImage);
+                var imageRequest = new SegmentationApiRequestDto { Image = base64Img };
 
-            var httpResponse = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrlInternal, $"dentistry-api/segmented-image?isPeriapicalImage={IsPeriapicalImage}"), new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
+                var httpResponse = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrlInternal, $"dentistry-api/segmented-image?isPeriapicalImage={IsPeriapicalImage}"), new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
 
-            httpResponse.EnsureSuccessStatusCode();
-            return await httpResponse.Content.ReadAsAsync<SegmentationApiResponseDto>();
+                httpResponse.EnsureSuccessStatusCode();
+                return await httpResponse.Content.ReadAsAsync<SegmentationApiResponseDto>();
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting the segmented image. {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<FDISegmentationResponseDto> GetFDIData(bool isPeriapicalImage, string base64Img)
@@ -69,6 +78,25 @@ namespace Foundation.Blazor.Services
 
             httpResponse.EnsureSuccessStatusCode();
             return await httpResponse.Content.ReadAsAsync<FDISegmentationResponseDto>();
+        }
+
+        public async Task<SegmentationApiResponseDto> GetMeasurementImage(bool isPeriapicalImage, string base64Img)
+        {
+            try
+            {
+                _logger.LogInformation("Getting measurement image for isPeriapicalImage: {IsPeriapicalImage}", isPeriapicalImage);
+                var imageRequest = new SegmentationApiRequestDto { Image = base64Img };
+
+                var httpResponse = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrlInternal, $"dentistry-api/measurement-image?isPeriapicalImage={IsPeriapicalImage}"), new SegmentationApiRequestDtoWrapper { IsPeriapicalImage = isPeriapicalImage, SegmentationApiRequest = imageRequest });
+
+                httpResponse.EnsureSuccessStatusCode();
+                return await httpResponse.Content.ReadAsAsync<SegmentationApiResponseDto>();
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting the measurement image. {ex.Message}");
+                throw;
+            }
         }
     }
 }

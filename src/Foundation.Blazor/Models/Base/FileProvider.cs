@@ -20,6 +20,7 @@ using System.Net.Http.Formatting;
 using Foundation.Blazor.Services;
 using System.Drawing;
 using Newtonsoft.Json;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Syncfusion.EJ2.FileManager.FileProvider
 {
@@ -968,59 +969,119 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             var orignialImageBytes = await originalImageStream.GetAllBytesAsync();
             var originalImageBase64 = Convert.ToBase64String(orignialImageBytes);
 
-            // var originalImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a." + ".png";
-            // await UploadFileToS3(originalImageStream, originalImageFileName, path);
-
             // 1. get image type pe/pano
             var isPeriapicalImage = await _imageService.IsPeriapicalImage(originalImageBase64);
             _logger.LogInformation("Image type determined: {IsPeriapicalImage}", isPeriapicalImage);
 
+            // construct the path for the original image
+            var paPanoFolder = isPeriapicalImage ? "pa/" : "pano/";
+            path = "/" + paPanoFolder;
+            if (!path.Split("/").Any(p => p == "pa" || p == "pano"))
+            {
+                // if the path already contains pa/pano, we don't need to add it again
+                path += (path.EndsWith("/") ? "" : $"/") + paPanoFolder;
+            }
+            // CreateFolderIfNotExists(path);
+
+            var originalImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a" + ("." + (file.ContentType?.Split("/")[1] ?? "png"));
+            await UploadFileToS3(originalImageStream, originalImageFileName, path);
+
             // 2.
-            // get the ai image from api
-            var enhancedImage = await _imageService.GetEnhancedImage(isPeriapicalImage, originalImageBase64);
+            // get the segmented ai image from api
+            // var enhancedImage = await _imageService.GetSegmentedImage(isPeriapicalImage, originalImageBase64);
+            // if (enhancedImage == null) return;
+
+            // var enhancedImageBytes = Convert.FromBase64String(enhancedImage.Image);
+            // using var enhancedImageStream = new MemoryStream(enhancedImageBytes);
+
+            // // 2.a get the measurement image
+            // var measurementImage = await _imageService.GetMeasurementImage(isPeriapicalImage, originalImageBase64);
+            // using var measurementImageStream = new MemoryStream(Convert.FromBase64String(measurementImage.Image));
+
+            // // 3.
+            // // generate the combined a+b image
+            // var combinedImageStream = ImageOperationsHelper.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
+
+            // var originalImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
+            // var enhancedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai_segmented." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
+            // var combinedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ab." + "png";
+            // var measurementImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai_measurement." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
+
+            // if (!isPeriapicalImage)
+            // {
+            //     // 4.
+            //     // get the fdi data from the original image
+            //     var fdiData = await _imageService.GetFDIData(isPeriapicalImage, originalImageBase64);
+            //     var fdiDataString = JsonConvert.SerializeObject(fdiData);
+
+            //     // create a dicom image from ai image and fdi data
+            //     var dicomImage = ImageOperationsHelper.ConvertToDicom(file, fdiDataString);
+            //     var dicomImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a.dcm";
+            //     using var dicomImageStream = new MemoryStream(dicomImage);
+
+            //     // upload the dicom image
+            //     await UploadFileToS3(dicomImageStream, dicomImageFileName, path);
+            //     _logger.LogInformation("Uploaded DICOM image: {DicomImageFileName}", dicomImageFileName);
+            // }
+            // else
+            // {
+            //     // upload the original image
+            //     await UploadFileToS3(originalImageStream, originalImageFileName, path);
+            //     _logger.LogInformation("Uploaded original image: {OriginalImageFileName}", originalImageFileName);
+            // }
+
+            // // upload the ai image
+            // await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
+            // _logger.LogInformation("Uploaded AI-enhanced image: {EnhancedImageFileName}", enhancedImageFileName);
+
+            // // upload the measurement image
+            // await UploadFileToS3(measurementImageStream, measurementImageFileName, path);
+            // _logger.LogInformation("Uploaded measurement image: {MeasurementImageFileName}", measurementImageFileName);
+
+            // // upload the combined image
+            // await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
+            // _logger.LogInformation("Uploaded combined image: {CombinedImageFileName}", combinedImageFileName);
+        }
+
+        public void CreateFolderIfNotExists(string path)
+        {
+            if (!string.IsNullOrEmpty(path) && !Directory.Exists(path))
+            {
+                PutObjectRequest request = new PutObjectRequest()
+                {
+                    BucketName = bucketName,
+                    Key = RootName.Replace("/", "") + path // <-- in S3 key represents a path  
+                };
+                client.PutObjectAsync(request);
+            }
+        }
+
+        public async Task GetSegmentedImage(bool isPeriapicalImage, string base64Image, string filterPath, string fileName)
+        {
+            // 2.
+            // get the segmented ai image from api
+            var enhancedImage = await _imageService.GetSegmentedImage(isPeriapicalImage, base64Image);
             if (enhancedImage == null) return;
 
             var enhancedImageBytes = Convert.FromBase64String(enhancedImage.Image);
             using var enhancedImageStream = new MemoryStream(enhancedImageBytes);
 
-            // 3.
-            // generate the combined a+b image
-            // var combinedImageStream = ImageOperationsHelper.CombineTwoImages(orignialImageBytes, enhancedImageBytes);
-
-            var originalImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
-            var enhancedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ai." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
-            var combinedImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_ab." + "png";
-
-            if (!isPeriapicalImage)
-            {
-                // 4.
-                // get the fdi data from the original image
-                var fdiData = await _imageService.GetFDIData(isPeriapicalImage, originalImageBase64);
-                var fdiDataString = JsonConvert.SerializeObject(fdiData);
-
-                // create a dicom image from ai image and fdi data
-                var dicomImage = ImageOperationsHelper.ConvertToDicom(file, fdiDataString);
-                var dicomImageFileName = Path.GetFileNameWithoutExtension(file.FileName) + "_a.dcm";
-                using var dicomImageStream = new MemoryStream(dicomImage);
-
-                // upload the dicom image
-                await UploadFileToS3(dicomImageStream, dicomImageFileName, path);
-                _logger.LogInformation("Uploaded DICOM image: {DicomImageFileName}", dicomImageFileName);
-            }
-            else
-            {
-                // upload the original image
-                await UploadFileToS3(originalImageStream, originalImageFileName, path);
-                _logger.LogInformation("Uploaded original image: {OriginalImageFileName}", originalImageFileName);
-            }
-
-            // upload the ai image
-            await UploadFileToS3(enhancedImageStream, enhancedImageFileName, path);
+            var enhancedImageFileName = Path.GetFileNameWithoutExtension(fileName) + "_ai_segmented." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
+            // // upload the ai image
+            await UploadFileToS3(enhancedImageStream, enhancedImageFileName, filterPath);
             _logger.LogInformation("Uploaded AI-enhanced image: {EnhancedImageFileName}", enhancedImageFileName);
+        }
 
-            // upload the combined image
-            // await UploadFileToS3(combinedImageStream, combinedImageFileName, path);
-            // _logger.LogInformation("Uploaded combined image: {CombinedImageFileName}", combinedImageFileName);
+        public async Task GetMeasurementImage(bool isPeriapicalImage, string base64Image, string filterPath, string fileName)
+        {
+            // // 2.a get the measurement image
+            var measurementImage = await _imageService.GetMeasurementImage(isPeriapicalImage, base64Image);
+            using var measurementImageStream = new MemoryStream(Convert.FromBase64String(measurementImage.Image));
+
+            var measurementImageFileName = Path.GetFileNameWithoutExtension(fileName) + "_ai_measurement." + measurementImage.Content_Type?.Split("/")[1] ?? ".png";
+            // // upload the measurement image
+            await UploadFileToS3(measurementImageStream, measurementImageFileName, filterPath);
+            _logger.LogInformation("Uploaded measurement image: {MeasurementImageFileName}", measurementImageFileName);
         }
 
         public async Task UploadFileToS3(Stream stream, string fileName, string path)

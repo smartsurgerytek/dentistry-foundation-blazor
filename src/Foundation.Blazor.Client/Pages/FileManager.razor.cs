@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Components;
 using System.IO;
 using System.Linq;
+using Castle.Core.Configuration;
 
 namespace Foundation.Blazor.Client.Pages;
 
@@ -21,11 +22,17 @@ public partial class FileManager
     public bool IsImageEditorVisible { get; set; } = false;
     public bool IsOpenImageEditorBtnDisabled { get; set; } = true;
     public bool IsExaminationRecordDisabled { get; set; } = false;
+    public bool IsAIImageBtnDisabled { get; set; } = true;
+    public bool IsAIMeasurementBtnDisabled { get; set; } = true;
     public SfFileManager<FileManagerDirectoryContent>? SfFileManager;
     public SfImageEditor? ImageEditor;
+    public string ApiUrlInternal { get; set; }
+    public bool ShowSpinner;
 
-    [Inject]
-    public HttpClient httpClient { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        ApiUrlInternal = Configuration["ApiUrlInternal"];
+    }
 
     public List<ToolBarItemModel> Items = new List<ToolBarItemModel>(){
         new ToolBarItemModel() { Name = "NewFolder" },
@@ -38,8 +45,10 @@ public partial class FileManager
         new ToolBarItemModel() { Name = "Rename" },
         new ToolBarItemModel() { Name = "SortBy" },
         new ToolBarItemModel() { Name = "Refresh" },
-        new ToolBarItemModel() { Name = "ExaminationRecord" , TooltipText ="Click to generate an examination record" },
+        // new ToolBarItemModel() { Name = "ExaminationRecord" , TooltipText ="Click to generate an examination record" },
         new ToolBarItemModel() { Name = "OpenImageEditor" , TooltipText ="Click to edit the selected image" },
+        new ToolBarItemModel() { Name = "AIImage" , TooltipText ="Click to get the segmented image" },
+        new ToolBarItemModel() { Name = "MeasurementImage" , TooltipText ="Click to get the measurement image" },
         new ToolBarItemModel() { Name = "Selection" },
         new ToolBarItemModel() { Name = "View" },
         new ToolBarItemModel() { Name = "Details" },
@@ -83,20 +92,18 @@ public partial class FileManager
 
     public async Task GenerateRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
     {
-        Console.WriteLine("Generate Record");
         var selectedItems = this.SfFileManager?.GetSelectedFiles();
-        Console.WriteLine(selectedItems?.Count ?? 0);
         var selectedFileNames = selectedItems?.Select(i => i.FilterPath + i.Name).ToArray();
         var selectedFileNamesString = string.Join(",", selectedFileNames ?? Array.Empty<string>());
-        Console.WriteLine(selectedFileNamesString);
 
         NavigationManager.NavigateTo($"/ExaminationRecord?imageNames={selectedFileNamesString}");
     }
 
     public void OnSelectedItemsChanged(string[] args)
     {
-        IsExaminationRecordDisabled = false;
-        IsOpenImageEditorBtnDisabled = false;
+        IsExaminationRecordDisabled = true;
+        IsAIImageBtnDisabled = true;
+        IsAIMeasurementBtnDisabled = true;
 
         // check if any of the selected items is a folder or
         // check if any of the selected files is a non-image
@@ -104,24 +111,76 @@ public partial class FileManager
         var selectedItem = this.SfFileManager?.GetSelectedFiles();
         if (selectedItem?.Any(i => !i.IsFile && !imageExtensions.Contains(i.Type?.ToLower())) ?? true)
         {
-            IsExaminationRecordDisabled = true;
-            IsOpenImageEditorBtnDisabled = true;
             return;
         }
 
         // get total selections: if 0 disable the buttons
         // if 1 enable the image editor button
         var totalSelections = args.Length;
-        if (totalSelections == 0)
+        switch (totalSelections)
         {
-            IsExaminationRecordDisabled = true;
-            IsOpenImageEditorBtnDisabled = true;
-            return;
+            case 0:
+                return;
+            case 1:
+                IsExaminationRecordDisabled = false;
+                IsAIImageBtnDisabled = false;
+                IsAIMeasurementBtnDisabled = false;
+                return;
+            default: // > 1
+                IsExaminationRecordDisabled = false;
+                return;
         }
-        else if (totalSelections > 1)
+    }
+
+    public async Task GetAISegmentedImage(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    {
+        try
         {
-            IsOpenImageEditorBtnDisabled = true;
-            return;
+            ShowSpinner = true;
+            var selectedItem = this.SfFileManager?.GetSelectedFiles()[0];
+            if (selectedItem == null || !selectedItem.IsFile)
+            {
+                return;
+            }
+
+            await HttpClient.GetAsync($"/api/FileProvider/GetSegmentedImage?filterPath={selectedItem.FilterPath}&fileName={selectedItem.Name}");
+            ShowSpinner = false;
+            SfFileManager?.RefreshFilesAsync();
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine($"An error occurred while getting the AI segmented image.{ex.Message}");
+            throw;
+        }
+        finally
+        {
+            ShowSpinner = false;
+        }
+    }
+
+    public async Task GetAIMeasurementImage(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    {
+        try
+        {
+            ShowSpinner = true;
+            var selectedItem = this.SfFileManager?.GetSelectedFiles()[0];
+            if (selectedItem == null || !selectedItem.IsFile)
+            {
+                return;
+            }
+
+            await HttpClient.GetAsync($"/api/FileProvider/GetMeasurementImage?filterPath={selectedItem.FilterPath}&fileName={selectedItem.Name}");
+            ShowSpinner = false;
+            SfFileManager?.RefreshFilesAsync();
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine($"An error occurred while getting the AI measurement image.{ex.Message}");
+            throw;
+        }
+        finally
+        {
+            ShowSpinner = false;
         }
     }
 }
