@@ -13,6 +13,11 @@ using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
+using Amazon;
+using Amazon.S3.Model;
+using Amazon.S3;
+using System.IO;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Foundation.Services
 {
@@ -23,15 +28,24 @@ namespace Foundation.Services
         private readonly IRepository<Patient, Guid> _patientRepository;
         private readonly IRepository<Doctor, Guid> _doctorRepository;
         private readonly IRepository<AuditLog, Guid> _auditLogRepository;
+        private readonly IRepository<Department, Guid> _departmentRepository;
+        private readonly IRepository<Organization, Guid> _organizationRepository;        
+        private string accessKey = "AKIAZI2LGNNVDTFYF57P";
+        private string secretKey = "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";
 
         public PatientAppService(
             IRepository<Patient, Guid> patientRepository,
             IRepository<Doctor, Guid> doctorRepository,
-            IRepository<AuditLog, Guid> auditLogRepository)
+            IRepository<AuditLog, Guid> auditLogRepository,
+            IRepository<Department, Guid> departmentRepository,
+        IRepository<Organization, Guid> organizationRepository
+            )
         {
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
             _auditLogRepository = auditLogRepository;
+            _departmentRepository = departmentRepository;
+            _organizationRepository = organizationRepository;            
         }
 
         public async Task<List<PatientDto>> GetPatientsAsync()
@@ -58,11 +72,37 @@ namespace Foundation.Services
 
         public async Task CreatePatientAsync(CreateUpdatePatientDto input)
         {
+
             var patient = ObjectMapper.Map<CreateUpdatePatientDto, Patient>(input);
-            await _patientRepository.InsertAsync(patient);
+            var patientData = await _patientRepository.InsertAsync(patient);
+
+            var doctor = await _doctorRepository.GetAsync(patientData.DoctorId);
+            var department = await _departmentRepository.GetAsync(doctor.DepartmentId);
+            var organization = await _organizationRepository.GetAsync(department.OrganizationId);
+
+            string fName = "foundation";
+            //string org = organization.Name.Replace(" ", "_");
+            //string dept = department.Name.Replace(" ", "_");
+            //string doc = doctor.Name.Replace(" ","_");
+            string patientFolder = $"{patientData.Name.Replace(" ", "_")}_{patientData.Id}";
+
+            var fullPath = $"{fName}/{"Patient"}/{patientFolder}/";
+            var bucketName = "smartsurgerytek.foundation";
+
+            using var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.USWest2);
+
+            var putRequest = new PutObjectRequest
+            {
+                BucketName = bucketName,
+                Key = fullPath,
+                ContentBody = "This is a placeholder file to make the folder visible in S3 console."
+            };
+
+            await s3Client.PutObjectAsync(putRequest);
 
             await LogAudit("CreatePatient", input);
         }
+
 
         public async Task UpdatePatientAsync(Guid patientId, CreateUpdatePatientDto input)
         {

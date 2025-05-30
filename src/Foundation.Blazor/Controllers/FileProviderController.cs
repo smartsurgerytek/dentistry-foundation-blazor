@@ -210,27 +210,60 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
             await this.operation.UploadFileToS3(stream, replaceDto.FileName, replaceDto.FilePath);
         }
 
-        //save the document
-        // [HttpPost("SaveDocument")]
-        // public async Task<IActionResult> SaveDocument([FromBody] SaveDocumentRequest request)
-        // {
-        //    bool uploadSuccess = false;
-        //    try
-        //    {
-        //        byte[] documentBytes = Convert.FromBase64String(request.Content);
-        //        using (var memoryStream = new MemoryStream(documentBytes))
-        //        {
-        //            string filepath = "foundation/documents/" + request.FileName;
-        //            uploadSuccess = await operation.UploadAsync(filepath, memoryStream);
-        //        }
-        //        return Ok(uploadSuccess);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Error in SaveDocument: {ex.Message}");
-        //        return StatusCode(500, new { message = "Error saving the document", error = ex.Message });
-        //    }
-        // }
+        // accepts the image path and
+        // 1. gets the image bytes
+        // 2. checks if the image is periapical
+        // 3. calls the segmentation API and uploads the segmented image to the bucket
+        [HttpGet("GetSegmentedImage")]
+        public async Task GetSegmentedImage(string filterPath, string fileName)
+        {
+            try
+            {
+                var originalImageStream = this.operation.GetImage(Path.Combine(filterPath, fileName), null, false, null, null); ;
+                var originalImageBytes = await originalImageStream.FileStream.GetAllBytesAsync();
+                var originalImageBase64 = Convert.ToBase64String(originalImageBytes);
+
+                // check if the image is periapical
+                var checkPath = filterPath.TrimEnd('/');
+                var isPeriapicalImage = checkPath.Split("/").Last() == "pa";
+
+                _logger.LogInformation("Processing segmented image for isPeriapicalImage: {IsPeriapicalImage}", isPeriapicalImage);
+
+                await this.operation.GetSegmentedImage(isPeriapicalImage, originalImageBase64, filterPath, fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error processing segmented image: {ex.Message}");
+                throw;
+            }
+        }
+        // accepts the image path and
+        // 1. gets the image bytes
+        // 2. checks if the image is periapical
+        // 3. calls the measurement API and uploads the measurement image to the bucket
+        [HttpGet("GetMeasurementImage")]
+        public async Task GetMeasurementImage(string filterPath, string fileName)
+        {
+            try
+            {
+                var originalImageStream = this.operation.GetImage(Path.Combine(filterPath, fileName), null, false, null, null);
+                var originalImageBytes = await originalImageStream.FileStream.GetAllBytesAsync();
+                var originalImageBase64 = Convert.ToBase64String(originalImageBytes);
+
+                // check if the image is periapical
+                var checkPath = filterPath.TrimEnd('/');
+                var isPeriapicalImage = checkPath.Split("/").Last() == "pa";
+
+                _logger.LogInformation("Processing measurement image for isPeriapicalImage: {IsPeriapicalImage}", isPeriapicalImage);
+
+                await this.operation.GetMeasurementImage(isPeriapicalImage, originalImageBase64, filterPath, fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error processing measurement image: {ex.Message}");
+                throw;
+            }
+        }
 
         [HttpPost("SaveDocument")]
         public async Task<IActionResult> SaveDocument([FromBody] SaveDocumentRequest request)
@@ -265,8 +298,6 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                 return StatusCode(500, new { message = "Error saving the document", error = ex.Message });
             }
         }
-
-
 
         public class SaveDocumentRequest
         {

@@ -2,6 +2,7 @@
 @inject NavigationManager NavigationManager
 @using Syncfusion.Blazor.SfPdfViewer
 @using Microsoft.AspNetCore.Components
+@inject IHttpClientFactory HttpClientFactory
 
 <h1>PDF Viewer</h1>
 
@@ -12,10 +13,6 @@
         </SfPdfViewer2>
     </div>
 }
-else
-{
-    <p>Loading PDF or invalid file name...</p>
-}
 
 @code {
     [Parameter]
@@ -25,10 +22,10 @@ else
     public string decodedFileUrl;
 
     protected override async Task OnParametersSetAsync()
-    {
+    {        
         if (!string.IsNullOrWhiteSpace(fileName))
-        {
-            decodedFileUrl = $"http://smartsurgerytek.foundation.s3.amazonaws.com/foundation/documents/{fileName}";
+        {            
+            decodedFileUrl = HttpClientFactory.CreateClient("ApiClient").BaseAddress + $"api/app/examination/downloadpdf?fileName={fileName}";            
         }
         else
         {

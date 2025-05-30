@@ -1,23 +1,23 @@
 ﻿@page "/Doctor"
 
-
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
+@inherits FoundationComponentBase
 
-<h3>Doctors</h3>
+<h3>@L["Doctors"]</h3>
 
-<SfGrid DataSource="@Doctors" @ref="DoctorGrid" AllowPaging="true" AllowSorting="true" Toolbar=@ToolbarItems>
+<SfGrid DataSource="@Doctors" @ref="DoctorGrid" AllowPaging="true" AllowSorting="true" Toolbar="@ToolbarItems">
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="DoctorDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
-        <GridColumn Field="Name" HeaderText="Doctor" Width="200"></GridColumn>
-        <GridColumn Field="Specialty" HeaderText="Specialty" Width="200"></GridColumn>
-        <GridColumn HeaderText="Manage Patient" Width="120">
+        <GridColumn Field="Name" HeaderText="@L["Doctor"]" Width="200"></GridColumn>
+        <GridColumn Field="Specialty" HeaderText="@L["Specialty"]" Width="200"></GridColumn>
+        <GridColumn HeaderText="@L["ManagePatient"]" Width="120">
             <Template>
                 @{
-                    var Patient = (context as DoctorDto);                    
+                    var Patient = (context as DoctorDto);
                 }
-                <button class="e-btn" @onclick="@(() => NavigatePatient(Patient))">Patient</button>
+                <button class="e-btn" @onclick="@(() => NavigatePatient(Patient))">@L["Patient"]</button>
             </Template>
         </GridColumn>
     </GridColumns>
@@ -28,26 +28,25 @@
         <Content>
             <EditForm Model="@CurrentDoctor" OnValidSubmit="SaveDoctor" @ref="DoctorForm">
                 <DataAnnotationsValidator />
-                
 
                 <div class="mb-3">
                     <label class="form-label">
-                        Doctor <span style="color: red">*</span>
+                        @L["Doctor"] <span style="color: red">*</span>
                     </label>
                     <SfTextBox TValue="string" Value="@CurrentDoctor.Name"
                                ValueChanged="@((string value) => CurrentDoctor.Name = value)"
-                               Placeholder="Enter Doctor Name" FloatLabelType="FloatLabelType.Auto">
+                               Placeholder="@L["EnterDoctorName"]" FloatLabelType="FloatLabelType.Auto">
                     </SfTextBox>
                     <ValidationMessage style="color: red" For="@(() => CurrentDoctor.Name)" />
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">
-                        Specilty <span style="color: red">*</span>
+                        @L["Specialty"] <span style="color: red">*</span>
                     </label>
                     <SfTextBox TValue="string" Value="@CurrentDoctor.Specialty"
                                ValueChanged="@((string value) => CurrentDoctor.Specialty = value)"
-                               Placeholder="Enter Specialty" FloatLabelType="FloatLabelType.Auto">
+                               Placeholder="@L["EnterSpecialty"]" FloatLabelType="FloatLabelType.Auto">
                     </SfTextBox>
                     <ValidationMessage style="color: red" For="@(() => CurrentDoctor.Specialty)" />
                 </div>
@@ -55,8 +54,8 @@
         </Content>
     </DialogTemplates>
     <DialogButtons>
-        <DialogButton Content="Save" IsPrimary="true" OnClick="SubmitForm"></DialogButton>
-        <DialogButton Content="Cancel" OnClick="CloseDialog"></DialogButton>
+        <DialogButton Content="@L["Save"]" IsPrimary="true" OnClick="SubmitForm"></DialogButton>
+        <DialogButton Content="@L["Cancel"]" OnClick="CloseDialog"></DialogButton>
     </DialogButtons>
 </SfDialog>
 
@@ -81,9 +80,10 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadDoctors();
-        ToolbarItems.Add(new ItemModel() { Text = "Add", TooltipText = "Add", PrefixIcon = "e-add" });
-        ToolbarItems.Add(new ItemModel() { Text = "Edit", TooltipText = "Edit", PrefixIcon = "e-edit" });
-        ToolbarItems.Add(new ItemModel() { Text = "Delete", TooltipText = "Delete", PrefixIcon = "e-delete" });
+        ToolbarItems.Add(new ItemModel() { TabIndex = 0, Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" });
+        ToolbarItems.Add(new ItemModel() { TabIndex = 1, Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" });
+        ToolbarItems.Add(new ItemModel() { TabIndex = 2, Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" });
+        ToolbarItems.Add(new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" });
     }
 
     private async Task LoadDoctors()
@@ -100,32 +100,32 @@
     {
         var selectedRow = await DoctorGrid.GetSelectedRecordsAsync();
 
-        if (args.Item.Text == "Add")
+        if (args.Item.TabIndex == 0)
         {
             IsNew = true;
-            DialogTitle = "Add Doctor";
+            DialogTitle = L["AddDoctor"];
             CurrentDoctor = new CreateUpdateDoctorDto { DepartmentId = Guid.Parse(DepartmentId) };
             await Dialog.ShowAsync();
         }
-        else if (args.Item.Text == "Edit" && selectedRow.Any())
+        else if (args.Item.TabIndex == 1 && selectedRow.Any())
         {
             IsNew = false;
-            DialogTitle = "Edit Doctor";
+            DialogTitle = L["EditDoctor"];
             var selected = selectedRow.First();
             CurrentDoctor = new CreateUpdateDoctorDto
-            {
-                Id = selected.Id,
-                Name = selected.Name,
-                Specialty = selected.Specialty,
-                DepartmentId = selected.DepartmentId
-            };
+                {
+                    Id = selected.Id,
+                    Name = selected.Name,
+                    Specialty = selected.Specialty,
+                    DepartmentId = selected.DepartmentId
+                };
             await Dialog.ShowAsync();
         }
-        else if (args.Item.Text == "Delete" && selectedRow.Any())
+        else if (args.Item.TabIndex == 2 && selectedRow.Any())
         {
             await DeleteDoctor(selectedRow.First().Id);
         }
-        else if (args.Item.Text == "Refresh")
+        else if (args.Item.TabIndex == 3)
         {
             await LoadDoctors();
         }

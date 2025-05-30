@@ -18,8 +18,11 @@ namespace Foundation.Dtos
         [Required(ErrorMessage = "Date of Birth is required.")]
         public DateOnly DateOfBirth { get; set; }
 
-        [Required(ErrorMessage = "Gender is required.")]
-        public string Gender { get; set; }
+        [Required(ErrorMessage = "Patient Number is required.")]
+        public string PatientNumber { get; set; }
+
+        //[Required(ErrorMessage = "Gender is required.")]
+        //public string Gender { get; set; }
 
         [Required]
         public Guid DoctorId { get; set; }

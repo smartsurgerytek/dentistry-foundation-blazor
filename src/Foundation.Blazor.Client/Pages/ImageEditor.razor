@@ -4,7 +4,10 @@
 @using Syncfusion.Blazor.Spinner
 
 <SfSpinner @bind-Visible="ShowSpinner"></SfSpinner>
-<SfButton style="margin: auto" OnClick="SaveAsync">Save To Storage</SfButton>
+<div class="btn-div">
+    <SfButton OnClick="BackToFileManager">Back To File Manager</SfButton>
+    <SfButton OnClick="SaveAsync">Save To Storage</SfButton>
+</div>
 
 <div class="flex-parent">
     <div style="width: 50px"></div>
@@ -14,6 +17,12 @@
 </div>
 
 <style>
+    .btn-div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 3px;
+    }
+
     .flex-parent {
         display: flex;
         flex-direction: row;
@@ -21,6 +30,7 @@
         align-items: center;
         position: relative;
     }
+
     .e-image-editor {
         position: static !important;
     }

@@ -14,9 +14,11 @@ namespace Foundation.Entities
 {
     public class Patient : AuditedAggregateRoot<Guid>
     {
+        
+        public string PatientNumber { get; set; }
         public string Name { get; set; }
         public DateOnly DateOfBirth { get; set; }
-        public string Gender { get; set; }
+        //public string Gender { get; set; }
 
         public Guid DoctorId { get; set; }
         public Doctor Doctor { get; set; }

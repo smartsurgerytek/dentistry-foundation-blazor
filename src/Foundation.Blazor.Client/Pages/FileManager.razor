@@ -1,39 +1,51 @@
 ﻿@page "/FileManager"
+@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Logging
 @using Syncfusion.Blazor.FileManager
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.ImageEditor
 @using Syncfusion.Blazor.Popups
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
+@inject IConfiguration Configuration
+@inject ILogger<FileManager> Logger
+@using Syncfusion.Blazor.Spinner
 
-@* <div class="posRelative"> *@
+
 <SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"
     SelectedItemsChanged="OnSelectedItemsChanged">
+
+    <SfSpinner @bind-Visible="ShowSpinner"></SfSpinner>
     <FileManagerAjaxSettings Url="/api/FileProvider/AmazonS3FileOperations" UploadUrl="/api/FileProvider/AmazonS3Upload"
-        GetImageUrl="/api/FileProvider/AmazonS3GetImage"
-         DownloadUrl="/api/FileProvider/AmazonS3Download">
+        GetImageUrl="/api/FileProvider/AmazonS3GetImage" DownloadUrl="/api/FileProvider/AmazonS3Download">
     </FileManagerAjaxSettings>
     <FileManagerToolbarSettings ToolbarItems="@Items">
         <FileManagerCustomToolbarItems>
-            @* ExaminationRecord *@
             <FileManagerCustomToolbarItem Name="ExaminationRecord">
                 <Template>
-                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Examination Record"
-                        OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled"></SfButton>
+                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt examination-record" Content="Examination Record"
+                        OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled">
+                    </SfButton>
                 </Template>
             </FileManagerCustomToolbarItem>
-            @* OnFileOpen GetImageUrl Editor *@
-            @* <FileManagerCustomToolbarItem Name="OpenImageEditor">
+            <FileManagerCustomToolbarItem Name="AIImage">
                 <Template>
-                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Edit Image" OnClick="OpenImageEditor"
-                        Disabled="@IsOpenImageEditorBtnDisabled"></SfButton>
+                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt ai-icon" Content="AI"
+                        OnClick="GetAISegmentedImage" Disabled="@IsAIImageBtnDisabled">
+                    </SfButton>
                 </Template>
-            </FileManagerCustomToolbarItem> *@
+            </FileManagerCustomToolbarItem>
+            <FileManagerCustomToolbarItem Name="MeasurementImage">
+                <Template>
+                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt measure-icon" Content="Measure"
+                        OnClick="GetAIMeasurementImage" Disabled="@IsAIMeasurementBtnDisabled">
+                    </SfButton>
+                </Template>
+            </FileManagerCustomToolbarItem>
         </FileManagerCustomToolbarItems>
     </FileManagerToolbarSettings>
     <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
     <FileManagerEvents TValue="FileManagerDirectoryContent" BeforePopupOpen="SuppressImagePreview"></FileManagerEvents>
-    @* <FileManagerContextMenuSettings File="@ContextMenuItems"></FileManagerContextMenuSettings> *@
 </SfFileManager>
 @* <div class="posAbsolute"> *@
 @* </div> *@
@@ -71,5 +83,58 @@
 
     div.e-large-icons span.e-list-text {
         width: 160px !important;
+    }
+
+    .examination-record:hover {
+        color: white !important;
+    }
+    .ai-icon:hover {
+        color: white !important;
+    }
+    .measure-icon:hover {
+        color: white !important;
+    }
+
+    .examination-record {
+        font-size: 14px !important;
+        font-weight: normal !important;
+    }
+
+    .examination-record:disabled {
+        background-color: #e0e0e0 !important;
+        color: #9e9e9e !important;
+        cursor: not-allowed !important;
+    }
+
+    .ai-icon:disabled {
+        background-color: #e0e0e0 !important;
+        color: #9e9e9e !important;
+        cursor: not-allowed !important;
+    }
+
+    .measure-icon:disabled {
+        background-color: #e0e0e0 !important;
+        color: #9e9e9e !important;
+        cursor: not-allowed !important;
+    }
+
+    .ai-icon {
+        font-size: 14px !important;
+        font-weight: normal  !important;
+    }
+
+    .measure-icon {
+        font-size: 14px !important;
+        font-weight: normal  !important;
+    }
+
+    .ai-icon::before {
+        content: "✨ ";
+        padding-right: 3px;
+    }
+
+    .measure-icon::before {
+        content: "📏 ";
+        padding-right: 3px;
     }
 </style>

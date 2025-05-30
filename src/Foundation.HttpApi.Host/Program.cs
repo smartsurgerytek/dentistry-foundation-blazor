@@ -19,7 +19,7 @@ public class Program
             .CreateBootstrapLogger();
 
         try
-        {
+        {            
             Log.Information("Starting Foundation.HttpApi.Host.");
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddScoped<IOrganizationAppService, OrganizationAppService>();

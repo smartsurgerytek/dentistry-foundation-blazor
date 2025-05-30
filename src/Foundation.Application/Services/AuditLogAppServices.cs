@@ -19,11 +19,17 @@ namespace Foundation.Services
         {
             _auditLogRepository = auditLogRepository;
         }
+        
         public async Task<List<AuditLogDto>> GetAuditLogAsync()
         {
             var auditLogs = await _auditLogRepository.GetListAsync();
-            return ObjectMapper.Map<List<AuditLog>, List<AuditLogDto>>(auditLogs);                     
+            return ObjectMapper.Map<List<AuditLog>, List<AuditLogDto>>(auditLogs);
         }
 
+        public async Task InsertAuditLogAsync(AuditLog auditLog)
+        {
+            await _auditLogRepository.InsertAsync(auditLog);
+            await CurrentUnitOfWork.SaveChangesAsync();
+        }
     }
 }

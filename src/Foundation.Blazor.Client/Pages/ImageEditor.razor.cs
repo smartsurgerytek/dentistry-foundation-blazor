@@ -7,6 +7,7 @@ using Foundation.Dtos;
 using Microsoft.AspNetCore.Components;
 using Syncfusion.Blazor.ImageEditor;
 using Syncfusion.Blazor.Spinner;
+using Volo.Abp.Account;
 
 namespace Foundation.Blazor.Client.Pages;
 
@@ -41,13 +42,18 @@ public partial class ImageEditor
         this.IsImageEditorVisible = true;
         // load the selected image in the image editor
         // convert the selected file to a base64 string
-        var imageStream = await this.httpClient.GetStreamAsync($"https://localhost:44355/api/FileProvider/AmazonS3GetImage?Path={Path}");
+        var imageStream = await this.httpClient.GetStreamAsync($"/api/FileProvider/AmazonS3GetImage?Path={Path}");
         var imageBytes = await imageStream.GetAllBytesAsync();
         var imageBase64 = Convert.ToBase64String(imageBytes);
-        Console.WriteLine(imageBase64);
         string dataUrl = $"data:image/png;base64,{imageBase64}";
         await SfImageEditor?.OpenAsync(dataUrl);
         this.ShowSpinner = false;
+    }
+    
+    public void BackToFileManager()
+    {
+        this.IsImageEditorVisible = false;
+        NavigationManager.NavigateTo("/FileManager");
     }
 
     public async void SaveAsync()
@@ -75,11 +81,11 @@ public partial class ImageEditor
             FilePath = filterPath,
             FileStream = imageDataUrl
         };
-        await httpClient.PostAsJsonAsync("https://localhost:44355/api/FileProvider/UploadImageAsStream", uploadStreamDto);
+        await httpClient.PostAsJsonAsync("/api/FileProvider/UploadImageAsStream", uploadStreamDto);
 
         // close the image editor
         this.IsImageEditorVisible = false;
-        
+
         this.ShowSpinner = false;
         NavigationManager.NavigateTo("/FileManager");
     }
