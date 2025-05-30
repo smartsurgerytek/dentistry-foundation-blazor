@@ -23,28 +23,22 @@
         <FileManagerCustomToolbarItems>
             <FileManagerCustomToolbarItem Name="AIImage">
                 <Template>
-                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="AI" OnClick="GetAISegmentedImage"
-                        Disabled="@IsAIImageBtnDisabled"></SfButton>
+                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt ai-icon" Content="AI"
+                        OnClick="GetAISegmentedImage" Disabled="@IsAIImageBtnDisabled">
+                    </SfButton>
                 </Template>
             </FileManagerCustomToolbarItem>
             <FileManagerCustomToolbarItem Name="MeasurementImage">
                 <Template>
-                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Measure"
-                        OnClick="GetAIMeasurementImage" Disabled="@IsAIMeasurementBtnDisabled"></SfButton>
+                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt measure-icon" Content="Measure"
+                        OnClick="GetAIMeasurementImage" Disabled="@IsAIMeasurementBtnDisabled">
+                    </SfButton>
                 </Template>
             </FileManagerCustomToolbarItem>
-            @* ExaminationRecord *@
-            @* <FileManagerCustomToolbarItem Name="ExaminationRecord">
-                <Template>
-                    <SfButton CssClass="e-tbar-btn-text e-tbar-ddb-text " Content="Examination Record"
-                        OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled"></SfButton>
-
-                </Template>
-            </FileManagerCustomToolbarItem> *@
         </FileManagerCustomToolbarItems>
     </FileManagerToolbarSettings>
     <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
-    <FileManagerEvents TValue="FileManagerDirectoryContent" BeforePopupOpen="SuppressImagePreview"></FileManagerEvents>    
+    <FileManagerEvents TValue="FileManagerDirectoryContent" BeforePopupOpen="SuppressImagePreview"></FileManagerEvents>
 </SfFileManager>
 @* <div class="posAbsolute"> *@
 @* </div> *@
@@ -82,5 +76,37 @@
 
     div.e-large-icons span.e-list-text {
         width: 160px !important;
+    }
+
+    .ai-icon:disabled {
+        background-color: #e0e0e0 !important;
+        color: #9e9e9e !important;
+        cursor: not-allowed !important;
+    }
+
+    .measure-icon:disabled {
+        background-color: #e0e0e0 !important;
+        color: #9e9e9e !important;
+        cursor: not-allowed !important;
+    }
+
+    .ai-icon {
+        font-size: 14px !important;
+        font-weight: normal  !important;
+    }
+
+    .measure-icon {
+        font-size: 14px !important;
+        font-weight: normal  !important;
+    }
+
+    .ai-icon::before {
+        content: "✨ ";
+        padding-right: 3px;
+    }
+
+    .measure-icon::before {
+        content: "📏 ";
+        padding-right: 3px;
     }
 </style>

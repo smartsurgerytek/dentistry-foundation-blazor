@@ -18,9 +18,9 @@ public class Program
         builder.Services.AddSyncfusionBlazor();
         builder.Services.AddBlazoredSessionStorage();
 
-        var tempHttp = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
-        var configStream = await tempHttp.GetStreamAsync("appsettings.json");
-        builder.Configuration.AddJsonStream(configStream);
+        // var tempHttp = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
+        // var configStream = await tempHttp.GetStreamAsync("appsettings.json");
+        // builder.Configuration.AddJsonStream(configStream);
 
         var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
         if (string.IsNullOrWhiteSpace(apiBaseUrl))

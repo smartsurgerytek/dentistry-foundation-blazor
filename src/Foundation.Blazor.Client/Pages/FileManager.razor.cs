@@ -46,7 +46,7 @@ public partial class FileManager
         new ToolBarItemModel() { Name = "SortBy" },
         new ToolBarItemModel() { Name = "Refresh" },
         // new ToolBarItemModel() { Name = "ExaminationRecord" , TooltipText ="Click to generate an examination record" },
-        new ToolBarItemModel() { Name = "OpenImageEditor" , TooltipText ="Click to edit the selected image" },
+        // new ToolBarItemModel() { Name = "OpenImageEditor" , TooltipText ="Click to edit the selected image" },
         new ToolBarItemModel() { Name = "AIImage" , TooltipText ="Click to get the segmented image" },
         new ToolBarItemModel() { Name = "MeasurementImage" , TooltipText ="Click to get the measurement image" },
         new ToolBarItemModel() { Name = "Selection" },
