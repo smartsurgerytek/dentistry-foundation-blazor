@@ -1076,7 +1076,9 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         {
             // // 2.a get the measurement image
             var measurementImage = await _imageService.GetMeasurementImage(isPeriapicalImage, base64Image);
-            using var measurementImageStream = new MemoryStream(Convert.FromBase64String(measurementImage.Image));
+
+            var measurementImageBytes = Convert.FromBase64String(measurementImage.Image);
+            using var measurementImageStream = new MemoryStream(measurementImageBytes);
 
             var measurementImageFileName = Path.GetFileNameWithoutExtension(fileName) + "_ai_measurement." + measurementImage.Content_Type?.Split("/")[1] ?? ".png";
             // // upload the measurement image

@@ -246,7 +246,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         {
             try
             {
-                var originalImageStream = this.operation.GetImage(Path.Combine(filterPath, fileName), null, false, null, null); ;
+                var originalImageStream = this.operation.GetImage(Path.Combine(filterPath, fileName), null, false, null, null);
                 var originalImageBytes = await originalImageStream.FileStream.GetAllBytesAsync();
                 var originalImageBase64 = Convert.ToBase64String(originalImageBytes);
 

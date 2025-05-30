@@ -145,7 +145,7 @@ namespace Foundation.Services
                 });
                 _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ApiKey);
 
-                var apiEndpoint = imageRequest.IsPeriapicalImage ? "pa_measure_image" : "pano_fdi_measure_image";
+                var apiEndpoint = imageRequest.IsPeriapicalImage ? "pa_measure_image" : "pano_measure_image";
                 var response = await _httpClient.PostAsJsonAsync(Path.Combine(ApiUrl, $"{apiEndpoint}?apikey={ApiKey}"), imageRequest.SegmentationApiRequest);
 
                 return JsonConvert.DeserializeObject<SegmentationApiResponseDto>(await response.Content.ReadAsStringAsync());
