@@ -45,7 +45,7 @@ public partial class FileManager
         new ToolBarItemModel() { Name = "Rename" },
         new ToolBarItemModel() { Name = "SortBy" },
         new ToolBarItemModel() { Name = "Refresh" },
-        // new ToolBarItemModel() { Name = "ExaminationRecord" , TooltipText ="Click to generate an examination record" },
+        new ToolBarItemModel() { Name = "ExaminationRecord" , TooltipText ="Click to generate an examination record" },
         // new ToolBarItemModel() { Name = "OpenImageEditor" , TooltipText ="Click to edit the selected image" },
         new ToolBarItemModel() { Name = "AIImage" , TooltipText ="Click to get the segmented image" },
         new ToolBarItemModel() { Name = "MeasurementImage" , TooltipText ="Click to get the measurement image" },
@@ -98,7 +98,8 @@ public partial class FileManager
         string patientId = string.Empty;
         var firstFilterPath = selectedItems[0].FilterPath; 
         var folderName = firstFilterPath.TrimEnd('/').Split('/').LastOrDefault();
-        patientId = folderName?.Split('_').LastOrDefault()?.Trim();
+
+        patientId = "1";
         NavigationManager.NavigateTo($"/ExaminationRecord?imageNames={selectedFileNamesString}&patientId={patientId}");
     }
 
@@ -123,15 +124,22 @@ public partial class FileManager
         switch (totalSelections)
         {
             case 0:
-                return;
+                break;
             case 1:
                 IsExaminationRecordDisabled = false;
                 IsAIImageBtnDisabled = false;
                 IsAIMeasurementBtnDisabled = false;
-                return;
+                break;
             default: // > 1
                 IsExaminationRecordDisabled = false;
-                return;
+                break;
+        }
+
+        // new change, disable measurement btn for pano image
+        var filterPath = selectedItem?[0].FilterPath;
+        if (totalSelections == 1 && selectedItem != null && filterPath.Contains("pano", StringComparison.OrdinalIgnoreCase))
+        {
+            IsAIMeasurementBtnDisabled = true;
         }
     }
 

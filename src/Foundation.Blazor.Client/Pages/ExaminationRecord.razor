@@ -23,19 +23,23 @@
 <SfSpinner @ref="spinnerObj" CssClass="custom-spinner"></SfSpinner>
 <div class="jaw-selection mb-3">
     <label>
-        <input type="radio" name="jaw" value="Upper left" @onchange="@(() => SelectedJaw = "Upper left")" checked="@IsUpperLeftSelected" />
+        <input type="radio" name="jaw" value="Upper left" @onchange="@(() => SelectedJaw = "Upper left")"
+            checked="@IsUpperLeftSelected" />
         @L["Upperleft"]
     </label>
     <label>
-        <input type="radio" name="jaw" value="Upper right" @onchange="@(() => SelectedJaw = "Upper right")" checked="@IsUpperRightSelected" />
+        <input type="radio" name="jaw" value="Upper right" @onchange="@(() => SelectedJaw = "Upper right")"
+            checked="@IsUpperRightSelected" />
         @L["Upperright"]
     </label>
     <label>
-        <input type="radio" name="jaw" value="Lower left" @onchange="@(() => SelectedJaw = "Lower left")" checked="@IsLowerLeftSelected" />
+        <input type="radio" name="jaw" value="Lower left" @onchange="@(() => SelectedJaw = "Lower left")"
+            checked="@IsLowerLeftSelected" />
         @L["Lowerleft"]
     </label>
     <label>
-        <input type="radio" name="jaw" value="Lower right" @onchange="@(() => SelectedJaw = "Lower right")" checked="@IsLowerRightSelected" />
+        <input type="radio" name="jaw" value="Lower right" @onchange="@(() => SelectedJaw = "Lower right")"
+            checked="@IsLowerRightSelected" />
         @L["Lowertright"]
     </label>
 </div>
@@ -52,20 +56,26 @@
             </div>
 
             <div class="caries-section">
-                <label class="me-2">  @L["Caries"] </label>
-                <label class="me-1">@L["YES"]  <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
-                <label>@L["NO"] <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+                <label class="me-2"> @L["Caries"] </label>
+                <label class="me-1">@L["YES"]
+                    <SfCheckBox @bind-Checked="@tooth.CariesYes" />
+                </label>
+                <label>@L["NO"]
+                    <SfCheckBox @bind-Checked="@tooth.CariesNo" />
+                </label>
             </div>
 
             <div class="dropdown-section">
                 <label>@L["PE"] </label>
-                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
+                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData"
+                    @bind-Value="@tooth.SelectedPE">
                     <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>
             </div>
 
             <div class="description-section">
-                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"] CssClass="custom-description" Rows="3" />
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"]
+                    CssClass="custom-description" Rows="3" />
             </div>
         </div>
         <hr />
@@ -83,19 +93,25 @@ else if (SelectedJaw == "Upper right")
 
             <div class="caries-section">
                 <label class="me-2">@L["Caries"]</label>
-                <label class="me-1">@L["YES"] <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
-                <label>@L["NO"] <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+                <label class="me-1">@L["YES"]
+                    <SfCheckBox @bind-Checked="@tooth.CariesYes" />
+                </label>
+                <label>@L["NO"]
+                    <SfCheckBox @bind-Checked="@tooth.CariesNo" />
+                </label>
             </div>
 
             <div class="dropdown-section">
                 <label>@L["PE"]</label>
-                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
+                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData"
+                    @bind-Value="@tooth.SelectedPE">
                     <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>
             </div>
 
             <div class="description-section">
-                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"] CssClass="custom-description" Rows="3" />
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"]
+                    CssClass="custom-description" Rows="3" />
             </div>
         </div>
         <hr />
@@ -113,19 +129,25 @@ else if (SelectedJaw == "Lower left")
 
             <div class="caries-section">
                 <label class="me-2">@L["Caries"]</label>
-                <label class="me-1">@L["YES"] <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
-                <label>@L["NO"] <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+                <label class="me-1">@L["YES"]
+                    <SfCheckBox @bind-Checked="@tooth.CariesYes" />
+                </label>
+                <label>@L["NO"]
+                    <SfCheckBox @bind-Checked="@tooth.CariesNo" />
+                </label>
             </div>
 
             <div class="dropdown-section">
                 <label>@L["PE"]</label>
-                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
+                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData"
+                    @bind-Value="@tooth.SelectedPE">
                     <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>
             </div>
 
             <div class="description-section">
-                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"] CssClass="custom-description" Rows="3" />
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"]
+                    CssClass="custom-description" Rows="3" />
             </div>
         </div>
         <hr />
@@ -143,19 +165,25 @@ else if (SelectedJaw == "Lower right")
 
             <div class="caries-section">
                 <label class="me-2"> @L["Caries"]</label>
-                <label class="me-1">@L["YES"] <SfCheckBox @bind-Checked="@tooth.CariesYes" /></label>
-                <label>@L["NO"] <SfCheckBox @bind-Checked="@tooth.CariesNo" /></label>
+                <label class="me-1">@L["YES"]
+                    <SfCheckBox @bind-Checked="@tooth.CariesYes" />
+                </label>
+                <label>@L["NO"]
+                    <SfCheckBox @bind-Checked="@tooth.CariesNo" />
+                </label>
             </div>
 
             <div class="dropdown-section">
                 <label>@L["PE"]</label>
-                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData" @bind-Value="@tooth.SelectedPE">
+                <SfDropDownList TItem="PEList" TValue="string" Placeholder="Select Stage" DataSource="@LocalData"
+                    @bind-Value="@tooth.SelectedPE">
                     <DropDownListFieldSettings Value="ID" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>
             </div>
 
             <div class="description-section">
-                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"] CssClass="custom-description" Rows="3" />
+                <SfTextArea @bind-Value="@tooth.Description" Width="500px" Placeholder=@L["DetailedDescription"]
+                    CssClass="custom-description" Rows="3" />
             </div>
         </div>
         <hr />
@@ -206,41 +234,41 @@ else if (SelectedJaw == "Lower right")
     }
 
     List<PEList> LocalData = new()
-    {
-        new PEList() { ID = "0", Text = "Stage 0"},
-        new PEList() { ID = "I", Text = "Stage I" },
-        new PEList() { ID = "II", Text = "Stage II" },
-        new PEList() { ID = "III", Text = "Stage III" }
-    };
+{
+new PEList() { ID = "0", Text = "Stage 0"},
+new PEList() { ID = "I", Text = "Stage I" },
+new PEList() { ID = "II", Text = "Stage II" },
+new PEList() { ID = "III", Text = "Stage III" }
+};
 
     List<ToothInfoDto> UpperRight = new()
-    {
-        new ToothInfoDto { ToothNumber = 18 }, new ToothInfoDto { ToothNumber = 17 },
-        new ToothInfoDto { ToothNumber = 16 }, new ToothInfoDto { ToothNumber = 15 },
-        new ToothInfoDto { ToothNumber = 14 }, new ToothInfoDto { ToothNumber = 13 },
-        new ToothInfoDto { ToothNumber = 12 }, new ToothInfoDto { ToothNumber = 11 }
-    };
+{
+new ToothInfoDto { ToothNumber = 18 }, new ToothInfoDto { ToothNumber = 17 },
+new ToothInfoDto { ToothNumber = 16 }, new ToothInfoDto { ToothNumber = 15 },
+new ToothInfoDto { ToothNumber = 14 }, new ToothInfoDto { ToothNumber = 13 },
+new ToothInfoDto { ToothNumber = 12 }, new ToothInfoDto { ToothNumber = 11 }
+};
     List<ToothInfoDto> UpperLeft = new()
-    {
-        new ToothInfoDto { ToothNumber = 21 }, new ToothInfoDto { ToothNumber = 22 },
-        new ToothInfoDto { ToothNumber = 23 }, new ToothInfoDto { ToothNumber = 24 },
-        new ToothInfoDto { ToothNumber = 25 }, new ToothInfoDto { ToothNumber = 26 },
-        new ToothInfoDto { ToothNumber = 27 }, new ToothInfoDto { ToothNumber = 28 }
-    };
+{
+new ToothInfoDto { ToothNumber = 21 }, new ToothInfoDto { ToothNumber = 22 },
+new ToothInfoDto { ToothNumber = 23 }, new ToothInfoDto { ToothNumber = 24 },
+new ToothInfoDto { ToothNumber = 25 }, new ToothInfoDto { ToothNumber = 26 },
+new ToothInfoDto { ToothNumber = 27 }, new ToothInfoDto { ToothNumber = 28 }
+};
     List<ToothInfoDto> LowerRight = new()
-    {
-        new ToothInfoDto { ToothNumber = 48 }, new ToothInfoDto { ToothNumber = 47 },
-        new ToothInfoDto { ToothNumber = 46 }, new ToothInfoDto { ToothNumber = 45 },
-        new ToothInfoDto { ToothNumber = 44 }, new ToothInfoDto { ToothNumber = 43 },
-        new ToothInfoDto { ToothNumber = 42 }, new ToothInfoDto { ToothNumber = 41 }
-    };
+{
+new ToothInfoDto { ToothNumber = 48 }, new ToothInfoDto { ToothNumber = 47 },
+new ToothInfoDto { ToothNumber = 46 }, new ToothInfoDto { ToothNumber = 45 },
+new ToothInfoDto { ToothNumber = 44 }, new ToothInfoDto { ToothNumber = 43 },
+new ToothInfoDto { ToothNumber = 42 }, new ToothInfoDto { ToothNumber = 41 }
+};
     List<ToothInfoDto> LowerLeft = new()
-    {
-         new ToothInfoDto { ToothNumber = 31 }, new ToothInfoDto { ToothNumber = 32 },
-        new ToothInfoDto { ToothNumber = 33 }, new ToothInfoDto { ToothNumber = 34 },
-        new ToothInfoDto { ToothNumber = 35 }, new ToothInfoDto { ToothNumber = 36 },
-        new ToothInfoDto { ToothNumber = 37 }, new ToothInfoDto { ToothNumber = 38 }
-    };
+{
+new ToothInfoDto { ToothNumber = 31 }, new ToothInfoDto { ToothNumber = 32 },
+new ToothInfoDto { ToothNumber = 33 }, new ToothInfoDto { ToothNumber = 34 },
+new ToothInfoDto { ToothNumber = 35 }, new ToothInfoDto { ToothNumber = 36 },
+new ToothInfoDto { ToothNumber = 37 }, new ToothInfoDto { ToothNumber = 38 }
+};
 
     [Inject]
     private HttpClient HttpClient { get; set; } = default!;
@@ -254,13 +282,23 @@ else if (SelectedJaw == "Lower right")
     {
         if (!string.IsNullOrEmpty(PatientId))
         {
-            var returnData = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<PatientRecordDto>($"/api/app/patient/patient-record-by/{PatientId}");
-
-            if (returnData != null)
+            if (PatientId == "1")
             {
-                DoctorName = returnData.DoctorName;
-                PatientName = returnData.PatientName;
-                PatientDob = returnData.PatientDob;
+                DoctorName = "Default Doctor";
+                PatientName = "Default Patient";
+                PatientDob = new DateOnly(1990, 1, 1);
+            }
+            else
+            {
+                var returnData = await
+                HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<PatientRecordDto>($"/api/app/patient/patient-record-by/{PatientId}");
+
+                if (returnData != null)
+                {
+                    DoctorName = returnData.DoctorName;
+                    PatientName = returnData.PatientName;
+                    PatientDob = returnData.PatientDob;
+                }
             }
         }
         else
@@ -300,19 +338,19 @@ else if (SelectedJaw == "Lower right")
         spinnerObj.ShowAsync();
 
         var record = new PatientExaminationRecordDto
-            {
-                LowerLeft = LowerLeft,
-                LowerRight = LowerRight,
-                UpperLeft = UpperLeft,
-                UpperRight = UpperRight,
-                PatientId = PatientId,
-                DoctorName = DoctorName,
-                PatientName = PatientName,
-                PatientDob = PatientDob,
-                FileBaseAddress = Http.BaseAddress.ToString(),
-                DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/DefaultFileV1.docx"),
-                DefaultJawImageBytes = await HttpClient.GetByteArrayAsync("/FileData/withnum.jpg"),
-            };
+        {
+            LowerLeft = LowerLeft,
+            LowerRight = LowerRight,
+            UpperLeft = UpperLeft,
+            UpperRight = UpperRight,
+            PatientId = PatientId,
+            DoctorName = DoctorName,
+            PatientName = PatientName,
+            PatientDob = PatientDob,
+            FileBaseAddress = Http.BaseAddress.ToString(),
+            DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/DefaultFileV1.docx"),
+            DefaultJawImageBytes = await HttpClient.GetByteArrayAsync("/FileData/withnum.jpg"),
+        };
         record.ImageNames = imageNames;
         var response = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/Examination", record);
         var fNmae = await response.Content.ReadAsStringAsync();

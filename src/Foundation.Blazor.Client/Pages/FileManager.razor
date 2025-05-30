@@ -21,6 +21,13 @@
     </FileManagerAjaxSettings>
     <FileManagerToolbarSettings ToolbarItems="@Items">
         <FileManagerCustomToolbarItems>
+            <FileManagerCustomToolbarItem Name="ExaminationRecord">
+                <Template>
+                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt examination-record" Content="Examination Record"
+                        OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled">
+                    </SfButton>
+                </Template>
+            </FileManagerCustomToolbarItem>
             <FileManagerCustomToolbarItem Name="AIImage">
                 <Template>
                     <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt ai-icon" Content="AI"
@@ -76,6 +83,27 @@
 
     div.e-large-icons span.e-list-text {
         width: 160px !important;
+    }
+
+    .examination-record:hover {
+        color: white !important;
+    }
+    .ai-icon:hover {
+        color: white !important;
+    }
+    .measure-icon:hover {
+        color: white !important;
+    }
+
+    .examination-record {
+        font-size: 14px !important;
+        font-weight: normal !important;
+    }
+
+    .examination-record:disabled {
+        background-color: #e0e0e0 !important;
+        color: #9e9e9e !important;
+        cursor: not-allowed !important;
     }
 
     .ai-icon:disabled {

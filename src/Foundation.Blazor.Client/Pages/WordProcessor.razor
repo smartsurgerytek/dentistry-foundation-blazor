@@ -128,7 +128,7 @@
             if (result)
             {
                 StatusMessage = "Document saved successfully!";                
-                if (!string.IsNullOrEmpty(PatientId)){                    
+                if (!string.IsNullOrEmpty(PatientId) && PatientId != "1"){                    
                     await SaveRecordToDatabase(fileName);
                 }
                 else{                    
