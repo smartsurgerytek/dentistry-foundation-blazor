@@ -3,7 +3,7 @@ name: main
 on:
   push:
     branches:
-      - FOND-37-resolving-417-expectation-failed-issue
+      - 30-05-2020-wasm-performance
 
 jobs:
   build-and-push:
