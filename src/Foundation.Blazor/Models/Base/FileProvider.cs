@@ -1516,7 +1516,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                 Key = path,
                 InputStream = stream
             };
-            var response = await s3Client.PutObjectAsync(putRequest);
+            var response = await client.PutObjectAsync(putRequest);
             return response.HttpStatusCode == HttpStatusCode.OK;
         }
 
