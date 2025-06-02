@@ -143,25 +143,55 @@ namespace Foundation.Services
                     DocumentFormat.OpenXml.Wordprocessing.TableRow tblSeventeenRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(17);
                     DocumentFormat.OpenXml.Wordprocessing.TableCell cellDesc = tblSeventeenRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
                     cellDesc.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+                    //var allDescriptions = new List<string>();
+                    //var allTeeth = input.UpperRight.Concat(input.UpperLeft).Concat(input.LowerRight).Concat(input.LowerLeft);
+                    //foreach (var tooth in allTeeth)
+                    //{
+                    //    if (!string.IsNullOrWhiteSpace(tooth.Description))
+                    //    {
+                    //        allDescriptions.Add($"{tooth.ToothNumber} : {tooth.Description.Trim()}");
+                    //    }
+                    //}
+
+                    //string combinedDescription = string.Join("\n", allDescriptions);
+                    //var paraDesc =
+                    //    new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                    //    new DocumentFormat.OpenXml.Wordprocessing.Run(
+                    //    new DocumentFormat.OpenXml.Wordprocessing.Text(combinedDescription)
+                    //    {
+                    //        Space = SpaceProcessingModeValues.Preserve
+                    //    }));
+                    //cellDesc.Append(paraDesc);
+
                     var allDescriptions = new List<string>();
                     var allTeeth = input.UpperRight.Concat(input.UpperLeft).Concat(input.LowerRight).Concat(input.LowerLeft);
+
                     foreach (var tooth in allTeeth)
                     {
-                        if (tooth.CariesYes == true && !string.IsNullOrWhiteSpace(tooth.Description))
+                        if (!string.IsNullOrWhiteSpace(tooth.Description))
                         {
                             allDescriptions.Add($"{tooth.ToothNumber} : {tooth.Description.Trim()}");
                         }
-                    }
+                    }                    
+                    var paraDesc = new DocumentFormat.OpenXml.Wordprocessing.Paragraph();
+                    var run = new DocumentFormat.OpenXml.Wordprocessing.Run();
 
-                    string combinedDescription = string.Join("\n", allDescriptions);
-                    var paraDesc =
-                        new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                        new DocumentFormat.OpenXml.Wordprocessing.Run(
-                        new DocumentFormat.OpenXml.Wordprocessing.Text(combinedDescription)
+                    for (int i = 0; i < allDescriptions.Count; i++)
+                    {
+                        run.Append(new DocumentFormat.OpenXml.Wordprocessing.Text(allDescriptions[i])
                         {
                             Space = SpaceProcessingModeValues.Preserve
-                        }));
+                        });                        
+                        if (i < allDescriptions.Count - 1)
+                        {
+                            run.Append(new DocumentFormat.OpenXml.Wordprocessing.Break());
+                        }
+                    }
+
+                    paraDesc.Append(run);                    
+                    cellDesc.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
                     cellDesc.Append(paraDesc);
+
 
                     #endregion
 

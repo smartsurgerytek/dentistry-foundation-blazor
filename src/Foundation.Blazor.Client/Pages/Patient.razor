@@ -12,12 +12,12 @@
         <GridColumn Field="Name" HeaderText="@L["PatientName"]" Width="250"></GridColumn>
         <GridColumn Field="DateOfBirth" HeaderText="@L["DateOfBirth"]" Width="250"></GridColumn>
         <GridColumn Field="PatientNumber" HeaderText="@L["PatientId"]" Width="250"></GridColumn>
-        <GridColumn HeaderText="@L["ManageRecords"]" Width="250">
+        <GridColumn HeaderText="@L["Details"]" Width="250">
             <Template>
                 @{
                     var patient = (context as PatientDto);
                 }
-                <button class="e-btn" @onclick="() => NavigateRecord(patient)">@L["Records"]</button>
+                <button class="e-btn" @onclick="() => NavigateDetails(patient)">@L["Details"]</button>
             </Template>
         </GridColumn>
     </GridColumns>
@@ -198,8 +198,8 @@
         await Dialog.HideAsync();
     }
 
-    private void NavigateRecord(PatientDto patientDto)
+    private void NavigateDetails(PatientDto patientDto)
     {
-        NavigationManager.NavigateTo($"ExaminationRecord?PatientId={patientDto.Id}");
+        NavigationManager.NavigateTo($"Details?PatientId={patientDto.Id}");
     }
 }

@@ -97,6 +97,7 @@
     "MethodName": "方法名称",
     "Parameters": "参数",
     "ExecutionTime": "执行时间",
-    "ExecutionDuration": "执行时长（毫秒）"
+    "ExecutionDuration": "执行时长（毫秒）",
+    "Details": "细节"
   }
 }

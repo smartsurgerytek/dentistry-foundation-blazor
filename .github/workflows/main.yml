@@ -3,7 +3,7 @@ name: main
 on:
   push:
     branches:
-      - FOND-37-resolving-417-expectation-failed-issue
+      - FOND-38-create-detail-page-for-showing-image-and-record
 
 jobs:
   build-and-push:

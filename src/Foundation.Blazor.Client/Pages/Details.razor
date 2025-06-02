@@ -1,0 +1,35 @@
+﻿@page "/details"
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@inject NavigationManager Navigation
+
+<h3>Details</h3>
+
+<div class="d-flex justify-content-center mt-5 gap-5">    
+    <button class="btn btn-outline-primary btn-lg d-flex flex-column align-items-center" style="width: 200px; height: 200px;"
+            @onclick="GoToFileManager">
+        <i class="fas fa-upload fa-3x mb-3"></i>
+        <span>Upload Image</span>
+    </button>    
+    <button class="btn btn-outline-success btn-lg d-flex flex-column align-items-center" style="width: 200px; height: 200px;"
+            @onclick="GoToRecordPage">
+        <i class="fas fa-file-medical fa-3x mb-3"></i>
+        <span>Record</span>
+    </button>
+</div>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string PatientId { get; set; }
+
+    private void GoToFileManager()
+    {
+        Navigation.NavigateTo($"/filemanager?PatientId={PatientId}");
+    }
+
+    private void GoToRecordPage()
+    {
+        Navigation.NavigateTo($"/records?PatientId={PatientId}");
+    }
+}

@@ -57,7 +57,7 @@
         <div>
             <SfSpinner @ref="spinnerObj" CssClass="custom-spinner"></SfSpinner>
 
-            <SfDocumentEditorContainer @ref="_containerRef" Height="590px" RestrictEditing="@ReadOnly"
+            <SfDocumentEditorContainer @ref="_containerRef" Height="calc(100vh - 140px)" RestrictEditing="@ReadOnly"
             ShowPropertiesPane="@ShowProperties" DocumentEditorSettings="_settings">
                 <DocumentEditorContainerEvents Created="OnCreated" DocumentChanged="OnDocumentChange" />
             </SfDocumentEditorContainer>
