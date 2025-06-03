@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Foundation.Dtos;
 using Microsoft.AspNetCore.Components;
+using Syncfusion.Blazor.FileManager;
 using Syncfusion.Blazor.ImageEditor;
 using Syncfusion.Blazor.Spinner;
 using Volo.Abp.Account;
@@ -88,5 +89,56 @@ public partial class ImageEditor
 
         this.ShowSpinner = false;
         NavigationManager.NavigateTo("/FileManager");
+    }
+
+    public async Task GetAISegmentedImage(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    {
+        try
+        {
+            ShowSpinner = true;
+            //var selectedItem = this.SfFileManager?.GetSelectedFiles()[0];
+
+            var pathSplit = Path?.Split("/");
+            var fullFileName = pathSplit != null ? pathSplit[^1] : "";
+            var filterPath = (pathSplit != null ? string.Join("/", pathSplit[..^1]) : "") + "/";
+
+            await httpClient.GetAsync($"/api/FileProvider/GetSegmentedImage?filterPath={filterPath}&fileName={fullFileName}");
+            ShowSpinner = false;
+            BackToFileManager();
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine($"An error occurred while getting the AI segmented image.{ex.Message}");
+            throw;
+        }
+        finally
+        {
+            ShowSpinner = false;
+        }
+    }
+
+    public async Task GetAIMeasurementImage(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    {
+        try
+        {
+            ShowSpinner = true;
+
+            var pathSplit = Path?.Split("/");
+            var fullFileName = pathSplit != null ? pathSplit[^1] : "";
+            var filterPath = (pathSplit != null ? string.Join("/", pathSplit[..^1]) : "") + "/";
+
+            await httpClient.GetAsync($"/api/FileProvider/GetMeasurementImage?filterPath={filterPath} &fileName= {fullFileName}");
+            ShowSpinner = false;
+            BackToFileManager();
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine($"An error occurred while getting the AI measurement image.{ex.Message}");
+            throw;
+        }
+        finally
+        {
+            ShowSpinner = false;
+        }
     }
 }

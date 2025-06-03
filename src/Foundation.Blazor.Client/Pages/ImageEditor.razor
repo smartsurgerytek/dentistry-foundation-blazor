@@ -12,7 +12,20 @@
 <div class="flex-parent">
     <div style="width: 50px"></div>
     <div style="width: calc(100% - 50px);">
-        <SfImageEditor @ref="SfImageEditor" Height="80vh" Vertical="true"></SfImageEditor>
+        <SfImageEditor @ref="SfImageEditor" Height="80vh" Vertical="true">
+            @* <ImageEditorTemplates>
+                <ToolbarTemplate>
+                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt ai-icon" Content="AI"
+                              OnClick="GetAISegmentedImage">
+                    </SfButton>
+                </ToolbarTemplate>
+                <ToolbarTemplate>
+                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt measure-icon" Content="Measure"
+                              OnClick="GetAIMeasurementImage">
+                    </SfButton>
+                </ToolbarTemplate>
+            </ImageEditorTemplates> *@
+        </SfImageEditor>
     </div>
 </div>
 
