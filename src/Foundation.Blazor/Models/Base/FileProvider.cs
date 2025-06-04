@@ -1143,8 +1143,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                     GetBucketList();
                     await ListingObjectsAsync("/", RootName.Replace("/", "") + path, false);
 
-                    using Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + names[0]);
-
+                    Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + names[0]);
                     fileStreamResult = new FileStreamResult(stream, "APPLICATION/octet-stream");
                     fileStreamResult.FileDownloadName = names[0].Contains("/") ? names[0].Split("/").Last() : names[0];
 
