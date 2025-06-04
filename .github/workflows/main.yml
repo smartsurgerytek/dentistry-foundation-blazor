@@ -3,7 +3,7 @@ name: main
 on:
   push:
     branches:
-      - FOND-37-resolving-417-expectation-failed-issue
+      - FOND-40-ai-measure-icons-image-editor
 
 jobs:
   build-and-push:
