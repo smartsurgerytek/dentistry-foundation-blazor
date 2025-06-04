@@ -1,9 +1,10 @@
 name: main
 
-on: workflow_dispatch
-  #push:
-    #branches:
-      #- FOND-40-ai-measure-icons-image-editor
+on: 
+  push:
+    branches:
+      - FOND-40-ai-measure-icons-image-editor
+  workflow_dispatch:
 
 jobs:
   build-and-push:
