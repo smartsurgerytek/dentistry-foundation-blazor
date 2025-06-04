@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -7,6 +8,7 @@ using Foundation.Dtos;
 using Microsoft.AspNetCore.Components;
 using Syncfusion.Blazor.FileManager;
 using Syncfusion.Blazor.ImageEditor;
+using Syncfusion.Blazor.Navigations;
 using Syncfusion.Blazor.Spinner;
 using Volo.Abp.Account;
 
@@ -27,19 +29,54 @@ public partial class ImageEditor
     [Inject]
     public NavigationManager NavigationManager { get; set; }
 
+    private List<ImageEditorToolbarItemModel> customToolbarItem = new List<ImageEditorToolbarItemModel>()
+    {
+        new ImageEditorToolbarItemModel { Name = "Open" },
+        new ImageEditorToolbarItemModel { Name = "Undo" },
+        new ImageEditorToolbarItemModel { Name = "Redo" },
+        new ImageEditorToolbarItemModel { Name = "Zoom" },
+        new ImageEditorToolbarItemModel { Name = "Crop" },
+        new ImageEditorToolbarItemModel { Name = "Rotate" },
+        new ImageEditorToolbarItemModel { Name = "HorizontalFlip" },
+        new ImageEditorToolbarItemModel { Name = "VerticalFlip" },
+        new ImageEditorToolbarItemModel { Name = "Straightening" },
+        new ImageEditorToolbarItemModel { Name = "Annotation" },
+        new ImageEditorToolbarItemModel { Name = "FineTune" },
+        new ImageEditorToolbarItemModel { Name = "Filter" },
+        new ImageEditorToolbarItemModel { Name = "Frame" },
+        new ImageEditorToolbarItemModel { Name = "Redact" },
+        new ImageEditorToolbarItemModel { Name = "Reset" },
+        new ImageEditorToolbarItemModel { Name = "Save" },
+        new ImageEditorToolbarItemModel { Text = "", PrefixIcon = "ai-icon", TooltipText = "Get AI Segmented Image", TabIndex = 0 },
+        new ImageEditorToolbarItemModel { Text = "", TooltipText = "Get AI Measurement Image", PrefixIcon = "measure-icon", TabIndex = 1 }
+    };
+
+    private async void ToolbarItemClicked(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.TooltipText == "Get AI Segmented Image")
+        {
+            await GetAISegmentedImage(args);
+        }
+        else if (args.Item.TooltipText == "Get AI Measurement Image")
+        {
+            await GetAIMeasurementImage(args);
+        }
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         if (!string.IsNullOrWhiteSpace(Path))
         {
             await OpenImageEditor(Path);
         }
-        
+
         await Task.CompletedTask;
     }
 
     public async Task OpenImageEditor(string Path)
     {
         this.ShowSpinner = true;
+        StateHasChanged();
         this.IsImageEditorVisible = true;
         // load the selected image in the image editor
         // convert the selected file to a base64 string
@@ -49,8 +86,9 @@ public partial class ImageEditor
         string dataUrl = $"data:image/png;base64,{imageBase64}";
         await SfImageEditor?.OpenAsync(dataUrl);
         this.ShowSpinner = false;
+        StateHasChanged();
     }
-    
+
     public void BackToFileManager()
     {
         this.IsImageEditorVisible = false;
@@ -60,6 +98,7 @@ public partial class ImageEditor
     public async void SaveAsync()
     {
         this.ShowSpinner = true;
+        StateHasChanged();
         // save the image
         var imageDataUrl = await SfImageEditor?.GetImageDataUrlAsync();
 
@@ -88,23 +127,35 @@ public partial class ImageEditor
         this.IsImageEditorVisible = false;
 
         this.ShowSpinner = false;
+        StateHasChanged();
         NavigationManager.NavigateTo("/FileManager");
     }
 
-    public async Task GetAISegmentedImage(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    public async Task GetAISegmentedImage(Syncfusion.Blazor.Navigations.ClickEventArgs args)
     {
         try
         {
-            ShowSpinner = true;
-            //var selectedItem = this.SfFileManager?.GetSelectedFiles()[0];
+            this.ShowSpinner = true;
+            StateHasChanged();
 
             var pathSplit = Path?.Split("/");
             var fullFileName = pathSplit != null ? pathSplit[^1] : "";
             var filterPath = (pathSplit != null ? string.Join("/", pathSplit[..^1]) : "") + "/";
 
-            await httpClient.GetAsync($"/api/FileProvider/GetSegmentedImage?filterPath={filterPath}&fileName={fullFileName}");
-            ShowSpinner = false;
-            BackToFileManager();
+            // call the API to get the AI segmented image
+            // make an a+b image, a = original image, b = AI segmented image
+            // the API will return a+b image as a base64 string
+            // and the image will be opened in the image editor
+
+            var combinedImageFileName = System.IO.Path.GetFileNameWithoutExtension(fullFileName) + "_ai_ab." + "png";
+            var abImage = await this.httpClient.GetStringAsync($"/api/FileProvider/GetSegmentedImage?filterPath={filterPath}&fileName={fullFileName}&combinedImageFileName={combinedImageFileName}");
+
+            // open the image editor with the a+b image
+            Path = System.IO.Path.Combine(filterPath, combinedImageFileName);
+            Console.WriteLine($"Path: {Path}");
+            await SfImageEditor?.OpenAsync($"data:image/png;base64,{abImage}");
+            this.ShowSpinner = false;
+            StateHasChanged();
         }
         catch (System.Exception ex)
         {
@@ -113,23 +164,32 @@ public partial class ImageEditor
         }
         finally
         {
-            ShowSpinner = false;
+            this.ShowSpinner = false;
+            StateHasChanged();
         }
     }
 
-    public async Task GetAIMeasurementImage(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    public async Task GetAIMeasurementImage(Syncfusion.Blazor.Navigations.ClickEventArgs args)
     {
         try
         {
             ShowSpinner = true;
+            StateHasChanged();
 
             var pathSplit = Path?.Split("/");
             var fullFileName = pathSplit != null ? pathSplit[^1] : "";
             var filterPath = (pathSplit != null ? string.Join("/", pathSplit[..^1]) : "") + "/";
 
-            await httpClient.GetAsync($"/api/FileProvider/GetMeasurementImage?filterPath={filterPath} &fileName= {fullFileName}");
-            ShowSpinner = false;
-            BackToFileManager();
+            var combinedImageFileName = System.IO.Path.GetFileNameWithoutExtension(fullFileName) + "_measurement_ab." + "png";
+
+            var abImage = await this.httpClient.GetStringAsync($"/api/FileProvider/GetMeasurementImage?filterPath={filterPath}&fileName={fullFileName}");
+
+            // open the image editor with the a+b image
+            Path = System.IO.Path.Combine(filterPath, combinedImageFileName);
+            Console.WriteLine($"Path: {Path}");
+            await SfImageEditor?.OpenAsync($"data:image/png;base64,{abImage}");
+            this.ShowSpinner = false;
+            StateHasChanged();
         }
         catch (System.Exception ex)
         {
@@ -139,6 +199,7 @@ public partial class ImageEditor
         finally
         {
             ShowSpinner = false;
+            StateHasChanged();
         }
     }
 }

@@ -215,11 +215,11 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         // 2. checks if the image is periapical
         // 3. calls the segmentation API and uploads the segmented image to the bucket
         [HttpGet("GetSegmentedImage")]
-        public async Task GetSegmentedImage(string filterPath, string fileName)
+        public async Task<string> GetSegmentedImage(string filterPath, string fileName, string combinedImageFileName = "")
         {
             try
             {
-                var originalImageStream = this.operation.GetImage(Path.Combine(filterPath, fileName), null, false, null, null); ;
+                var originalImageStream = this.operation.GetImage(Path.Combine(filterPath, fileName), null, false, null, null);
                 var originalImageBytes = await originalImageStream.FileStream.GetAllBytesAsync();
                 var originalImageBase64 = Convert.ToBase64String(originalImageBytes);
 
@@ -229,7 +229,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 
                 _logger.LogInformation("Processing segmented image for isPeriapicalImage: {IsPeriapicalImage}", isPeriapicalImage);
 
-                await this.operation.GetSegmentedImage(isPeriapicalImage, originalImageBase64, filterPath, fileName);
+                return await this.operation.GetSegmentedImage(isPeriapicalImage, originalImageBase64, filterPath, fileName, combinedImageFileName);
             }
             catch (Exception ex)
             {
@@ -242,7 +242,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         // 2. checks if the image is periapical
         // 3. calls the measurement API and uploads the measurement image to the bucket
         [HttpGet("GetMeasurementImage")]
-        public async Task GetMeasurementImage(string filterPath, string fileName)
+        public async Task<string> GetMeasurementImage(string filterPath, string fileName, string combinedImageFileName = "")
         {
             try
             {
@@ -256,7 +256,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 
                 _logger.LogInformation("Processing measurement image for isPeriapicalImage: {IsPeriapicalImage}", isPeriapicalImage);
 
-                await this.operation.GetMeasurementImage(isPeriapicalImage, originalImageBase64, filterPath, fileName);
+                return await this.operation.GetMeasurementImage(isPeriapicalImage, originalImageBase64, filterPath, fileName, combinedImageFileName);
             }
             catch (Exception ex)
             {

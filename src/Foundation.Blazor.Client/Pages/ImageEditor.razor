@@ -3,7 +3,6 @@
 @using Syncfusion.Blazor.ImageEditor
 @using Syncfusion.Blazor.Spinner
 
-<SfSpinner @bind-Visible="ShowSpinner"></SfSpinner>
 <div class="btn-div">
     <SfButton OnClick="BackToFileManager">Back To File Manager</SfButton>
     <SfButton OnClick="SaveAsync">Save To Storage</SfButton>
@@ -11,25 +10,60 @@
 
 <div class="flex-parent">
     <div style="width: 50px"></div>
-    <div style="width: calc(100% - 50px);">
-        <SfImageEditor @ref="SfImageEditor" Height="80vh" Vertical="true">
-            @* <ImageEditorTemplates>
-                <ToolbarTemplate>
-                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt ai-icon" Content="AI"
-                              OnClick="GetAISegmentedImage">
-                    </SfButton>
-                </ToolbarTemplate>
-                <ToolbarTemplate>
-                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt measure-icon" Content="Measure"
-                              OnClick="GetAIMeasurementImage">
-                    </SfButton>
-                </ToolbarTemplate>
-            </ImageEditorTemplates> *@
+    <div class="image-editor-parent">
+        <SfSpinner @bind-Visible="ShowSpinner"></SfSpinner>
+        <SfImageEditor @ref="SfImageEditor" Height="80vh" Toolbar="customToolbarItem">
+            <ImageEditorEvents ToolbarItemClicked="ToolbarItemClicked"></ImageEditorEvents>
         </SfImageEditor>
     </div>
 </div>
 
 <style>
+    .image-editor-parent {
+        @* position: relative; *@
+        width: calc(100% - 50px);
+    }
+
+    .ai-icon:hover {
+        color: white !important;
+    }
+
+    .measure-icon:hover {
+        color: white !important;
+    }
+
+    .ai-icon:disabled {
+        background-color: #e0e0e0 !important;
+        color: #9e9e9e !important;
+        cursor: not-allowed !important;
+    }
+
+    .measure-icon:disabled {
+        background-color: #e0e0e0 !important;
+        color: #9e9e9e !important;
+        cursor: not-allowed !important;
+    }
+
+    .ai-icon {
+        font-size: 14px !important;
+        font-weight: normal !important;
+    }
+
+    .measure-icon {
+        font-size: 14px !important;
+        font-weight: normal !important;
+    }
+
+    .ai-icon::before {
+        content: "✨ ";
+        padding-right: 3px;
+    }
+
+    .measure-icon::before {
+        content: "📏 ";
+        padding-right: 3px;
+    }
+
     .btn-div {
         display: flex;
         justify-content: space-between;
