@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - FOND-37-resolving-417-expectation-failed-issue
+  workflow_dispatch:
 
 jobs:
   build-and-push:
