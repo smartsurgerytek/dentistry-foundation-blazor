@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ public partial class ImageEditor
     public bool IsImageEditorVisible { get; set; } = false;
     public SfImageEditor? SfImageEditor;
     public bool ShowSpinner;
+    public bool IsPeriapicalImage { get; set; } = false;
 
     [Inject]
     public HttpClient httpClient { get; set; }
@@ -67,6 +69,12 @@ public partial class ImageEditor
     {
         if (!string.IsNullOrWhiteSpace(Path))
         {
+            var pathSplit = Path?.Split("/");
+            var fullFileName = pathSplit != null ? pathSplit[^1] : "";
+            var filterPath = (pathSplit != null ? string.Join("/", pathSplit[..^1]) : "") + "/";
+            var checkPath = filterPath.TrimEnd('/');
+            IsPeriapicalImage = checkPath.Split("/").Last() == "pa";
+
             await OpenImageEditor(Path);
         }
 
@@ -85,6 +93,12 @@ public partial class ImageEditor
         var imageBase64 = Convert.ToBase64String(imageBytes);
         string dataUrl = $"data:image/png;base64,{imageBase64}";
         await SfImageEditor?.OpenAsync(dataUrl);
+
+        if (!IsPeriapicalImage)
+        {
+            customToolbarItem.RemoveAll(item => item.TooltipText == "Get AI Measurement Image");
+        }
+
         this.ShowSpinner = false;
         StateHasChanged();
     }
