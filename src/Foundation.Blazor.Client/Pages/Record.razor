@@ -22,7 +22,7 @@
                 @{
                     var record = (context as RecordDto);
                     // <Button @onclick="@(() => NavigateFile(record))">View</Button>
-                    <Button @onclick="@(() => NavigateFileEdit(record))">Edit</Button>
+                    <Button @onclick="@(() => NavigateFile(record))">Edit</Button>
                 }
             </Template>
         </GridColumn>
@@ -71,21 +71,21 @@
     }
 
     private void NavigateFile(RecordDto recordDto)
-    {
-        NavigationManager.NavigateTo("/RecordViewer?fileName=" + recordDto.FileName);
+    {        
+        NavigationManager.NavigateTo($"/WordProcessor?fNmae={recordDto.FileName}&patientId={recordDto.PatientId}");
     }
-    private async Task NavigateFileEdit(RecordDto recordDto)
-    {
-        var preSignedUrl = HttpClientFactory.CreateClient("ApiClient").BaseAddress + $"api/app/examination/PreSignedUrl?fileName={recordDto.FileName}";
+    // private async Task NavigateFileEdit(RecordDto recordDto)
+    // {
+    //     var preSignedUrl = HttpClientFactory.CreateClient("ApiClient").BaseAddress + $"api/app/examination/PreSignedUrl?fileName={recordDto.FileName}";
 
-        var response = await http.GetAsync(preSignedUrl);
-        var json = await response.Content.ReadAsStringAsync();
-        var returnSignedUrl = await response.Content.ReadAsStringAsync();
-        var encodedUrl = Uri.EscapeDataString(returnSignedUrl);
-        // var patientId = string.IsNullOrEmpty(recordDto.PatientId) ? "1" : recordDto.PatientId;
+    //     var response = await http.GetAsync(preSignedUrl);
+    //     var json = await response.Content.ReadAsStringAsync();
+    //     var returnSignedUrl = await response.Content.ReadAsStringAsync();
+    //     var encodedUrl = Uri.EscapeDataString(returnSignedUrl);
+    //     // var patientId = string.IsNullOrEmpty(recordDto.PatientId) ? "1" : recordDto.PatientId;
 
-        //NavigationManager.NavigateTo($"/WordProcessor?fNmae={encodedUrl}&patientId={recordDto.PatientId}");
+    //     //NavigationManager.NavigateTo($"/WordProcessor?fNmae={encodedUrl}&patientId={recordDto.PatientId}");
 
-        NavigationManager.NavigateTo($"/WordProcessor?fNmae={encodedUrl}&patientId={recordDto.PatientId}");
-    }
+    //     NavigationManager.NavigateTo($"/WordProcessor?fNmae={encodedUrl}&patientId={recordDto.PatientId}");
+    // }
 }

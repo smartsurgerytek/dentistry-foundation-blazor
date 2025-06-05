@@ -180,20 +180,17 @@
 
     private async Task OnCreated(object args)
     {
-
-        Console.WriteLine("====aws====");
-        Console.WriteLine(fNmae);
-        Console.WriteLine(PatientId);
-        Console.WriteLine("====PatientId====");
-
         if (_containerRef?.DocumentEditor == null) return;
-        var decodedFname = Uri.UnescapeDataString(fNmae);
-        var fileBytes = await Http.GetByteArrayAsync(decodedFname);
-        using (var stream = new MemoryStream(fileBytes))
+
+        var imagePath = "/documents/";
+        var responseMessage = await Http.GetAsync($"/api/FileProvider/OriginalImageDownload?path={imagePath}&name={fNmae}");
+        var fileStreamResult = await responseMessage.Content.ReadAsStreamAsync();        
+        using (var memoryStream = new MemoryStream())
         {
-            stream.Position = 0;
-            await _containerRef.DocumentEditor.OpenAsync(stream, ImportFormatType.Docx);
-            await _containerRef.DocumentEditor.FitPageAsync(PageFitType.FitPageWidth);
+            fileStreamResult.CopyTo(memoryStream);            
+            memoryStream.Position = 0;            
+            await _containerRef.DocumentEditor.OpenAsync(memoryStream, ImportFormatType.Docx);            
+            await _containerRef.DocumentEditor.FitPageAsync(PageFitType.FitPageWidth);            
         }
     }
 

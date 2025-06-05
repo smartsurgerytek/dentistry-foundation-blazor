@@ -44,6 +44,8 @@ using FontStyle = SixLabors.Fonts.FontStyle;
 using Microsoft.AspNetCore.Http;
 using DocumentFormat.OpenXml.Office2010.Word;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+
 
 namespace Foundation.Services
 {
@@ -56,14 +58,15 @@ namespace Foundation.Services
         private readonly IRepository<ExaminationReport, Guid> _examinationRepository;
         private readonly IRepository<AuditLog, Guid> _auditLogRepository;
         static IAmazonS3 client;
-
+        private readonly IConfiguration _configuration;
 
         public ExaminationAppService(IRepository<ExaminationReport, Guid> examinationRepository,
-            IRepository<AuditLog, Guid> auditLogRepository, IAmazonS3 amazonS3Client)
+            IRepository<AuditLog, Guid> auditLogRepository, IAmazonS3 amazonS3Client, IConfiguration configuration)
         {
             _examinationRepository = examinationRepository;
             _auditLogRepository = auditLogRepository;
             client = amazonS3Client;
+            _configuration = configuration;
         }
         private void AppendParagraph(DocumentFormat.OpenXml.Wordprocessing.TableCell cell, string text)
         {
@@ -430,7 +433,7 @@ namespace Foundation.Services
 
                 var modifiedFileBytes = stream.ToArray();
                 var bucketName = "smartsurgerytek.foundation";
-                var root = "foundation/reports/";
+                var root = "foundation/documents/";
                 var fileNameOnly = $"{input.PatientId}_{DateTime.UtcNow:yyyyMMddHHmmss}.docx";
                 var s3Key = root + fileNameOnly;
 
@@ -455,19 +458,24 @@ namespace Foundation.Services
 
                 #region Generate Pre-Signed URL
 
-                var preSignedRequest = new GetPreSignedUrlRequest
-                {
-                    BucketName = bucketName,
-                    Key = s3Key,
-                    Expires = DateTime.UtcNow.AddMinutes(30),
-                    Verb = HttpVerb.GET
-                };
+                //var fileProvider = _configuration["FileProvider"];
+                //var preSignedRequest = new GetPreSignedUrlRequest
+                //{
+                //    BucketName = bucketName,
+                //    Key = s3Key,
+                //    Expires = DateTime.UtcNow.AddMinutes(30),
+                //    Verb = HttpVerb.GET
+                //};
 
-                string preSignedUrl = client.GetPreSignedURL(preSignedRequest);
+                //string preSignedUrl = client.GetPreSignedURL(preSignedRequest);
+                //if (fileProvider == "MinIO")
+                //{
+                //    preSignedUrl = preSignedUrl.Replace("https://", "http://");
+                //}
 
                 #endregion
 
-                return preSignedUrl;
+                return fileNameOnly.ToString();
             }
             catch (Exception ex)
             {
@@ -590,7 +598,7 @@ namespace Foundation.Services
 
         public string GetPreSignedUrl(string fileName)
         {
-            
+            var fileProvider = _configuration["FileProvider"];
             var preSignedRequest = new GetPreSignedUrlRequest
             {
                 BucketName = "smartsurgerytek.foundation",
@@ -599,6 +607,12 @@ namespace Foundation.Services
                 Verb = HttpVerb.GET
             };
             string preSignedUrl = client.GetPreSignedURL(preSignedRequest);
+
+            if (fileProvider == "MinIO")
+            {
+                preSignedUrl = preSignedUrl.Replace("https://", "http://");
+            }
+
             return preSignedUrl;
         }
     }
