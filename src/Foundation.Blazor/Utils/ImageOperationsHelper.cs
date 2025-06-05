@@ -9,10 +9,11 @@ using System.Text.Json;
 using FellowOakDicom.Imaging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SkiaSharp;
+using SixLabors.ImageSharp.Processing;
+// using SkiaSharp;
 
 public class ImageOperationsHelper
-{    
+{
     // Private tag configuration (odd group number, creator UID)
     private const string PrivateCreatorUID = "SmartSurgeryTekTag";
 
@@ -171,58 +172,92 @@ public class ImageOperationsHelper
         return null;
     }
 
-    public static Stream CombineTwoImages(byte[] firstImageStream, byte[] secondImageStream)
+    public static MemoryStream CombineTwoImages(byte[] firstImageBytes, byte[] secondImageBytes)
     {
-        if (firstImageStream == null)
-        {
-            throw new ArgumentNullException(nameof(firstImageStream));
-        }
+        if (firstImageBytes == null)
+            throw new ArgumentNullException(nameof(firstImageBytes));
+        if (secondImageBytes == null)
+            throw new ArgumentNullException(nameof(secondImageBytes));
 
-        if (secondImageStream == null)
-        {
-            throw new ArgumentNullException(nameof(secondImageStream));
-        }
+        using var firstImage = SixLabors.ImageSharp.Image.Load<Rgb24>(firstImageBytes);
+        using var secondImage = SixLabors.ImageSharp.Image.Load<Rgb24>(secondImageBytes);
 
-        // Decode the streams into SKBitmap objects
-        using var firstImage = SKBitmap.Decode(firstImageStream);
-        using var secondImage = SKBitmap.Decode(secondImageStream);
-
-        if (firstImage == null || secondImage == null)
-        {
-            throw new ArgumentException("One or both streams could not be decoded into images.");
-        }
-
-        // Resize the second image to match the height of the first image
+        // Resize second image to match the height of the first image, maintaining aspect ratio
         int resizedSecondImageWidth = (int)((double)secondImage.Width / secondImage.Height * firstImage.Height);
-        using var resizedSecondImage = secondImage.Resize(new SKImageInfo(resizedSecondImageWidth, firstImage.Height), SKFilterQuality.High);
+        secondImage.Mutate(x => x.Resize(resizedSecondImageWidth, firstImage.Height));
 
-        // Calculate the dimensions of the output image
-        int outputImageWidth = firstImage.Width + resizedSecondImage.Width;
+        int outputImageWidth = firstImage.Width + secondImage.Width;
         int outputImageHeight = firstImage.Height;
 
         // Create the output image
-        var outputImage = new SKBitmap(outputImageWidth, outputImageHeight);
+        var outputImage = new SixLabors.ImageSharp.Image<Rgb24>(outputImageWidth, outputImageHeight);
 
-        using (var canvas = new SKCanvas(outputImage))
-        {
-            // Draw the first image
-            canvas.DrawBitmap(firstImage, new SKRect(0, 0, firstImage.Width, firstImage.Height));
+        // Draw the first image
+        outputImage.Mutate(ctx => ctx.DrawImage(firstImage, new SixLabors.ImageSharp.Point(0, 0), 1f));
+        // Draw the resized second image next to the first image
+        outputImage.Mutate(ctx => ctx.DrawImage(secondImage, new SixLabors.ImageSharp.Point(firstImage.Width, 0), 1f));
 
-            // Draw the resized second image next to the first image
-            canvas.DrawBitmap(resizedSecondImage, new SKRect(firstImage.Width, 0, firstImage.Width + resizedSecondImage.Width, firstImage.Height));
-        }
-
-        // Encode the output image into a memory stream
+        // Save to memory stream as PNG
         var memoryStream = new MemoryStream();
-        using (var image = SKImage.FromBitmap(outputImage))
-        using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
-        {
-            data.SaveTo(memoryStream);
-        }
-
-        // Reset the stream position to the beginning
+        outputImage.SaveAsPng(memoryStream);
         memoryStream.Seek(0, SeekOrigin.Begin);
-
         return memoryStream;
     }
+
+    #region SkiaSharp Example
+    // public static Stream CombineTwoImages(byte[] firstImageStream, byte[] secondImageStream)
+    // {
+    //     if (firstImageStream == null)
+    //     {
+    //         throw new ArgumentNullException(nameof(firstImageStream));
+    //     }
+
+    //     if (secondImageStream == null)
+    //     {
+    //         throw new ArgumentNullException(nameof(secondImageStream));
+    //     }
+
+    //     // Decode the streams into SKBitmap objects
+    //     using var firstImage = SKBitmap.Decode(firstImageStream);
+    //     using var secondImage = SKBitmap.Decode(secondImageStream);
+
+    //     if (firstImage == null || secondImage == null)
+    //     {
+    //         throw new ArgumentException("One or both streams could not be decoded into images.");
+    //     }
+
+    //     // Resize the second image to match the height of the first image
+    //     int resizedSecondImageWidth = (int)((double)secondImage.Width / secondImage.Height * firstImage.Height);
+    //     using var resizedSecondImage = secondImage.Resize(new SKImageInfo(resizedSecondImageWidth, firstImage.Height), SKFilterQuality.High);
+
+    //     // Calculate the dimensions of the output image
+    //     int outputImageWidth = firstImage.Width + resizedSecondImage.Width;
+    //     int outputImageHeight = firstImage.Height;
+
+    //     // Create the output image
+    //     var outputImage = new SKBitmap(outputImageWidth, outputImageHeight);
+
+    //     using (var canvas = new SKCanvas(outputImage))
+    //     {
+    //         // Draw the first image
+    //         canvas.DrawBitmap(firstImage, new SKRect(0, 0, firstImage.Width, firstImage.Height));
+
+    //         // Draw the resized second image next to the first image
+    //         canvas.DrawBitmap(resizedSecondImage, new SKRect(firstImage.Width, 0, firstImage.Width + resizedSecondImage.Width, firstImage.Height));
+    //     }
+
+    //     // Encode the output image into a memory stream
+    //     var memoryStream = new MemoryStream();
+    //     using (var image = SKImage.FromBitmap(outputImage))
+    //     using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+    //     {
+    //         data.SaveTo(memoryStream);
+    //     }
+
+    //     // Reset the stream position to the beginning
+    //     memoryStream.Seek(0, SeekOrigin.Begin);
+
+    //     return memoryStream;
+    // }
+    #endregion
 }
