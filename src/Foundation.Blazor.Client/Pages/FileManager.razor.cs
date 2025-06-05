@@ -100,10 +100,8 @@ public partial class FileManager
         var firstFilterPath = selectedItems[0].FilterPath; 
         var folderName = firstFilterPath.TrimEnd('/').Split('/').LastOrDefault();
 
-        
-// Get the current URI
-    var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
 
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         patientId = "1";
 
         if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("PatientId", out var queryPatientId))
