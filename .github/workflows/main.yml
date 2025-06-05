@@ -1,9 +1,10 @@
 name: main
 
-on:
+on: 
   push:
     branches:
       - FOND-38-create-detail-page-for-showing-image-and-record
+  workflow_dispatch:
 
 jobs:
   build-and-push:
