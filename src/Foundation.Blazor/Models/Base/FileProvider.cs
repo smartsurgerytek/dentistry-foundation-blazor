@@ -1527,9 +1527,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             return filePermission;
         }
         public async Task<bool> UploadAsync(string path, Stream stream)
-        {
-            var s3Client = new AmazonS3Client("AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", RegionEndpoint.USWest2);
-
+        {           
             var putRequest = new PutObjectRequest
             {
                 BucketName = "smartsurgerytek.foundation",

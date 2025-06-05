@@ -44,6 +44,8 @@ using Volo.Abp.AspNetCore.Authentication.JwtBearer;
 using Volo.Chat;
 using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.AspNetCore.Mvc.Libs;
+using Amazon.S3;
+using Amazon;
 
 namespace Foundation;
 
@@ -96,6 +98,40 @@ public class FoundationHttpApiHostModule : AbpModule
             options.CheckLibs = false;
         });
 
+
+        context.Services.AddSingleton<IAmazonS3>((options) =>
+        {
+            //var configuration = builder.Configuration;
+
+            var fileProvider = configuration["FileProvider"];
+            if (!string.IsNullOrEmpty(fileProvider))
+            {
+                var bucketName = configuration[$"{fileProvider}:BucketName"];
+                var accessKey = configuration[$"{fileProvider}:AccessKey"];
+                var secretKey = configuration[$"{fileProvider}:SecretKey"];
+                var region = configuration[$"{fileProvider}:Region"];
+                var serviceUrl = configuration[$"{fileProvider}:ServiceUrl"];
+
+                if (fileProvider != null && string.Compare(fileProvider, "amazons3", StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName(region);
+                    return new AmazonS3Client(accessKey, secretKey, bucketRegion);
+                }
+                else
+                {
+                    var config = new AmazonS3Config
+                    {
+                        AuthenticationRegion = "",
+                        ServiceURL = serviceUrl,
+                        ForcePathStyle = true // MUST be true to work correctly with MinIO server
+                    };
+
+                    return new AmazonS3Client(accessKey, secretKey, config);
+                }
+            }
+
+            throw new Exception("FileProvider configuration is missing.");
+        });
     }
 
     private void ConfigureHealthChecks(ServiceConfigurationContext context)

@@ -55,13 +55,15 @@ namespace Foundation.Services
         private string secretKey = "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp";
         private readonly IRepository<ExaminationReport, Guid> _examinationRepository;
         private readonly IRepository<AuditLog, Guid> _auditLogRepository;
+        static IAmazonS3 client;
 
 
         public ExaminationAppService(IRepository<ExaminationReport, Guid> examinationRepository,
-            IRepository<AuditLog, Guid> auditLogRepository)
+            IRepository<AuditLog, Guid> auditLogRepository, IAmazonS3 amazonS3Client)
         {
             _examinationRepository = examinationRepository;
             _auditLogRepository = auditLogRepository;
+            client = amazonS3Client;
         }
         private void AppendParagraph(DocumentFormat.OpenXml.Wordprocessing.TableCell cell, string text)
         {
@@ -432,7 +434,7 @@ namespace Foundation.Services
                 var fileNameOnly = $"{input.PatientId}_{DateTime.UtcNow:yyyyMMddHHmmss}.docx";
                 var s3Key = root + fileNameOnly;
 
-                using var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.USWest2);
+                
                 using var streamData = new MemoryStream(modifiedFileBytes);
                 var putRequest = new PutObjectRequest
                 {
@@ -442,7 +444,7 @@ namespace Foundation.Services
                     ContentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 };
 
-                var response = await s3Client.PutObjectAsync(putRequest);
+                var response = await client.PutObjectAsync(putRequest);
                 await LogAudit("DocEditor - Save S3 bucket", string.Empty);
                 if (response.HttpStatusCode != HttpStatusCode.OK)
                 {
@@ -461,7 +463,7 @@ namespace Foundation.Services
                     Verb = HttpVerb.GET
                 };
 
-                string preSignedUrl = s3Client.GetPreSignedURL(preSignedRequest);
+                string preSignedUrl = client.GetPreSignedURL(preSignedRequest);
 
                 #endregion
 
@@ -588,7 +590,7 @@ namespace Foundation.Services
 
         public string GetPreSignedUrl(string fileName)
         {
-            using var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.USWest2);
+            
             var preSignedRequest = new GetPreSignedUrlRequest
             {
                 BucketName = "smartsurgerytek.foundation",
@@ -596,7 +598,7 @@ namespace Foundation.Services
                 Expires = DateTime.UtcNow.AddMinutes(30),
                 Verb = HttpVerb.GET
             };
-            string preSignedUrl = s3Client.GetPreSignedURL(preSignedRequest);
+            string preSignedUrl = client.GetPreSignedURL(preSignedRequest);
             return preSignedUrl;
         }
     }
