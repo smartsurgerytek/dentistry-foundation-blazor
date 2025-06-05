@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Components;
 using System.IO;
 using System.Linq;
 using Castle.Core.Configuration;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Foundation.Blazor.Client.Pages;
 
@@ -99,7 +100,19 @@ public partial class FileManager
         var firstFilterPath = selectedItems[0].FilterPath; 
         var folderName = firstFilterPath.TrimEnd('/').Split('/').LastOrDefault();
 
+        
+// Get the current URI
+    var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
         patientId = "1";
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("PatientId", out var queryPatientId))
+        {
+            patientId = queryPatientId;
+        }
+
+
+
         NavigationManager.NavigateTo($"/ExaminationRecord?imageNames={selectedFileNamesString}&patientId={patientId}");
     }
 

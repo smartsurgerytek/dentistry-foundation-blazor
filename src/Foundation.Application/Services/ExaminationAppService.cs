@@ -29,7 +29,6 @@ using DeviceDetectorNET.Class.Client;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Office.Drawing;
 using DocumentFormat.OpenXml.Drawing;
-//using System.Drawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System.Text.Json;
 
@@ -63,6 +62,16 @@ namespace Foundation.Services
         {
             _examinationRepository = examinationRepository;
             _auditLogRepository = auditLogRepository;
+        }
+        private void AppendParagraph(DocumentFormat.OpenXml.Wordprocessing.TableCell cell, string text)
+        {
+            cell.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+            var paragraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                new DocumentFormat.OpenXml.Wordprocessing.Run(
+                    new DocumentFormat.OpenXml.Wordprocessing.Text(text)
+                )
+            );
+            cell.Append(paragraph);
         }
 
         public async Task<string> CreateExaminationAsync(PatientExaminationRecordDto input)
@@ -102,7 +111,7 @@ namespace Foundation.Services
                         }
                         header.Save();
                     }
-                   
+
                     var body = wordDocument.MainDocumentPart.Document.Body;
                     var tables = body.Elements<DocumentFormat.OpenXml.Wordprocessing.Table>().ToList();
                     var firstTable = tables[0];
@@ -111,94 +120,56 @@ namespace Foundation.Services
 
                     #region Name,Dentist,Dob,Desc
 
-                    DocumentFormat.OpenXml.Wordprocessing.TableCell cellName = tbFirstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
-                    cellName.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                    var paraName = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                        new DocumentFormat.OpenXml.Wordprocessing.Run(
-                            new DocumentFormat.OpenXml.Wordprocessing.Text("Name: " + input.PatientName)
-                        )
-                    );
-                    cellName.Append(paraName);
-
-
+                    DocumentFormat.OpenXml.Wordprocessing.TableCell cellName = tbFirstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);                    
+                    AppendParagraph(cellName, "Name: " + input.PatientName);
+                   
                     DocumentFormat.OpenXml.Wordprocessing.TableCell cellDoctorName = tbFirstRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(1);
-                    cellDoctorName.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                    var paraDentist = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                        new DocumentFormat.OpenXml.Wordprocessing.Run(
-                            new DocumentFormat.OpenXml.Wordprocessing.Text("Dentist: " + input.DoctorName)
-                        )
-                    );
-                    cellDoctorName.Append(paraDentist);
-
+                    AppendParagraph(cellDoctorName, "Dentist: " + input.DoctorName);
+                    
                     DocumentFormat.OpenXml.Wordprocessing.TableRow tbSecondRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(1);
+
                     DocumentFormat.OpenXml.Wordprocessing.TableCell cellDob = tbSecondRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
-                    cellDob.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                    var paraDob = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                        new DocumentFormat.OpenXml.Wordprocessing.Run(
-                            new DocumentFormat.OpenXml.Wordprocessing.Text("Date Of Birth: " + input.PatientDob)
-                        )
-                    );
-                    cellDob.Append(paraDob);
+                    AppendParagraph(cellDob, "Date Of Birth: " + input.PatientDob);
 
-                    DocumentFormat.OpenXml.Wordprocessing.TableRow tblSeventeenRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(17);
-                    DocumentFormat.OpenXml.Wordprocessing.TableCell cellDesc = tblSeventeenRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
-                    cellDesc.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                    //var allDescriptions = new List<string>();
-                    //var allTeeth = input.UpperRight.Concat(input.UpperLeft).Concat(input.LowerRight).Concat(input.LowerLeft);
-                    //foreach (var tooth in allTeeth)
-                    //{
-                    //    if (!string.IsNullOrWhiteSpace(tooth.Description))
-                    //    {
-                    //        allDescriptions.Add($"{tooth.ToothNumber} : {tooth.Description.Trim()}");
-                    //    }
-                    //}
 
-                    //string combinedDescription = string.Join("\n", allDescriptions);
-                    //var paraDesc =
-                    //    new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                    //    new DocumentFormat.OpenXml.Wordprocessing.Run(
-                    //    new DocumentFormat.OpenXml.Wordprocessing.Text(combinedDescription)
-                    //    {
-                    //        Space = SpaceProcessingModeValues.Preserve
-                    //    }));
-                    //cellDesc.Append(paraDesc);
+                    var tblSeventeenRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAtOrDefault(17);
+                    var cellDesc = tblSeventeenRow?.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAtOrDefault(0);
 
-                    var allDescriptions = new List<string>();
-                    var allTeeth = input.UpperRight.Concat(input.UpperLeft).Concat(input.LowerRight).Concat(input.LowerLeft);
-
-                    foreach (var tooth in allTeeth)
+                    if (cellDesc != null)
                     {
-                        if (!string.IsNullOrWhiteSpace(tooth.Description))
-                        {
-                            allDescriptions.Add($"{tooth.ToothNumber} : {tooth.Description.Trim()}");
-                        }
-                    }                    
-                    var paraDesc = new DocumentFormat.OpenXml.Wordprocessing.Paragraph();
-                    var run = new DocumentFormat.OpenXml.Wordprocessing.Run();
+                        var allDescriptions = input.UpperRight
+                            .Concat(input.UpperLeft)
+                            .Concat(input.LowerRight)
+                            .Concat(input.LowerLeft)
+                            .Where(t => !string.IsNullOrWhiteSpace(t.Description))
+                            .Select(t => $"{t.ToothNumber} : {t.Description.Trim()}")
+                            .ToList();
 
-                    for (int i = 0; i < allDescriptions.Count; i++)
-                    {
-                        run.Append(new DocumentFormat.OpenXml.Wordprocessing.Text(allDescriptions[i])
+                        var paraDesc = new DocumentFormat.OpenXml.Wordprocessing.Paragraph();
+                        var run = new DocumentFormat.OpenXml.Wordprocessing.Run();
+
+                        for (int i = 0; i < allDescriptions.Count; i++)
                         {
-                            Space = SpaceProcessingModeValues.Preserve
-                        });                        
-                        if (i < allDescriptions.Count - 1)
-                        {
-                            run.Append(new DocumentFormat.OpenXml.Wordprocessing.Break());
+                            run.Append(new DocumentFormat.OpenXml.Wordprocessing.Text(allDescriptions[i]) { Space = SpaceProcessingModeValues.Preserve });
+                            if (i < allDescriptions.Count - 1)
+                            {
+                                run.Append(new DocumentFormat.OpenXml.Wordprocessing.Break());
+                            }
                         }
+
+                        paraDesc.Append(run);
+                        cellDesc.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
+                        cellDesc.Append(paraDesc);
+
+                        //AppendParagraph(cellDesc, "Description: " + paraDesc);
                     }
-
-                    paraDesc.Append(run);                    
-                    cellDesc.RemoveAllChildren<DocumentFormat.OpenXml.Wordprocessing.Paragraph>();
-                    cellDesc.Append(paraDesc);
-
 
                     #endregion
 
 
                     DocumentFormat.OpenXml.Wordprocessing.TableRow tbFourRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(3);
                     DocumentFormat.OpenXml.Wordprocessing.TableRow tblSixteenRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAt(16);
-                                       
+
                     #region Image Creation using ImageSharp
 
                     var cellPic = tbFourRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAt(0);
@@ -420,7 +391,8 @@ namespace Foundation.Services
 
                     #endregion
 
-                    #region Dycom Images                    
+                    #region Dycom Images  
+
                     if (!string.IsNullOrEmpty(input.ImageNames))
                     {
                         var targetCell = tblSixteenRow.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().First();
@@ -428,7 +400,9 @@ namespace Foundation.Services
 
                         foreach (var imageBytes in allImages)
                         {
+                            // Create a new image part for each image
                             var imagePartDc = wordDocument.MainDocumentPart.AddImagePart(ImagePartType.Jpeg);
+
                             using (var streamDc = new MemoryStream(imageBytes))
                             {
                                 imagePartDc.FeedData(streamDc);
@@ -436,11 +410,15 @@ namespace Foundation.Services
 
                             string relationshipId = wordDocument.MainDocumentPart.GetIdOfPart(imagePartDc);
                             var imageDrawing = CreateImageElement(relationshipId, 200, 150);
-                            var imageParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(imageDrawing));
+                            var imageParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                                new DocumentFormat.OpenXml.Wordprocessing.Run(imageDrawing)
+                            );
+
                             targetCell.Append(imageParagraph);
                         }
                     }
                     #endregion
+
 
                     wordDocument.MainDocumentPart.Document.Save();
                     await LogAudit("DocEditor - File Create", string.Empty);
@@ -606,6 +584,20 @@ namespace Foundation.Services
                 ExecutionTime = Clock.Now,
                 ExecutionDuration = 150
             });
+        }
+
+        public string GetPreSignedUrl(string fileName)
+        {
+            using var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.USWest2);
+            var preSignedRequest = new GetPreSignedUrlRequest
+            {
+                BucketName = "smartsurgerytek.foundation",
+                Key = "foundation/documents/"+ fileName,
+                Expires = DateTime.UtcNow.AddMinutes(30),
+                Verb = HttpVerb.GET
+            };
+            string preSignedUrl = s3Client.GetPreSignedURL(preSignedRequest);
+            return preSignedUrl;
         }
     }
 }

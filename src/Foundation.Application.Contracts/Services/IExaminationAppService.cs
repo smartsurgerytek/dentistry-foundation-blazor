@@ -10,5 +10,6 @@ namespace Foundation.Services
     public interface IExaminationAppService
     {
         Task<string> CreateExaminationAsync(PatientExaminationRecordDto input);
+        string GetPreSignedUrl(string fileName);
     }
 }

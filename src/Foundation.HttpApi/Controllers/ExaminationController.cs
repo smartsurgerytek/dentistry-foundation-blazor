@@ -1,5 +1,6 @@
 ﻿using Amazon;
 using Amazon.S3;
+using Amazon.S3.Model;
 using Foundation.Dtos;
 using Foundation.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +16,15 @@ namespace Foundation.Controllers
     [Route("api/app/examination")]
     public class ExaminationController : ControllerBase
     {
-        private string accessKey = "AKIAZI2LGNNVDTFYF57P";
-        private string secretKey = "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";
+        
         private readonly IExaminationAppService _examinationAppService;
+
+        //static IAmazonS3 client;
 
         public ExaminationController(IExaminationAppService examinationAppService)
         {
             _examinationAppService = examinationAppService;
+            
         }
 
         [HttpPost]
@@ -31,20 +34,26 @@ namespace Foundation.Controllers
             return Content(fNmae, "text/plain");
         }
 
-        [HttpGet("downloadpdf")]
-        public async Task<IActionResult> DownloadPdf(string fileName)
+        //[HttpGet("downloadpdf")]
+        //public async Task<IActionResult> DownloadPdf(string fileName)
+        //{            
+        //    try
+        //    {
+        //        var response = await client.GetObjectAsync("smartsurgerytek.foundation", $"foundation/documents/{fileName}");
+        //        return File(response.ResponseStream, response.Headers.ContentType, fileName);
+        //    }
+        //    catch (Exception ex)
+        //    {                
+        //        throw;
+        //    }                       
+        //}
+
+        [HttpGet("presignedurl")]
+        public string PreSignedUrl(string fileName)
         {
-            RegionEndpoint bucketRegion = RegionEndpoint.GetBySystemName("us-west-2");
-            var client = new AmazonS3Client(accessKey, secretKey, bucketRegion);
-            try
-            {
-                var response = await client.GetObjectAsync("smartsurgerytek.foundation", $"foundation/documents/{fileName}");
-                return File(response.ResponseStream, response.Headers.ContentType, fileName);
-            }
-            catch (Exception ex)
-            {                
-                throw;
-            }                       
+            string preSignedUrl =  _examinationAppService.GetPreSignedUrl(fileName);
+
+            return preSignedUrl;
         }
     }
 

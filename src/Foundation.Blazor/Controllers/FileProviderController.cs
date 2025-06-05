@@ -16,6 +16,7 @@ using Syncfusion.Pdf;
 using Syncfusion.DocIORenderer;
 using System.Threading.Tasks;
 using Foundation.Dtos;
+using Syncfusion.PdfExport;
 
 namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
 {
@@ -277,16 +278,18 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
                     using (WordDocument wordDocument = new WordDocument(docxStream, Syncfusion.DocIO.FormatType.Docx))
                     {
                         DocIORenderer renderer = new DocIORenderer();
-                        PdfDocument pdfDocument = renderer.ConvertToPDF(wordDocument);
+                        //PdfDocument pdfDocument = renderer.ConvertToPDF(wordDocument);
 
                         using (var pdfMemoryStream = new MemoryStream())
                         {
-                            pdfDocument.Save(pdfMemoryStream);
+                            //pdfDocument.Save(pdfMemoryStream);
+                            wordDocument.Save(pdfMemoryStream, Syncfusion.DocIO.FormatType.Docx);
                             pdfMemoryStream.Position = 0;
                             string pdfS3Path = "foundation/documents/" + request.FileName;
                             bool uploadSuccess = await operation.UploadAsync(pdfS3Path, pdfMemoryStream);
                             renderer.Dispose();
-                            pdfDocument.Close(true);
+                            //pdfDocument.Close(true);
+                            wordDocument.Close();
                             return Ok(uploadSuccess);
                         }
                     }

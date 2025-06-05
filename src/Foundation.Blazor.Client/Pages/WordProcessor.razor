@@ -1,4 +1,5 @@
 ﻿@page "/WordProcessor"
+
 @inject IJSRuntime JS
 @inject IHttpClientFactory HttpClientFactory
 
@@ -110,7 +111,7 @@
         spinnerObj.ShowAsync();
         SfDocumentEditor editor = _containerRef.DocumentEditor;
 
-        string fileName = GenerateSecureCode() + ".pdf";
+        string fileName = GenerateSecureCode() + ".Docx";
         string base64Data = await editor.SaveAsBlobAsync(FormatType.Docx);
         var documentData = new
         {
@@ -179,6 +180,12 @@
 
     private async Task OnCreated(object args)
     {
+
+        Console.WriteLine("====aws====");
+        Console.WriteLine(fNmae);
+        Console.WriteLine(PatientId);
+        Console.WriteLine("====PatientId====");
+
         if (_containerRef?.DocumentEditor == null) return;
         var decodedFname = Uri.UnescapeDataString(fNmae);
         var fileBytes = await Http.GetByteArrayAsync(decodedFname);
