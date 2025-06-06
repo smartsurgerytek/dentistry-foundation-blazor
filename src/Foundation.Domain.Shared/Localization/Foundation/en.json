@@ -88,6 +88,8 @@
     "SelectDateOfBirth": "Select Date of Birth",
     "DetailedDescription": "Detailed Description",
     "SubmitRecord": "Submit Record",
-    "File": "File"
+    "File": "File",
+    "Details": "Details",
+    "Upload": "Upload"
   }
 }

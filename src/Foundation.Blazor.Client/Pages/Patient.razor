@@ -6,18 +6,19 @@
 <h3 class="text-xl font-semibold mb-4">@L["Patients"]</h3>
 
 <SfGrid DataSource="@Patients" @ref="PatientGrid" AllowPaging="true" AllowSorting="true" Toolbar="@ToolbarItems">
+    <GridSearchSettings Fields="@SpecificColumns" Operator="Operator.Equal"></GridSearchSettings>
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="PatientDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
         <GridColumn Field="Name" HeaderText="@L["PatientName"]" Width="250"></GridColumn>
         <GridColumn Field="DateOfBirth" HeaderText="@L["DateOfBirth"]" Width="250"></GridColumn>
         <GridColumn Field="PatientNumber" HeaderText="@L["PatientId"]" Width="250"></GridColumn>
-        <GridColumn HeaderText="@L["ManageRecords"]" Width="250">
+        <GridColumn HeaderText="@L["Details"]" Width="250">
             <Template>
                 @{
                     var patient = (context as PatientDto);
                 }
-                <button class="e-btn" @onclick="() => NavigateRecord(patient)">@L["Records"]</button>
+                <button class="e-btn" @onclick="() => NavigateDetails(patient)">@L["Details"]</button>
             </Template>
         </GridColumn>
     </GridColumns>
@@ -73,7 +74,8 @@
     private CreateUpdatePatientDto CurrentPatient = new();
     private string DialogTitle = string.Empty;
     private bool IsNew = true;
-    private List<ItemModel> ToolbarItems = new();
+    private List<object> ToolbarItems = new();
+    private string[] SpecificColumns = ["PatientNumber"];
 
     [Parameter]
     [SupplyParameterFromQuery]
@@ -94,12 +96,13 @@
     {
         await LoadPatients();
 
-        ToolbarItems.AddRange(new[]
+        ToolbarItems.AddRange(new object[]
         {
             new ItemModel() { TabIndex=0 , Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" },
             new ItemModel() { TabIndex = 1, Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" },
             new ItemModel() { TabIndex = 2, Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" },
-            new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" }
+            new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" },
+            (object)"Search"
         });
     }
 
@@ -198,8 +201,8 @@
         await Dialog.HideAsync();
     }
 
-    private void NavigateRecord(PatientDto patientDto)
+    private void NavigateDetails(PatientDto patientDto)
     {
-        NavigationManager.NavigateTo($"ExaminationRecord?PatientId={patientDto.Id}");
+        NavigationManager.NavigateTo($"Details?PatientId={patientDto.Id}");
     }
 }

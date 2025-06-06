@@ -348,7 +348,7 @@ new ToothInfoDto { ToothNumber = 37 }, new ToothInfoDto { ToothNumber = 38 }
             PatientName = PatientName,
             PatientDob = PatientDob,
             FileBaseAddress = Http.BaseAddress.ToString(),
-            DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/DefaultFileV1.docx"),
+            DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/DefaultFileV2.docx"),
             DefaultJawImageBytes = await HttpClient.GetByteArrayAsync("/FileData/withnum.jpg"),
         };
         record.ImageNames = imageNames;

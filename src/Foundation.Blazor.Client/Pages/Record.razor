@@ -1,15 +1,17 @@
 ﻿@page "/Records"
+@using System.Text.Json
 
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 @inherits FoundationComponentBase
+@inject HttpClient http
 
 <h3> @L["Records"] </h3>
 
 <SfGrid DataSource="@Records" @ref="RecordGrid" AllowPaging="true" AllowSorting="true" Toolbar=@Toolbaritems>
     <GridEvents OnToolbarClick="OnToolbarClick" TValue="RecordDto"></GridEvents>
     <GridColumns>
-        <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"  Width="10"></GridColumn>
+        <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false" Width="10"></GridColumn>
         <GridColumn Field="OrganizationName" HeaderText=@L["Organization"] Width="15"></GridColumn>
         <GridColumn Field="DepartmentName" HeaderText=@L["Department"] Width="15"></GridColumn>
         <GridColumn Field="PatientName" HeaderText=@L["Patient"] Width="15"></GridColumn>
@@ -19,7 +21,8 @@
             <Template>
                 @{
                     var record = (context as RecordDto);
-                    <Button @onclick="@(() => NavigateFile(record))">View</Button>
+                    // <Button @onclick="@(() => NavigateFile(record))">View</Button>
+                    <Button @onclick="@(() => NavigateFile(record))">Edit</Button>
                 }
             </Template>
         </GridColumn>
@@ -68,8 +71,21 @@
     }
 
     private void NavigateFile(RecordDto recordDto)
-    {
-        NavigationManager.NavigateTo("/RecordViewer?fileName=" + recordDto.FileName);
+    {        
+        NavigationManager.NavigateTo($"/WordProcessor?fNmae={recordDto.FileName}&patientId={recordDto.PatientId}");
     }
+    // private async Task NavigateFileEdit(RecordDto recordDto)
+    // {
+    //     var preSignedUrl = HttpClientFactory.CreateClient("ApiClient").BaseAddress + $"api/app/examination/PreSignedUrl?fileName={recordDto.FileName}";
 
+    //     var response = await http.GetAsync(preSignedUrl);
+    //     var json = await response.Content.ReadAsStringAsync();
+    //     var returnSignedUrl = await response.Content.ReadAsStringAsync();
+    //     var encodedUrl = Uri.EscapeDataString(returnSignedUrl);
+    //     // var patientId = string.IsNullOrEmpty(recordDto.PatientId) ? "1" : recordDto.PatientId;
+
+    //     //NavigationManager.NavigateTo($"/WordProcessor?fNmae={encodedUrl}&patientId={recordDto.PatientId}");
+
+    //     NavigationManager.NavigateTo($"/WordProcessor?fNmae={encodedUrl}&patientId={recordDto.PatientId}");
+    // }
 }

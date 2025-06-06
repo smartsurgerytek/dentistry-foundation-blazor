@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Components;
 using System.IO;
 using System.Linq;
 using Castle.Core.Configuration;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Foundation.Blazor.Client.Pages;
 
@@ -99,7 +100,17 @@ public partial class FileManager
         var firstFilterPath = selectedItems[0].FilterPath; 
         var folderName = firstFilterPath.TrimEnd('/').Split('/').LastOrDefault();
 
+
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         patientId = "1";
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("PatientId", out var queryPatientId))
+        {
+            patientId = queryPatientId;
+        }
+
+
+
         NavigationManager.NavigateTo($"/ExaminationRecord?imageNames={selectedFileNamesString}&patientId={patientId}");
     }
 
@@ -113,7 +124,8 @@ public partial class FileManager
         // check if any of the selected files is a non-image
         var imageExtensions = new[] { ".jpg", ".jpeg", ".png" }; // ".dcm" removed for now
         var selectedItem = this.SfFileManager?.GetSelectedFiles();
-        if (selectedItem?.Any(i => !i.IsFile && !imageExtensions.Contains(i.Type?.ToLower())) ?? true)
+        Console.WriteLine($"Selected items type: {selectedItem[0].Type}");
+        if (selectedItem?.Any(i => !i.IsFile || !imageExtensions.Contains(i.Type?.ToLower())) ?? true)
         {
             return;
         }

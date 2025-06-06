@@ -23,6 +23,7 @@ using Foundation.Services;
 using Polly.Extensions.Http;
 using Microsoft.AspNetCore.Cors;
 using System.Linq;
+using Amazon.S3;
 
 namespace Foundation;
 

@@ -3,7 +3,7 @@ name: main
 on: 
   push:
     branches:
-      - FOND-40-ai-measure-icons-image-editor
+      - FOND-38-create-detail-page-for-showing-image-and-record
   workflow_dispatch:
 
 jobs:

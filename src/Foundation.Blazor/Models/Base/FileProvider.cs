@@ -1056,23 +1056,35 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             }
         }
 
-        public async Task GetSegmentedImage(bool isPeriapicalImage, string base64Image, string filterPath, string fileName)
+        /// <summary>
+        /// Gets the segmented image from the AI service, creates another a+b image and uploads them to S3.
+        /// returns the a+b image
+        /// </summary>
+        public async Task<string> GetSegmentedImage(bool isPeriapicalImage, string base64Image, string filterPath, string fileName, string combinedImageFileName = "")
         {
-            // 2.
             // get the segmented ai image from api
             var enhancedImage = await _imageService.GetSegmentedImage(isPeriapicalImage, base64Image);
-            if (enhancedImage == null) return;
+            if (enhancedImage == null) return null;
 
             var enhancedImageBytes = Convert.FromBase64String(enhancedImage.Image);
             using var enhancedImageStream = new MemoryStream(enhancedImageBytes);
 
-            var enhancedImageFileName = Path.GetFileNameWithoutExtension(fileName) + "_ai_segmented." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
+            // generate the combined a+b image
+            var base64ImageBytes = Convert.FromBase64String(base64Image);
+            using var combinedImageStream = ImageOperationsHelper.CombineTwoImages(base64ImageBytes, enhancedImageBytes);
+
+            var enhancedImageFileName = Path.GetFileNameWithoutExtension(fileName) + "_ai." + enhancedImage.Content_Type?.Split("/")[1] ?? ".png";
+            combinedImageFileName = string.IsNullOrEmpty(combinedImageFileName) ? Path.GetFileNameWithoutExtension(fileName) + "_ai_ab." + "png" : combinedImageFileName;
             // // upload the ai image
             await UploadFileToS3(enhancedImageStream, enhancedImageFileName, filterPath);
+            await UploadFileToS3(combinedImageStream, combinedImageFileName, filterPath);
             _logger.LogInformation("Uploaded AI-enhanced image: {EnhancedImageFileName}", enhancedImageFileName);
+            _logger.LogInformation("Uploaded combined image: {CombinedImageFileName}", combinedImageFileName);
+
+            return Convert.ToBase64String(combinedImageStream.ToArray());
         }
 
-        public async Task GetMeasurementImage(bool isPeriapicalImage, string base64Image, string filterPath, string fileName)
+        public async Task<string> GetMeasurementImage(bool isPeriapicalImage, string base64Image, string filterPath, string fileName, string combinedImageFileName = "")
         {
             // // 2.a get the measurement image
             var measurementImage = await _imageService.GetMeasurementImage(isPeriapicalImage, base64Image);
@@ -1080,10 +1092,19 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             var measurementImageBytes = Convert.FromBase64String(measurementImage.Image);
             using var measurementImageStream = new MemoryStream(measurementImageBytes);
 
-            var measurementImageFileName = Path.GetFileNameWithoutExtension(fileName) + "_ai_measurement." + measurementImage.Content_Type?.Split("/")[1] ?? ".png";
+            // generate the combined a+b image
+            var base64ImageBytes = Convert.FromBase64String(base64Image);
+            using var combinedImageStream = ImageOperationsHelper.CombineTwoImages(base64ImageBytes, measurementImageBytes);
+
+            var measurementImageFileName = Path.GetFileNameWithoutExtension(fileName) + "_measurement." + measurementImage.Content_Type?.Split("/")[1] ?? ".png";
+            combinedImageFileName = string.IsNullOrEmpty(combinedImageFileName) ? Path.GetFileNameWithoutExtension(fileName) + "_measurement_ab." + "png" : combinedImageFileName;
             // // upload the measurement image
             await UploadFileToS3(measurementImageStream, measurementImageFileName, filterPath);
+            await UploadFileToS3(combinedImageStream, combinedImageFileName, filterPath);
+            _logger.LogInformation("Uploaded combined image: {CombinedImageFileName}", combinedImageFileName);
             _logger.LogInformation("Uploaded measurement image: {MeasurementImageFileName}", measurementImageFileName);
+
+            return Convert.ToBase64String(combinedImageStream.ToArray());
         }
 
         public async Task UploadFileToS3(Stream stream, string fileName, string path)
@@ -1143,8 +1164,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                     GetBucketList();
                     await ListingObjectsAsync("/", RootName.Replace("/", "") + path, false);
 
-                    using Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + names[0]);
-
+                    Stream stream = await fileTransferUtility.OpenStreamAsync(bucketName, RootName.Replace("/", "") + path + names[0]);
                     fileStreamResult = new FileStreamResult(stream, "APPLICATION/octet-stream");
                     fileStreamResult.FileDownloadName = names[0].Contains("/") ? names[0].Split("/").Last() : names[0];
 
@@ -1507,9 +1527,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
             return filePermission;
         }
         public async Task<bool> UploadAsync(string path, Stream stream)
-        {
-            var s3Client = new AmazonS3Client("AKIAZI2LGNNVDTFYF57P", "tR/1EYOayK8i5R5DCZTJCyqAXCkDVMJWYhYEfDRp", RegionEndpoint.USWest2);
-
+        {           
             var putRequest = new PutObjectRequest
             {
                 BucketName = "smartsurgerytek.foundation",
