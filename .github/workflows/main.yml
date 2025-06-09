@@ -3,7 +3,7 @@ name: main
 on: 
   push:
     branches:
-      - FOND-38-create-detail-page-for-showing-image-and-record
+      - FOND-46-update-domain
   workflow_dispatch:
 
 jobs:
