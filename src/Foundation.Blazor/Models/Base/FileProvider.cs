@@ -21,6 +21,7 @@ using Foundation.Blazor.Services;
 using System.Drawing;
 using Newtonsoft.Json;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Volo.Abp.Features;
 
 namespace Syncfusion.EJ2.FileManager.FileProvider
 {
@@ -154,6 +155,13 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
                 if (response.CommonPrefixes.Count > 0)
                 {
                     files = response.CommonPrefixes.Select((y, i) => CreateDirectoryContentInstance(getFileName(response.CommonPrefixes[i], path), false, "Folder", 0, DateTime.Now, DateTime.Now, this.checkChild(response.CommonPrefixes[i]), getFilePath(y))).ToList();
+                }
+
+                // hide pano folder, is pano is disabled
+                var isPanoEnabled = IsPanoEnabled().GetAwaiter().GetResult();
+                if (!isPanoEnabled)
+                {
+                    files = [.. files.Where(x => x.Name != "pano")];
                 }
             }
             catch (Exception ex) { throw ex; }
@@ -963,15 +971,33 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
         }
 
         #region X-Ray Image Uploading/Processing
+        private async Task<bool> IsPanoEnabled()
+        {
+            // Check if the pano feature is enabled
+            return await _imageService.IsPanoEnabled();
+        }
+
         private async Task ProcessAndUploadEnhancedImage(IFormFile file, string path)
         {
             using var originalImageStream = file.OpenReadStream();
             var orignialImageBytes = await originalImageStream.GetAllBytesAsync();
             var originalImageBase64 = Convert.ToBase64String(orignialImageBytes);
 
-            // 1. get image type pe/pano
-            var isPeriapicalImage = await _imageService.IsPeriapicalImage(originalImageBase64);
-            _logger.LogInformation("Image type determined: {IsPeriapicalImage}", isPeriapicalImage);
+            // 0. check if pano is enabled
+            var isPanoEnabled = await IsPanoEnabled();
+            _logger.LogInformation("Is Pano Enabled: {IsPanoEnabled}", isPanoEnabled);
+
+            var isPeriapicalImage = true; // default to true, will be updated based on image type
+            if (isPanoEnabled)
+            {
+                // 1. get image type pe/pano
+                isPeriapicalImage = await _imageService.IsPeriapicalImage(originalImageBase64);
+                _logger.LogInformation("Image type determined: {IsPeriapicalImage}", isPeriapicalImage);
+            }
+            else
+            {
+                _logger.LogInformation("Pano feature is disabled, treating image as periapical.");
+            }
 
             // construct the path for the original image
             var paPanoFolder = isPeriapicalImage ? "pa/" : "pano/";

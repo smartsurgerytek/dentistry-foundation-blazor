@@ -9,13 +9,16 @@
 @inject HttpClient HttpClient
 @inject IConfiguration Configuration
 @inject ILogger<FileManager> Logger
+@inject IFeatureChecker FeatureChecker
 @using Syncfusion.Blazor.Spinner
+@using Volo.Abp.Features
 
 
 <SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"
     SelectedItemsChanged="OnSelectedItemsChanged">
 
     <SfSpinner @bind-Visible="ShowSpinner"></SfSpinner>
+    <FileManagerUploadSettings AllowedExtensions="@AllowedExtensions" AutoUpload="true"/>
     <FileManagerAjaxSettings Url="/api/FileProvider/AmazonS3FileOperations" UploadUrl="/api/FileProvider/AmazonS3Upload"
         GetImageUrl="/api/FileProvider/AmazonS3GetImage" DownloadUrl="/api/FileProvider/AmazonS3Download">
     </FileManagerAjaxSettings>
@@ -23,8 +26,8 @@
         <FileManagerCustomToolbarItems>
             <FileManagerCustomToolbarItem Name="ExaminationRecord">
                 <Template>
-                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt examination-record" Content="Examination Record"
-                        OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled">
+                    <SfButton CssClass="e-control e-btn e-lib e-tbar-btn e-tbtn-txt examination-record"
+                        Content="Examination Record" OnClick="GenerateRecord" Disabled="@IsExaminationRecordDisabled">
                     </SfButton>
                 </Template>
             </FileManagerCustomToolbarItem>
@@ -46,6 +49,7 @@
     </FileManagerToolbarSettings>
     <FileManagerEvents TValue="FileManagerDirectoryContent" OnFileOpen="OpenFilePreview"></FileManagerEvents>
     <FileManagerEvents TValue="FileManagerDirectoryContent" BeforePopupOpen="SuppressImagePreview"></FileManagerEvents>
+    @* <FileManagerEvents TValue="FileManagerDirectoryContent" Onsend="OnBeforeSend"></FileManagerEvents> *@
 </SfFileManager>
 @* <div class="posAbsolute"> *@
 @* </div> *@
@@ -88,9 +92,11 @@
     .examination-record:hover {
         color: white !important;
     }
+
     .ai-icon:hover {
         color: white !important;
     }
+
     .measure-icon:hover {
         color: white !important;
     }
@@ -120,12 +126,12 @@
 
     .ai-icon {
         font-size: 14px !important;
-        font-weight: normal  !important;
+        font-weight: normal !important;
     }
 
     .measure-icon {
         font-size: 14px !important;
-        font-weight: normal  !important;
+        font-weight: normal !important;
     }
 
     .ai-icon::before {

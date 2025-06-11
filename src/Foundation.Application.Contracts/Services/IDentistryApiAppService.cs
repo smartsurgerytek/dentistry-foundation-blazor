@@ -18,5 +18,6 @@ namespace Foundation.Services
         public Task<PaPanoClassificationResponseDto> PostPaPanoClassificationAsync(PaPanoClassificationRequestDto imageRequest);
         public Task<FDISegmentationResponseDto> PostPanoFdiSegmentationCvatAsync(SegmentationApiRequestDtoWrapper imageRequest);
         public Task<SegmentationApiResponseDto> PostMeasurementImageAsync(SegmentationApiRequestDtoWrapper imageRequest);
+        public Task<bool> IsPanoEnabledAsync();
     }
 }

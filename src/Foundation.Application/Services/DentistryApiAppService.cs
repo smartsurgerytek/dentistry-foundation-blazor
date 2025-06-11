@@ -19,6 +19,7 @@ using Foundation.Application.Contracts.Dtos;
 using JetBrains.Annotations;
 using Volo.Abp.Domain.Repositories;
 using Foundation.Entities;
+using Volo.Abp.Features;
 
 namespace Foundation.Services
 {
@@ -28,8 +29,9 @@ namespace Foundation.Services
         private readonly string ApiKey;
         private readonly HttpClient _httpClient;
         private AuditLogAppServices _auditLogAppService;
+        private IFeatureChecker _featureChecker;
 
-        public DentistryApiAppService(IConfiguration configuration, HttpClient httpClient, AuditLogAppServices auditLogAppService)
+        public DentistryApiAppService(IConfiguration configuration, HttpClient httpClient, AuditLogAppServices auditLogAppService, IFeatureChecker featureChecker)
             : base()
         {
             ApiUrl = configuration["ApiUrl"];
@@ -38,6 +40,7 @@ namespace Foundation.Services
             _auditLogAppService = auditLogAppService;
 
             _httpClient.DefaultRequestHeaders.ExpectContinue = false;
+            _featureChecker = featureChecker;
         }
 
         public async Task<FDISegmentationResponseDto> PostPanoFdiSegmentationCvatAsync(SegmentationApiRequestDtoWrapper imageRequest)
@@ -163,6 +166,24 @@ namespace Foundation.Services
                     ExecutionDuration = 0,
                 });
                 throw;
+            }
+        }
+
+        public async Task<bool> IsPanoEnabledAsync()
+        {
+            try
+            {
+                var panoFeature = await _featureChecker.GetOrNullAsync("Foundation.IsPanoEnabled");
+                if (panoFeature != null)
+                {
+                    return bool.TryParse(panoFeature, out var isEnabled) && isEnabled;
+                }
+
+                return false;
+            }
+            catch (System.Exception ex)
+            {
+                return false;
             }
         }
     }

@@ -27,6 +27,23 @@ namespace Foundation.Blazor.Services
             return allowedExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase);
         }
 
+        public async Task<bool> IsPanoEnabled()
+        {
+            try
+            {
+                _logger.LogInformation("Checking if the pano feature is enabled.");
+                var panoFeature = await _httpClient.GetAsync(Path.Combine(ApiUrlInternal, "dentistry-api/is-pano-enabled"));
+                var isEnabled = await panoFeature.Content.ReadAsAsync<bool>();
+
+                return isEnabled;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while checking if the pano feature is enabled. {ex.Message}");
+                return false;
+            }
+        }
+
         public async Task<bool> IsPeriapicalImage(string base64Img)
         {
             try
