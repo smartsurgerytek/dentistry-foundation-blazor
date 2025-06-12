@@ -7,7 +7,7 @@
 
 <SfGrid DataSource="@Patients" @ref="PatientGrid" AllowPaging="true" AllowSorting="true" Toolbar="@ToolbarItems">
     <GridSearchSettings Fields="@SpecificColumns" Operator="Operator.Equal"></GridSearchSettings>
-    <GridEvents OnToolbarClick="OnToolbarClick" TValue="PatientDto"></GridEvents>
+    <GridEvents OnToolbarClick="OnToolbarClick" OnActionBegin="ActionBeginHandler" TValue="PatientDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="Id" HeaderText="ID" IsPrimaryKey="true" Visible="false"></GridColumn>
         <GridColumn Field="Name" HeaderText="@L["PatientName"]" Width="250"></GridColumn>
@@ -32,28 +32,28 @@
 
                 <div class="form-group">
                     <label class="form-label">@L["PatientId"]<span class="text-red-500">*</span></label>
-                    <SfTextBox TValue="string"
-                    Placeholder="@L["EnterPatientId"]"
+                    <SfTextBox TValue="string" 
+                    Placeholder="@L["EnterPatientId"]" 
                     FloatLabelType="FloatLabelType.Auto"
-                    @bind-Value="CurrentPatient.PatientNumber" />
+                        @bind-Value="CurrentPatient.PatientNumber" />
                     <ValidationMessage For="@(() => CurrentPatient.PatientNumber)" class="text-red-500" />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">@L["PatientName"]<span class="text-red-500">*</span></label>
-                    <SfTextBox TValue="string"
-                    Placeholder="@L["EnterPatientName"]"
+                    <SfTextBox TValue="string" 
+                    Placeholder="@L["EnterPatientName"]" 
                     FloatLabelType="FloatLabelType.Auto"
-                    @bind-Value="CurrentPatient.Name" />
+                        @bind-Value="CurrentPatient.Name" />
                     <ValidationMessage For="@(() => CurrentPatient.Name)" class="text-red-500" />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">@L["DateOfBirth"]</label>
-                    <SfDatePicker TValue="DateTime?"
+                    <SfDatePicker TValue="DateTime?" 
                     Placeholder="@L["SelectDateOfBirth"]"
-                    FloatLabelType="FloatLabelType.Auto"
-                    @bind-Value="SelectedDate" />
+                        FloatLabelType="FloatLabelType.Auto" 
+                        @bind-Value="SelectedDate" />
                     <ValidationMessage For="@(() => CurrentPatient.DateOfBirth)" class="text-red-500" />
                 </div>
             </EditForm>
@@ -75,30 +75,29 @@
     private string DialogTitle = string.Empty;
     private bool IsNew = true;
     private List<object> ToolbarItems = new();
-    private string[] SpecificColumns = ["PatientNumber"];
+    private string[] SpecificColumns = ["PatientNumber", "Name"];
+    private string SearchValue = string.Empty;
 
     [Parameter]
-    [SupplyParameterFromQuery]
+    [SupplyParameterFromQuery] 
     public string DoctorId { get; set; }
 
     private DateTime? SelectedDate
     {
         get => CurrentPatient.DateOfBirth == default
-            ? DateTime.Today
-            : CurrentPatient.DateOfBirth.ToDateTime(TimeOnly.MinValue);
+        ? DateTime.Today
+        : CurrentPatient.DateOfBirth.ToDateTime(TimeOnly.MinValue);
 
         set => CurrentPatient.DateOfBirth = value.HasValue
-            ? DateOnly.FromDateTime(value.Value)
-            : default;
+        ? DateOnly.FromDateTime(value.Value)
+        : default;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadPatients();
-
         ToolbarItems.AddRange(new object[]
         {
-            new ItemModel() { TabIndex=0 , Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" },
+            new ItemModel() { TabIndex = 0, Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" },
             new ItemModel() { TabIndex = 1, Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" },
             new ItemModel() { TabIndex = 2, Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" },
             new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" },
@@ -106,12 +105,37 @@
         });
     }
 
+    public async Task ActionBeginHandler(ActionEventArgs<PatientDto> args)
+    {
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Searching)
+        {
+            args.Cancel = true; // cancel default searching
+
+            SearchValue = args.SearchString;
+            await DoSearchAsync();
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task DoSearchAsync()
+    {
+        if (string.IsNullOrEmpty(SearchValue))
+        {
+            Patients = new List<PatientDto>();
+            return;
+        }
+
+        await LoadPatients();
+        PatientGrid.SearchAsync(SearchValue);
+    }
+
     private async Task LoadPatients()
-    {        
+    {
         if (!string.IsNullOrEmpty(DoctorId))
         {
             Patients = await HttpClientFactory.CreateClient("ApiClient")
-                .GetFromJsonAsync<List<PatientDto>>($"/api/app/patient/patient-by/{DoctorId}") ?? new();
+            .GetFromJsonAsync<List<PatientDto>>($"/api/app/patient/patient-by/{DoctorId}") ?? new();
         }
     }
 
@@ -125,10 +149,10 @@
                 IsNew = true;
                 DialogTitle = L["AddPatient"];
                 CurrentPatient = new CreateUpdatePatientDto
-                    {
-                        DoctorId = Guid.Parse(DoctorId),
-                        DateOfBirth = DateOnly.FromDateTime(DateTime.Today)
-                    };
+                {
+                    DoctorId = Guid.Parse(DoctorId),
+                    DateOfBirth = DateOnly.FromDateTime(DateTime.Today)
+                };
                 await Dialog.ShowAsync();
                 break;
 
@@ -137,13 +161,13 @@
                 DialogTitle = L["EditPatient"];
                 var selected = selectedRow.First();
                 CurrentPatient = new CreateUpdatePatientDto
-                    {
-                        Id = selected.Id,
-                        Name = selected.Name,
-                        DateOfBirth = selected.DateOfBirth,
-                        PatientNumber = selected.PatientNumber,
-                        DoctorId = selected.DoctorId
-                    };
+                {
+                    Id = selected.Id,
+                    Name = selected.Name,
+                    DateOfBirth = selected.DateOfBirth,
+                    PatientNumber = selected.PatientNumber,
+                    DoctorId = selected.DoctorId
+                };
                 await Dialog.ShowAsync();
                 break;
 
@@ -152,7 +176,7 @@
                 break;
 
             case 3:
-                await LoadPatients();
+                await DoSearchAsync();
                 break;
         }
     }
@@ -192,7 +216,7 @@
     private async Task DeletePatient(Guid id)
     {
         await HttpClientFactory.CreateClient("ApiClient")
-            .DeleteAsync($"/api/app/patient/patient/{id}");
+        .DeleteAsync($"/api/app/patient/patient/{id}");
         await LoadPatients();
     }
 
