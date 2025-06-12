@@ -30,6 +30,30 @@ public partial class FileManager
     public string ApiUrlInternal { get; set; }
     public bool ShowSpinner;
 
+    private string AllowedExtensions = ".jpg, .jpeg, .png";
+
+    private async Task<bool> IsPanoEnabled()
+    {
+        // Check if the pano feature is enabled
+        var panoFeature = await FeatureChecker.GetOrNullAsync("Foundation.IsPanoEnabled");
+        if (panoFeature != null)
+        {
+            return bool.TryParse(panoFeature, out var isEnabled) && isEnabled;
+        }
+
+        return false;
+    }
+
+    public async void OnBeforeSend(BeforeSendEventArgs args)
+    {
+        var isPanoEnabled = await IsPanoEnabled();
+        Console.WriteLine($"IsPanoEnabled: {isPanoEnabled}");
+        if (args.Action == "Read" && isPanoEnabled)
+        {
+            args.CustomData["filterFolders"] = "pano";
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         ApiUrlInternal = Configuration["ApiUrlInternal"];
@@ -92,12 +116,12 @@ public partial class FileManager
     }
 
     public async Task GenerateRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
-    {        
-        var selectedItems = this.SfFileManager?.GetSelectedFiles();        
+    {
+        var selectedItems = this.SfFileManager?.GetSelectedFiles();
         var selectedFileNames = selectedItems?.Select(i => i.FilterPath + i.Name).ToArray();
-        var selectedFileNamesString = string.Join(",", selectedFileNames ?? Array.Empty<string>());        
+        var selectedFileNamesString = string.Join(",", selectedFileNames ?? Array.Empty<string>());
         string patientId = string.Empty;
-        var firstFilterPath = selectedItems[0].FilterPath; 
+        var firstFilterPath = selectedItems[0].FilterPath;
         var folderName = firstFilterPath.TrimEnd('/').Split('/').LastOrDefault();
 
 
