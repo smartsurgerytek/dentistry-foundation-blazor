@@ -1,5 +1,7 @@
 ﻿@page "/"
 @inherits FoundationComponentBase
+@inject HttpClient Http
+
 
 <div class="row mb-3">
     <div class="col-xl-6 col-12 d-flex">
@@ -287,3 +289,30 @@
         </div>
     </div>
 </div>
+
+
+@code {
+    private string version;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var data = await Http.GetFromJsonAsync<VersionInfo>("version.json");
+            version = data?.Version ?? "v0.0.0";
+        }
+        catch
+        {
+            version = "Version info unavailable";
+        }
+    }
+
+    public class VersionInfo
+    {
+        public string Version { get; set; }
+        public string BuildTime { get; set; }
+    }
+}
+<footer class="footer">
+    <p>Version: @version</p>
+</footer>
