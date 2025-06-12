@@ -56,9 +56,9 @@ public class FoundationMenuContributor : IMenuContributor
         ));
 
         context.Menu.AddItem(new ApplicationMenuItem(
-            FoundationMenus.FileManager,
-            l["FileManager"],
-            "/FileManager",
+            FoundationMenus.Patient,
+            l["Patient"],
+            "/Patient",
             icon: "fa-solid fa-file",
             order: 2
         ));
@@ -79,29 +79,29 @@ public class FoundationMenuContributor : IMenuContributor
         //    order: 4
         //));
 
-        context.Menu.AddItem(new ApplicationMenuItem(
-            FoundationMenus.Organization,
-            l["Organization"],
-            "/Organization",
-            icon: "fa-solid fa-university",
-            order: 5
-        ));
+        // context.Menu.AddItem(new ApplicationMenuItem(
+        //     FoundationMenus.Organization,
+        //     l["Organization"],
+        //     "/Organization",
+        //     icon: "fa-solid fa-university",
+        //     order: 5
+        // ));
 
-        context.Menu.AddItem(new ApplicationMenuItem(
-            FoundationMenus.Record,
-            l["Records"],
-            "/Records",
-            icon: "fa-solid fa-file",
-            order: 6
-        ));
-
-        context.Menu.AddItem(new ApplicationMenuItem(
-            FoundationMenus.AuditLog,
-            l["AuditLog"],
-            "/AuditLog",
-            icon: "fa-solid fa-file",
-            order: 7
-        ));
+        // context.Menu.AddItem(new ApplicationMenuItem(
+        //     FoundationMenus.Record,
+        //     l["Records"],
+        //     "/Records",
+        //     icon: "fa-solid fa-file",
+        //     order: 6
+        // ));
+        //
+        // context.Menu.AddItem(new ApplicationMenuItem(
+        //     FoundationMenus.AuditLog,
+        //     l["AuditLog"],
+        //     "/AuditLog",
+        //     icon: "fa-solid fa-file",
+        //     order: 7
+        // ));
 
         //context.Menu.AddItem(new ApplicationMenuItem(
         //    FoundationMenus.Department,
