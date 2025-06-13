@@ -41,6 +41,19 @@ namespace Foundation.Services
             return ObjectMapper.Map<List<Doctor>, List<DoctorDto>>(doctors);
         }
 
+        public async Task<Guid> GetDefaultDoctorUserAsync()
+        {
+            await LogAudit("GetDefaultDoctorUserAsync", null);
+            
+            var doctor = await _doctorRepository.FirstOrDefaultAsync(x => x.Name == "Dr. John Smith");
+            if (doctor == null)
+            {
+                return Guid.NewGuid();
+            }
+
+            return doctor.Id;
+        }
+
         public async Task<DoctorDto> GetDoctorAsync(Guid doctorId)
         {
             var doctor = await _doctorRepository.FirstOrDefaultAsync(x => x.Id == doctorId);
