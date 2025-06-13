@@ -5,7 +5,7 @@
 @inherits FoundationComponentBase
 @inject ILogger<Patient> Logger
 
-<h3 class="text-xl font-semibold mb-4">@L["Patients"]</h3>
+<h3 class="text-xl font-semibold mb-4">@L["Patients"] Updated</h3>
 
 <SfGrid DataSource="@Patients" @ref="PatientGrid" AllowPaging="true" AllowSorting="true" Toolbar="@ToolbarItems">
     <GridSearchSettings Fields="@SpecificColumns" Operator="Operator.Equal"></GridSearchSettings>
