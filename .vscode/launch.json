@@ -63,12 +63,32 @@
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
             }
+        },
+        {
+            "name": "Launch AuthServer",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/Foundation.AuthServer/bin/Debug/net8.0/Foundation.AuthServer.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Foundation.AuthServer",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
         }
     ],
     "compounds": [
         {
-            "name": "Debug Blazor and HttpApi.Host",
-            "configurations": ["Launch HttpApi.Host", "Launch Blazor App"]
+            "name": "Debug Blazor, HttpApi.Host and AuthServer",
+            "configurations": ["Launch HttpApi.Host", "Launch Blazor App", "Launch AuthServer"]
         }
     ]
 }
