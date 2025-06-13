@@ -15,6 +15,7 @@ namespace Foundation.Services
         Task CreateDoctorAsync(CreateUpdateDoctorDto input);
         Task UpdateDoctorAsync(Guid doctorId, CreateUpdateDoctorDto input);
         Task DeleteDoctorAsync(Guid doctorId);
+        Task<Guid> GetDefaultDoctorUserAsync();
     }
 
 }
