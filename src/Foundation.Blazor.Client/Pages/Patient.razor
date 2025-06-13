@@ -103,6 +103,13 @@
             new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" },
             (object)"Search"
         });
+
+        if (string.IsNullOrEmpty(DoctorId))
+        {
+            var DoctorIdString = await HttpClientFactory.CreateClient("ApiClient")
+            .GetStringAsync("/api/app/doctor/default-doctor-user");
+            DoctorId = DoctorIdString.Trim('"');
+        }
     }
 
     public async Task ActionBeginHandler(ActionEventArgs<PatientDto> args)
