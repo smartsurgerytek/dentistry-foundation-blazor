@@ -3,7 +3,7 @@ name: main
 on: 
   push:
     branches:
-      - FOND-38-create-detail-page-for-showing-image-and-record
+      - FOND-54-file-manager-view-by-patient
   workflow_dispatch:
 
 jobs:
