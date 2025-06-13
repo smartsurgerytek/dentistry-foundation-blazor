@@ -98,7 +98,7 @@ namespace Foundation.Services
                 ContentBody = "This is a placeholder file to make the folder visible in S3 console."
             };
 
-            await s3Client.PutObjectAsync(putRequest);
+            // await s3Client.PutObjectAsync(putRequest);
 
             await LogAudit("CreatePatient", input);
         }

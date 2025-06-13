@@ -106,7 +106,8 @@ public partial class ImageEditor
     public void BackToFileManager()
     {
         this.IsImageEditorVisible = false;
-        NavigationManager.NavigateTo("/FileManager");
+        var patientId = Path?.Trim('/').Split("/")[0];
+        NavigationManager.NavigateTo($"/FileManager?PatientId={patientId}");
     }
 
     public async void SaveAsync()

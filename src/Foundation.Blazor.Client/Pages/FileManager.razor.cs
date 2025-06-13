@@ -32,6 +32,12 @@ public partial class FileManager
 
     private string AllowedExtensions = ".jpg, .jpeg, .png";
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string PatientId { get; set; }
+
+    public string Path { get; set; } = string.Empty;
+
     private async Task<bool> IsPanoEnabled()
     {
         // Check if the pano feature is enabled
@@ -57,6 +63,13 @@ public partial class FileManager
     protected override async Task OnInitializedAsync()
     {
         ApiUrlInternal = Configuration["ApiUrlInternal"];
+
+        if (string.IsNullOrEmpty(PatientId))
+        {
+            throw new InvalidOperationException("PatientId is not supplied.");
+        }
+
+        Path = $"/{PatientId}/pa/";
     }
 
     public List<ToolBarItemModel> Items = new List<ToolBarItemModel>(){

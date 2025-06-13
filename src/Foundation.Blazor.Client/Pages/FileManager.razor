@@ -14,9 +14,10 @@
 @using Volo.Abp.Features
 
 
+<div class="posRelative">
 <SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"
-    SelectedItemsChanged="OnSelectedItemsChanged">
-
+    SelectedItemsChanged="OnSelectedItemsChanged" Path="@Path">
+    <FileManagerNavigationPaneSettings Visible="false" />
     <SfSpinner @bind-Visible="ShowSpinner"></SfSpinner>
     <FileManagerUploadSettings AllowedExtensions="@AllowedExtensions" AutoUpload="true"/>
     <FileManagerAjaxSettings Url="/api/FileProvider/AmazonS3FileOperations" UploadUrl="/api/FileProvider/AmazonS3Upload"
@@ -54,6 +55,7 @@
 @* <div class="posAbsolute"> *@
 @* </div> *@
 @* </div> *@
+</div>
 
 <style>
     .posRelative {
