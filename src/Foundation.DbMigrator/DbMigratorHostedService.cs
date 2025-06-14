@@ -7,6 +7,7 @@ using Foundation.Data;
 using Serilog;
 using Volo.Abp;
 using Volo.Abp.Data;
+using System;
 
 namespace Foundation.DbMigrator;
 
@@ -25,10 +26,11 @@ public class DbMigratorHostedService : IHostedService
     {
         using (var application = await AbpApplicationFactory.CreateAsync<FoundationDbMigratorModule>(options =>
         {
-           options.Services.ReplaceConfiguration(_configuration);
-           options.UseAutofac();
-           options.Services.AddLogging(c => c.AddSerilog());
-           options.AddDataMigrationEnvironment();
+            // options.Services.ReplaceConfiguration(_configuration);
+            options.Services.ReplaceConfiguration(BuildConfiguration());
+            options.UseAutofac();
+            options.Services.AddLogging(c => c.AddSerilog());
+            options.AddDataMigrationEnvironment();
         }))
         {
             await application.InitializeAsync();
@@ -47,5 +49,26 @@ public class DbMigratorHostedService : IHostedService
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    private static IConfiguration BuildConfiguration()
+    {
+        var configurationBuilder = new ConfigurationBuilder();
+        
+        configurationBuilder.AddJsonFile("appsettings.secrets.json", true);
+
+        var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        if (environmentName != null)
+        {
+            configurationBuilder.AddJsonFile($"appsettings.{environmentName}.json", true);
+        }
+        else
+        {
+            configurationBuilder.AddJsonFile("appsettings.json");
+        }
+        
+        return configurationBuilder
+            .AddEnvironmentVariables()
+            .Build(); ;
     }
 }
