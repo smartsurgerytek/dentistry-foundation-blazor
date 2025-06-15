@@ -3,7 +3,7 @@ name: main
 on: 
   push:
     branches:
-      - FOND-54-file-manager-view-by-patient
+      - idental-deploy-vm-branch
   workflow_dispatch:
 
 jobs:
