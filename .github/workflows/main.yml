@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - FOND-54-file-manager-view-by-patient
-  workflow_dispatch:
 
 jobs:
   build-and-push:
