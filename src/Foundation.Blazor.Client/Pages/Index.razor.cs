@@ -25,6 +25,6 @@ public partial class Index
         //     NavigationManager.NavigateTo("/Patient");
         // }
 
-        NavigationManager.NavigateTo("/Patient", true);
+        // NavigationManager.NavigateTo("/Patient", true);
     }
 }
