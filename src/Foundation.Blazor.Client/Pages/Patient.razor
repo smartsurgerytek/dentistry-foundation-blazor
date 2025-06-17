@@ -13,7 +13,19 @@
 @inherits FoundationComponentBase
 @inject ILogger<Patient> Logger
 
-<h3 class="text-xl font-semibold mb-4">@L["Patients"]</h3>
+@* external search bar *@
+<div class="d-flex mb-2">
+    <SfTextBox @ref="TextBox"
+               CssClass="flex-grow-1"
+               Placeholder="Search"
+               ShowClearButton="true"
+               @onkeyup="@(e => { if (e.Key == "Enter") SearchPatientsAsync(TextBox.Value); })">
+    </SfTextBox>
+    <SfButton CssClass="flex-shrink-0 ms-2"
+              IconCss="e-icons e-search"
+              @onclick="@(async () => await SearchPatientsAsync(TextBox.Value))">
+    </SfButton>
+</div>
 
 <SfGrid DataSource="@Patients" @ref="PatientGrid" AllowPaging="true" AllowSorting="true" Toolbar="@ToolbarItems">
     <GridSearchSettings Fields="@SpecificColumns" Operator="Operator.Equal"></GridSearchSettings>
@@ -80,11 +92,12 @@
     private SfGrid<PatientDto> PatientGrid;
     private SfDialog Dialog;
     private EditForm EditFormRef;
+    private SfTextBox TextBox;
     private List<PatientDto> Patients = new();
     private CreateUpdatePatientDto CurrentPatient = new();
     private string DialogTitle = string.Empty;
     private bool IsNew = true;
-    private List<object> ToolbarItems = new();
+    private List<ItemModel> ToolbarItems = new();
     private string[] SpecificColumns = ["PatientNumber", "Name"];
     private string SearchValue = string.Empty;
 
@@ -105,13 +118,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ToolbarItems.AddRange(new object[]
+        ToolbarItems.AddRange(new ItemModel[]
         {
             new ItemModel() { TabIndex = 0, Text = L["Add"], TooltipText = L["Add"], PrefixIcon = "e-add" },
             new ItemModel() { TabIndex = 1, Text = L["Edit"], TooltipText = L["Edit"], PrefixIcon = "e-edit" },
             new ItemModel() { TabIndex = 2, Text = L["Delete"], TooltipText = L["Delete"], PrefixIcon = "e-delete" },
-            new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" },
-            (object)"Search"
+            new ItemModel() { TabIndex = 3, Text = L["Refresh"], TooltipText = L["Refresh"], PrefixIcon = "e-refresh" }
         });
 
         if (string.IsNullOrEmpty(DoctorId))
@@ -131,22 +143,10 @@
             args.Cancel = true; // cancel default searching
 
             SearchValue = args.SearchString;
-            await DoSearchAsync();
-
+            await SearchPatientsAsync(args.SearchString);
+            
             StateHasChanged();
         }
-    }
-
-    private async Task DoSearchAsync()
-    {
-        if (string.IsNullOrEmpty(SearchValue))
-        {
-            Patients = new List<PatientDto>();
-            return;
-        }
-
-        await LoadPatients();
-        PatientGrid.SearchAsync(SearchValue);
     }
 
     private async Task LoadPatients()
@@ -195,7 +195,7 @@
                 break;
 
             case 3:
-                await DoSearchAsync();
+                await SearchPatientsAsync(SearchValue);
                 break;
         }
     }
@@ -206,6 +206,18 @@
         {
             await HandleValidSubmit();
         }
+    }
+    
+    private async Task SearchPatientsAsync(string searchValue)
+    {
+        if (String.IsNullOrWhiteSpace(searchValue))
+        {
+            Patients = new List<PatientDto>();
+            return;
+        }
+        
+        await LoadPatients();
+        PatientGrid.SearchAsync(searchValue);
     }
 
     private async Task HandleValidSubmit()
@@ -223,7 +235,7 @@
                 await client.PutAsJsonAsync($"/api/app/patient/patient/{CurrentPatient.Id}", CurrentPatient);
             }
 
-            await LoadPatients();
+            await SearchPatientsAsync(CurrentPatient.PatientNumber);
             await Dialog.HideAsync();
         }
         catch (Exception ex)
@@ -236,7 +248,8 @@
     {
         await HttpClientFactory.CreateClient("ApiClient")
         .DeleteAsync($"/api/app/patient/patient/{id}");
-        await LoadPatients();
+        
+        await SearchPatientsAsync(SearchValue);
     }
 
     private async Task CloseDialog()
