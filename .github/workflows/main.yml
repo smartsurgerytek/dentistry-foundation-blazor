@@ -3,7 +3,7 @@ name: main
 on: 
   push:
     branches:
-      - idental-deploy-vm-branch
+      - testbranchname
   workflow_dispatch:
 
 jobs:
@@ -27,6 +27,12 @@ jobs:
 
       - name: Restore ABP libraries
         run: abp install-libs
+
+      - name: Inject version into version.json
+        run: |
+          VERSION="v1.0.${GITHUB_RUN_NUMBER}"
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "{ \"version\": \"$VERSION\", \"buildTime\": \"$DATE\" }" > src/Foundation.Blazor.Client/wwwroot/version.json
 
       - name: Publish DbMigrator
         run: dotnet publish ./src/Foundation.DbMigrator/Foundation.DbMigrator.csproj -c Release
