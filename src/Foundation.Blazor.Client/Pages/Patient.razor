@@ -1,6 +1,13 @@
 ﻿@page "/"
 @page "/Patient"
+@using Foundation.Dtos
 @using Microsoft.Extensions.Logging
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Popups
+@using System.Net.Http.Json
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 @inherits FoundationComponentBase
