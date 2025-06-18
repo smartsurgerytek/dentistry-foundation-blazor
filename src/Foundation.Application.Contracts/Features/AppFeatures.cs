@@ -1,6 +1,6 @@
 using Volo.Abp.Features;
 
-namespace AppFeatures
+namespace Foundation.Application.Contracts.AppFeatures
 {
     public class AppFeatures : FeatureDefinitionProvider
     {

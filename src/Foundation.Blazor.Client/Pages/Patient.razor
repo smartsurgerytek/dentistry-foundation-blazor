@@ -1,7 +1,17 @@
-﻿@page "/Patient"
+﻿@page "/"
+@page "/Patient"
+@using Foundation.Dtos
+@using Microsoft.Extensions.Logging
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Popups
+@using System.Net.Http.Json
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 @inherits FoundationComponentBase
+@inject ILogger<Patient> Logger
 
 <h3 class="text-xl font-semibold mb-4">@L["Patients"]</h3>
 
@@ -109,6 +119,8 @@
             var DoctorIdString = await HttpClientFactory.CreateClient("ApiClient")
             .GetStringAsync("/api/app/doctor/default-doctor-user");
             DoctorId = DoctorIdString.Trim('"');
+            Logger.LogInformation($"DoctorId: {DoctorId}");
+
         }
     }
 

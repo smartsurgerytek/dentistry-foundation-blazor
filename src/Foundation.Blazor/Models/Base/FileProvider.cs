@@ -1001,7 +1001,7 @@ namespace Syncfusion.EJ2.FileManager.FileProvider
 
             // construct the path for the original image
             var paPanoFolder = isPeriapicalImage ? "pa/" : "pano/";
-            path = "/" + paPanoFolder;
+            // path = "/" + paPanoFolder;
             if (!path.Split("/").Any(p => p == "pa" || p == "pano"))
             {
                 // if the path already contains pa/pano, we don't need to add it again
