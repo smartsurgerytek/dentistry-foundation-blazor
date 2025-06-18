@@ -119,8 +119,8 @@
             var DoctorIdString = await HttpClientFactory.CreateClient("ApiClient")
             .GetStringAsync("/api/app/doctor/default-doctor-user");
             DoctorId = DoctorIdString.Trim('"');
-
             Logger.LogInformation($"DoctorId: {DoctorId}");
+
         }
     }
 
