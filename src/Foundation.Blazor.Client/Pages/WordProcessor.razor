@@ -107,7 +107,7 @@
     }
 
     private async Task SaveDocument()
-    {
+    {        
         spinnerObj.ShowAsync();
         SfDocumentEditor editor = _containerRef.DocumentEditor;
 
@@ -132,8 +132,8 @@
                 if (!string.IsNullOrEmpty(PatientId) && PatientId != "1"){                    
                     await SaveRecordToDatabase(fileName);
                 }
-                else{                    
-                    NavigationManager.NavigateTo("Records");
+                else{          
+                    NavigationManager.NavigateTo($"Records?PatientId=" + PatientId);
                 }
             }
             else
@@ -145,6 +145,7 @@
         {
             StatusMessage = "Server error while saving document.";
         }
+        
     }
 
     private async Task SaveRecordToDatabase(string fileName)
@@ -162,7 +163,7 @@
         {
             StatusMessage = "Record saved successfully!";
             await Task.Delay(3000);
-            NavigationManager.NavigateTo("Records");
+            NavigationManager.NavigateTo($"Records?PatientId=" + PatientId);
         }
         else
         {

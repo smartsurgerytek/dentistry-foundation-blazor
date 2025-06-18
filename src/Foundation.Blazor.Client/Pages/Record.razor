@@ -31,6 +31,12 @@
 
 
 @code {
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string PatientId { get; set; }
+
+
     private SfGrid<RecordDto> RecordGrid;
     private List<RecordDto> Records = new();
     private List<ItemModel> Toolbaritems = new List<ItemModel>();
@@ -44,7 +50,7 @@
 
     private async Task LoadRecords()
     {
-        Records = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<RecordDto>>("/api/app/record/records") ?? new();
+        Records = await HttpClientFactory.CreateClient("ApiClient").GetFromJsonAsync<List<RecordDto>>($"/api/app/record/record-by/{PatientId}") ?? new();                
     }
 
     private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)

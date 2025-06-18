@@ -137,7 +137,7 @@ namespace Foundation.Services
                     AppendParagraph(cellDob, "Date Of Birth: " + input.PatientDob);
 
 
-                    var tblSeventeenRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAtOrDefault(17);
+                    var tblSeventeenRow = firstTable.Elements<DocumentFormat.OpenXml.Wordprocessing.TableRow>().ElementAtOrDefault(14);
                     var cellDesc = tblSeventeenRow?.Elements<DocumentFormat.OpenXml.Wordprocessing.TableCell>().ElementAtOrDefault(0);
 
                     if (cellDesc != null)

@@ -140,6 +140,29 @@ namespace Foundation.Services
                 ExecutionDuration = 150
             });
         }
+
+        public async Task<List<RecordDto>> GetRecordByAsync(Guid patientId)
+        {
+            var queryable = await _recordRepository.GetQueryableAsync();
+
+            var records = queryable.Where(r => r.Patient.Id == patientId)
+                .Select(r => new RecordDto
+                {
+                    Id = r.Id,
+                    PatientId = r.PatientId,
+                    PatientName = r.Patient != null ? r.Patient.Name : "Unknown",
+                    CreatedDate = r.CreatedDate,
+                    DoctorName = r.Patient.Doctor != null ? r.Patient.Doctor.Name : "Unknown",
+                    OrganizationName = r.Patient.Doctor.Department.Organization.Name ?? "Unknown",
+                    DepartmentName = r.Patient.Doctor.Department.Name ?? "Unknown",
+                    FileName = r.FileName
+                })
+                .ToList();
+
+            await LogAudit("GetRecords By Patient", string.Empty);
+
+            return records;
+        }
     }
 
 
