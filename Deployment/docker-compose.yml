@@ -19,10 +19,6 @@ networks:
   foundation-network:
     driver: bridge
 
-volumes:
-  minio-data:
-  pgdata:
-
 services:
 
   redis:
