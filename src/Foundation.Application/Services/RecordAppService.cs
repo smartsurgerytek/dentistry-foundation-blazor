@@ -85,9 +85,7 @@ namespace Foundation.Services
 
         public async Task CreateRecordAsync(CreateUpdateRecordDto input)
         {
-            var record = await _recordRepository.FirstOrDefaultAsync(x => x.PatientId == input.PatientId);
-
-            if(record==null)
+            if (input.Id == null || input.Id == Guid.Empty)
             {
                 var recordMain = ObjectMapper.Map<CreateUpdateRecordDto, Record>(input);
                 await _recordRepository.InsertAsync(recordMain);
@@ -95,10 +93,11 @@ namespace Foundation.Services
             }
             else
             {
+                var record = await _recordRepository.FirstOrDefaultAsync(x => x.Id == input.Id);
                 ObjectMapper.Map(input, record);
                 await _recordRepository.UpdateAsync(record);
                 await LogAudit("UpdateRecord", input);
-            }                
+            }            
         }
 
         public async Task UpdateRecordAsync(Guid recordId, CreateUpdateRecordDto input)

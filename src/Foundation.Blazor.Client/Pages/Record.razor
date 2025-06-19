@@ -36,6 +36,10 @@
     [SupplyParameterFromQuery]
     public string PatientId { get; set; }
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string RecordId { get; set; }
+
 
     private SfGrid<RecordDto> RecordGrid;
     private List<RecordDto> Records = new();
@@ -78,7 +82,7 @@
 
     private void NavigateFile(RecordDto recordDto)
     {        
-        NavigationManager.NavigateTo($"/WordProcessor?fNmae={recordDto.FileName}&patientId={recordDto.PatientId}");
+        NavigationManager.NavigateTo($"/WordProcessor?fNmae={recordDto.FileName}&patientId={recordDto.PatientId}&RId={recordDto.Id}");
     }
     // private async Task NavigateFileEdit(RecordDto recordDto)
     // {

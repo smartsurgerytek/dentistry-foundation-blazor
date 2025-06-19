@@ -11,5 +11,6 @@ namespace Foundation.Dtos
         public Guid PatientId { get; set; }
         public DateTime CreatedDate { get; set; }
         public string FileName { get; set; }
+        public Guid Id { get; set; }
     }
 }
