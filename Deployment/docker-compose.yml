@@ -1,5 +1,18 @@
 # how to run ?
 # ASPNETCORE_ENVIRONMENT=Production DOMAIN_NAME=idental-stg-taiwan.smartsurgerytek.net docker compose up -d
+
+# few things to look after
+# using host mount bind for postgres and minio (if not done already) -- this is to persist data in-between container restarts
+# sudo mkdir -p /docker/postgres
+# sudo chown 999:999 /docker/postgres
+# sudo mkdir -p /docker/minio
+# sudo chown 1000:1000 /docker/minio
+
+# make sure 9000, 8037 ports are whitelisted
+# sudo ufw enable
+# sudo ufw allow 9000
+# sudo ufw allow 8037
+
 version: "3.9"
 
 networks:
@@ -31,7 +44,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: Foundation
     volumes:
-      - ~/pgdata:/var/lib/postgresql/data
+      - /docker/postgres:/var/lib/postgresql/data
 
   minio:
     image: quay.io/minio/minio
@@ -45,7 +58,7 @@ services:
       MINIO_ROOT_USER: myminioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     volumes:
-      - ~/minio-data:/minio-data
+      - /docker/minio:/minio-data
     command: server /minio-data --console-address ":9001"
 
   foundation-dbmigrator:
