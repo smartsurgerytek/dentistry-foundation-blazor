@@ -149,11 +149,15 @@
         {
             StatusMessage = "Server error while saving document.";
         }
-        
+
     }
 
     private async Task SaveRecordToDatabase(string fileName)
     {
+        if(RId==null)
+        {
+            RId = "00000000-0000-0000-0000-000000000000";
+        }
         var recordData = new
         {
             PatientId = PatientId,
