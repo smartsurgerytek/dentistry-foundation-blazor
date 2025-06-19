@@ -1,0 +1,129 @@
+# how to run ?
+# ASPNETCORE_ENVIRONMENT=Production DOMAIN_NAME=idental-stg-taiwan.smartsurgerytek.net docker compose up -d
+version: "3.9"
+
+networks:
+  foundation-network:
+    driver: bridge
+
+volumes:
+  minio-data:
+  pgdata:
+
+services:
+
+  redis:
+    image: redis:7
+    container_name: redis
+    networks:
+      - foundation-network
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    networks:
+      - foundation-network
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: Foundation
+    volumes:
+      - ~/pgdata:/var/lib/postgresql/data
+
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    networks:
+      - foundation-network
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: myminioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - ~/minio-data:/minio-data
+    command: server /minio-data --console-address ":9001"
+
+  foundation-dbmigrator:
+    image: asia-south1-docker.pkg.dev/sandbox-446907/idental-repo/foundation-dbmigrator:latest
+    container_name: foundation-dbmigrator
+    networks:
+      - foundation-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=Foundation;Username=postgres;Password=postgres
+      Redis__Configuration: redis
+    depends_on:
+      - postgres
+      - redis
+    restart: "no"
+
+  httpapi-host:
+    image: asia-south1-docker.pkg.dev/sandbox-446907/idental-repo/foundation-httpapi-host:latest
+    container_name: httpapi-host
+    networks:
+      - foundation-network
+    ports:
+      - "44337:443"
+      - "8037:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: https://+;http://+
+      ASPNETCORE_HTTPS_PORTS: 44337
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem
+      ASPNETCORE_Kestrel__Certificates__Default__KeyPath: /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=Foundation;Username=postgres;Password=postgres
+      Redis__Configuration: redis
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - postgres
+      - redis
+
+  authserver:
+    image: asia-south1-docker.pkg.dev/sandbox-446907/idental-repo/foundation-authserver:latest
+    container_name: authserver
+    networks:
+      - foundation-network
+    ports:
+      - "44353:443"
+      - "8053:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: https://+;http://+
+      ASPNETCORE_HTTPS_PORTS: 44353
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem
+      ASPNETCORE_Kestrel__Certificates__Default__KeyPath: /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=Foundation;Username=postgres;Password=postgres
+      Redis__Configuration: redis
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - postgres
+      - redis
+
+  blazor:
+    image: asia-south1-docker.pkg.dev/sandbox-446907/idental-repo/foundation-blazor:latest
+    container_name: blazor
+    networks:
+      - foundation-network
+    ports:
+      - "44355:443"
+      - "8055:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: https://+;http://+
+      ASPNETCORE_HTTPS_PORTS: 44355
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem
+      ASPNETCORE_Kestrel__Certificates__Default__KeyPath: /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=Foundation;Username=postgres;Password=postgres
+      Redis__Configuration: redis
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - postgres
+      - redis
