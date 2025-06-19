@@ -73,7 +73,7 @@ public partial class FileManager
     }
 
     public List<ToolBarItemModel> Items = new List<ToolBarItemModel>(){
-        new ToolBarItemModel() { Name = "NewFolder" },
+        // new ToolBarItemModel() { Name = "NewFolder" },
         new ToolBarItemModel() { Name = "Cut" },
         new ToolBarItemModel() { Name = "Copy" },
         new ToolBarItemModel() { Name = "Paste" },
@@ -92,6 +92,18 @@ public partial class FileManager
         new ToolBarItemModel() { Name = "Details" },
     };
 
+    public string[] ContextMenuItems = new[]
+    {
+        "SortBy",
+        "View",
+        "Refresh",
+        // "NewFolder",
+        "Upload",
+        "Details",
+        "Select all"
+    };
+    
+    
     public Task HandleEventAsync(ImageUploadEto eventData)
     {
         throw new System.NotImplementedException();
