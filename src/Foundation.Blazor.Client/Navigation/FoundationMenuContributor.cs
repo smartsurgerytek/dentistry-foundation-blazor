@@ -52,7 +52,8 @@ public class FoundationMenuContributor : IMenuContributor
             l["Menu:Home"],
             "/",
             icon: "fas fa-home",
-            order: 1
+            order: 1,
+            cssClass: "hidden-menu-item"
         ));
 
         context.Menu.AddItem(new ApplicationMenuItem(
@@ -63,53 +64,86 @@ public class FoundationMenuContributor : IMenuContributor
             order: 2
         ));
 
-        //context.Menu.AddItem(new ApplicationMenuItem(
-        //    FoundationMenus.WordProcessor,
-        //    "WordProcessor",
-        //    "/WordProcessor",
-        //    icon: "fa-solid fa-folder-open",
-        //    order: 3
-        //));
+        context.Menu.AddItem(new ApplicationMenuItem(
+           FoundationMenus.WordProcessor,
+           "WordProcessor",
+           "/WordProcessor",
+           icon: "fa-solid fa-folder-open",
+           order: 3,
+            cssClass: "hidden-menu-item"
+        ));
 
-        //context.Menu.AddItem(new ApplicationMenuItem(
-        //    FoundationMenus.RecordViewer,
-        //    "RecordViewer",
-        //    "/RecordViewer",
-        //    icon: "fa-solid fa-file-lines",
-        //    order: 4
-        //));
+        context.Menu.AddItem(new ApplicationMenuItem(
+           FoundationMenus.RecordViewer,
+           "RecordViewer",
+           "/RecordViewer",
+           icon: "fa-solid fa-file-lines",
+           order: 4,
+            cssClass: "hidden-menu-item"
+        ));
 
-        // context.Menu.AddItem(new ApplicationMenuItem(
-        //     FoundationMenus.Organization,
-        //     l["Organization"],
-        //     "/Organization",
-        //     icon: "fa-solid fa-university",
-        //     order: 5
-        // ));
+        context.Menu.AddItem(new ApplicationMenuItem(
+            FoundationMenus.Organization,
+            l["Organization"],
+            "/Organization",
+            icon: "fa-solid fa-university",
+            order: 5,
+            cssClass: "hidden-menu-item"
+        ));
 
-        // context.Menu.AddItem(new ApplicationMenuItem(
-        //     FoundationMenus.Record,
-        //     l["Records"],
-        //     "/Records",
-        //     icon: "fa-solid fa-file",
-        //     order: 6
-        // ));
-        //
-        // context.Menu.AddItem(new ApplicationMenuItem(
-        //     FoundationMenus.AuditLog,
-        //     l["AuditLog"],
-        //     "/AuditLog",
-        //     icon: "fa-solid fa-file",
-        //     order: 7
-        // ));
+        context.Menu.AddItem(new ApplicationMenuItem(
+            FoundationMenus.Record,
+            l["Records"],
+            "/Records",
+            icon: "fa-solid fa-file",
+            order: 6,
+            cssClass: "hidden-menu-item"
+        ));
+        
+        context.Menu.AddItem(new ApplicationMenuItem(
+            FoundationMenus.AuditLog,
+            l["AuditLog"],
+            "/AuditLog",
+            icon: "fa-solid fa-file",
+            order: 7,
+            cssClass: "hidden-menu-item"
+        ));
 
-        //context.Menu.AddItem(new ApplicationMenuItem(
-        //    FoundationMenus.Department,
-        //    "Department",
-        //    "/Department",
-        //    icon: "fa-solid fa-university",
-        //    order: 5
-        //));
+        context.Menu.AddItem(new ApplicationMenuItem(
+           FoundationMenus.Department,
+           "Department",
+           "/Department",
+           icon: "fa-solid fa-university",
+           order: 8,
+            cssClass: "hidden-menu-item"
+        ));
+
+        context.Menu.AddItem(new ApplicationMenuItem(
+           FoundationMenus.Doctor,
+           "Doctor",
+           "/Doctor",
+           icon: "fa-solid fa-university",
+           order: 9,
+            cssClass: "hidden-menu-item"
+        ));
+
+        context.Menu.AddItem(new ApplicationMenuItem(
+           FoundationMenus.FileManager,
+           "FileManager",
+           "/FileManager",
+           icon: "fa-solid fa-university",
+           order: 10,
+            cssClass: "hidden-menu-item"
+        ));
+
+        context.Menu.AddItem(new ApplicationMenuItem(
+            FoundationMenus.Details,
+            l["Details"],
+            "/Details",
+            icon: "fa-solid fa-file",
+            order: 11,
+            cssClass: "hidden-menu-item"
+        ));
 
         //HostDashboard
         context.Menu.AddItem(
@@ -118,7 +152,7 @@ public class FoundationMenuContributor : IMenuContributor
                 l["Menu:Dashboard"],
                 "/HostDashboard",
                 icon: "fa fa-chart-line",
-                order: 3
+                order: 11
             ).RequirePermissions(FoundationPermissions.Dashboard.Host)
         );
 
@@ -129,7 +163,7 @@ public class FoundationMenuContributor : IMenuContributor
                 l["Menu:Dashboard"],
                 "/Dashboard",
                 icon: "fa fa-chart-line",
-                order: 4
+                order: 12
             ).RequirePermissions(FoundationPermissions.Dashboard.Tenant)
         );
 
