@@ -71,6 +71,10 @@
     [SupplyParameterFromQuery]
     public string PatientId { get; set; }
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string RId { get; set; }
+
 
     [Parameter]
     [SupplyParameterFromQuery]
@@ -107,7 +111,7 @@
     }
 
     private async Task SaveDocument()
-    {
+    {        
         spinnerObj.ShowAsync();
         SfDocumentEditor editor = _containerRef.DocumentEditor;
 
@@ -132,8 +136,8 @@
                 if (!string.IsNullOrEmpty(PatientId) && PatientId != "1"){                    
                     await SaveRecordToDatabase(fileName);
                 }
-                else{                    
-                    NavigationManager.NavigateTo("Records");
+                else{          
+                    NavigationManager.NavigateTo($"Records?PatientId=" + PatientId);
                 }
             }
             else
@@ -145,15 +149,21 @@
         {
             StatusMessage = "Server error while saving document.";
         }
+
     }
 
     private async Task SaveRecordToDatabase(string fileName)
     {
+        if(RId==null)
+        {
+            RId = "00000000-0000-0000-0000-000000000000";
+        }
         var recordData = new
         {
             PatientId = PatientId,
             CreatedDate = DateTime.UtcNow,
-            FileName = fileName
+            FileName = fileName,
+            Id = RId
         };
 
         var recordResponse = await HttpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("/api/app/record/record", recordData);
@@ -162,7 +172,7 @@
         {
             StatusMessage = "Record saved successfully!";
             await Task.Delay(3000);
-            NavigationManager.NavigateTo("Records");
+            NavigationManager.NavigateTo($"Records?PatientId=" + PatientId);            
         }
         else
         {
@@ -301,10 +311,11 @@
         outline: none;
     }
 
-    /*.single-line:hover, .single-line:focus {
-                                                                                                                            border-color: #e4e4e4 !important;
-                                                                                                                        }*/
-    [contenteditable="true"].single-line {
+    using DocumentFormat.OpenXml.Office2010.Excel;
+
+#nullable disable
+#line default
+[contenteditable="true"].single-line {
         white-space: nowrap;
         border-color: #e4e4e4 !important;
     }

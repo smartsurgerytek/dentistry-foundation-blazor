@@ -85,9 +85,7 @@ namespace Foundation.Services
 
         public async Task CreateRecordAsync(CreateUpdateRecordDto input)
         {
-            var record = await _recordRepository.FirstOrDefaultAsync(x => x.PatientId == input.PatientId);
-
-            if(record==null)
+            if (input.Id == null || input.Id == Guid.Empty)
             {
                 var recordMain = ObjectMapper.Map<CreateUpdateRecordDto, Record>(input);
                 await _recordRepository.InsertAsync(recordMain);
@@ -95,10 +93,11 @@ namespace Foundation.Services
             }
             else
             {
+                var record = await _recordRepository.FirstOrDefaultAsync(x => x.Id == input.Id);
                 ObjectMapper.Map(input, record);
                 await _recordRepository.UpdateAsync(record);
                 await LogAudit("UpdateRecord", input);
-            }                
+            }            
         }
 
         public async Task UpdateRecordAsync(Guid recordId, CreateUpdateRecordDto input)
@@ -139,6 +138,29 @@ namespace Foundation.Services
                 ExecutionTime = Clock.Now,
                 ExecutionDuration = 150
             });
+        }
+
+        public async Task<List<RecordDto>> GetRecordByAsync(Guid patientId)
+        {
+            var queryable = await _recordRepository.GetQueryableAsync();
+
+            var records = queryable.Where(r => r.Patient.Id == patientId)
+                .Select(r => new RecordDto
+                {
+                    Id = r.Id,
+                    PatientId = r.PatientId,
+                    PatientName = r.Patient != null ? r.Patient.Name : "Unknown",
+                    CreatedDate = r.CreatedDate,
+                    DoctorName = r.Patient.Doctor != null ? r.Patient.Doctor.Name : "Unknown",
+                    OrganizationName = r.Patient.Doctor.Department.Organization.Name ?? "Unknown",
+                    DepartmentName = r.Patient.Doctor.Department.Name ?? "Unknown",
+                    FileName = r.FileName
+                })
+                .ToList();
+
+            await LogAudit("GetRecords By Patient", string.Empty);
+
+            return records;
         }
     }
 
