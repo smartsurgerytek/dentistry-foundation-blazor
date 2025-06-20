@@ -50,3 +50,7 @@
 .flatpickr-calendar.static {
     top: unset !important;
 }
+
+.hidden-menu-item {
+    visibility: hidden !important;
+}
