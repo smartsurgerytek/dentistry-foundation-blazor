@@ -1,6 +1,20 @@
 # how to run ?
-# ASPNETCORE_ENVIRONMENT=Production DOMAIN_NAME=idental-stg-taiwan.smartsurgerytek.net docker compose up -d
 
+#step 1 : go to below location. or you can follow below command for that
+#cd /home/krishtopher/Documents/dentistry-foundation-blazor/Deployment/
+
+#step 2 : run belo command 
+
+#step 2.1 :
+#docker compose down
+
+#step 2.2 :
+#docker compose pull
+
+#step 2.3 :
+#ASPNETCORE_ENVIRONMENT=Production DOMAIN_NAME=idental-stg-taiwan.smartsurgerytek.net docker compose up -d
+
+# below are just instruction 
 # few things to look after
 # using host mount bind for postgres and minio (if not done already) -- this is to persist data in-between container restarts
 # sudo mkdir -p /docker/postgres
