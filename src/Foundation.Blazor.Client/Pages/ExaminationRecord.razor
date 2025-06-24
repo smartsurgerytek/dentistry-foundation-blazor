@@ -57,12 +57,16 @@
 
             <div class="caries-section">
                 <label class="me-2"> @L["Caries"] </label>
-                <label class="me-1">@L["YES"]
-                    <SfCheckBox @bind-Checked="@tooth.CariesYes" />
-                </label>
-                <label>@L["NO"]
-                    <SfCheckBox @bind-Checked="@tooth.CariesNo" />
-                </label>
+
+                <SfRadioButton Name="@($"caries-{tooth.ToothNumber}")"
+                               Value="true"
+                               Label="@L["YES"]"
+                               @bind-Checked="@tooth.CariesYes" />
+
+                <SfRadioButton Name="@($"caries-{tooth.ToothNumber}")"
+                               Value="false"
+                               Label="@L["NO"]"
+                               @bind-Checked="@tooth.CariesNo" />
             </div>
 
             <div class="dropdown-section">
@@ -93,12 +97,15 @@ else if (SelectedJaw == "Upper right")
 
             <div class="caries-section">
                 <label class="me-2">@L["Caries"]</label>
-                <label class="me-1">@L["YES"]
-                    <SfCheckBox @bind-Checked="@tooth.CariesYes" />
-                </label>
-                <label>@L["NO"]
-                    <SfCheckBox @bind-Checked="@tooth.CariesNo" />
-                </label>
+                <SfRadioButton Name="@($"caries-{tooth.ToothNumber}")"
+                               Value="true"
+                               Label="@L["YES"]"
+                               @bind-Checked="@tooth.CariesYes" />
+
+                <SfRadioButton Name="@($"caries-{tooth.ToothNumber}")"
+                               Value="false"
+                               Label="@L["NO"]"
+                               @bind-Checked="@tooth.CariesNo" />
             </div>
 
             <div class="dropdown-section">
@@ -129,12 +136,15 @@ else if (SelectedJaw == "Lower left")
 
             <div class="caries-section">
                 <label class="me-2">@L["Caries"]</label>
-                <label class="me-1">@L["YES"]
-                    <SfCheckBox @bind-Checked="@tooth.CariesYes" />
-                </label>
-                <label>@L["NO"]
-                    <SfCheckBox @bind-Checked="@tooth.CariesNo" />
-                </label>
+                <SfRadioButton Name="@($"caries-{tooth.ToothNumber}")"
+                               Value="true"
+                               Label="@L["YES"]"
+                               @bind-Checked="@tooth.CariesYes" />
+
+                <SfRadioButton Name="@($"caries-{tooth.ToothNumber}")"
+                               Value="false"
+                               Label="@L["NO"]"
+                               @bind-Checked="@tooth.CariesNo" />
             </div>
 
             <div class="dropdown-section">
@@ -165,12 +175,15 @@ else if (SelectedJaw == "Lower right")
 
             <div class="caries-section">
                 <label class="me-2"> @L["Caries"]</label>
-                <label class="me-1">@L["YES"]
-                    <SfCheckBox @bind-Checked="@tooth.CariesYes" />
-                </label>
-                <label>@L["NO"]
-                    <SfCheckBox @bind-Checked="@tooth.CariesNo" />
-                </label>
+                <SfRadioButton Name="@($"caries-{tooth.ToothNumber}")"
+                               Value="true"
+                               Label="@L["YES"]"
+                               @bind-Checked="@tooth.CariesYes" />
+
+                <SfRadioButton Name="@($"caries-{tooth.ToothNumber}")"
+                               Value="false"
+                               Label="@L["NO"]"
+                               @bind-Checked="@tooth.CariesNo" />
             </div>
 
             <div class="dropdown-section">
@@ -348,7 +361,7 @@ new ToothInfoDto { ToothNumber = 37 }, new ToothInfoDto { ToothNumber = 38 }
             PatientName = PatientName,
             PatientDob = PatientDob,
             FileBaseAddress = Http.BaseAddress.ToString(),
-            DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/DefaultFileV2.docx"),
+            DefaultFileBytes = await HttpClient.GetByteArrayAsync("/FileData/DefaultFileV4.docx"),
             DefaultJawImageBytes = await HttpClient.GetByteArrayAsync("/FileData/withnum.jpg"),
         };
         record.ImageNames = imageNames;

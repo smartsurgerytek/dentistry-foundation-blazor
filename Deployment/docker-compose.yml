@@ -1,5 +1,4 @@
 # how to run ?
-
 #step 1 : go to below location. or you can follow below command for that
 #cd /home/krishtopher/Documents/dentistry-foundation-blazor/Deployment/
 
@@ -13,7 +12,6 @@
 
 #step 2.3 :
 #ASPNETCORE_ENVIRONMENT=Production DOMAIN_NAME=idental-stg-taiwan.smartsurgerytek.net docker compose up -d
-
 # below are just instruction 
 # few things to look after
 # using host mount bind for postgres and minio (if not done already) -- this is to persist data in-between container restarts

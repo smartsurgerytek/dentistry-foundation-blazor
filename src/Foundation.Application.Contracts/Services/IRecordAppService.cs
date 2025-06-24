@@ -11,6 +11,7 @@ namespace Foundation.Services
     {
         Task<List<RecordDto>> GetRecordsAsync();
         Task<RecordDto> GetRecordAsync(Guid recordId);
+        Task<List<RecordDto>> GetRecordByAsync(Guid patientId);
         Task CreateRecordAsync(CreateUpdateRecordDto input);
         Task UpdateRecordAsync(Guid recordId, CreateUpdateRecordDto input);
         Task DeleteRecordAsync(Guid recordId);
