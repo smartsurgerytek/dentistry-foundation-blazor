@@ -3,7 +3,7 @@ name: main
 on: 
   push:
     branches:
-      - FOND-62-isolate-patient-record-by-patientnumber
+      - main
   workflow_dispatch:
 
 jobs:
