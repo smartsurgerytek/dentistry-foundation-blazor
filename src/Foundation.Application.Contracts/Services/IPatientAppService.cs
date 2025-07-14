@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Services;
 
 namespace Foundation.Services
 {
-    public interface IPatientAppService
+    public interface IPatientAppService:IApplicationService
     {
         Task<PatientRecordDto> GetPatientRecordByAsync(Guid patientId);
         Task<List<PatientDto>> GetPatientsAsync();
