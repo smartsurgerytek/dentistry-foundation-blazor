@@ -1,4 +1,5 @@
 ﻿@page "/FileManager"
+@using Foundation.Services
 @using Microsoft.Extensions.Configuration
 @using Microsoft.Extensions.Logging
 @using Syncfusion.Blazor.FileManager
@@ -10,9 +11,15 @@
 @inject IConfiguration Configuration
 @inject ILogger<FileManager> Logger
 @inject IFeatureChecker FeatureChecker
+@inject IPatientAppService PatientsAppService
 @using Syncfusion.Blazor.Spinner
 @using Volo.Abp.Features
 
+<div class="mb-1" role="button" @onclick="NavigateToDetail">
+    <i class="fa fa-home" aria-hidden="true"></i>
+    <a class="text-dark link-primary">
+        @PatientName  @PatientNumber</a>
+</div>
 
 <div class="posRelative">
 <SfFileManager @ref="SfFileManager" TValue="FileManagerDirectoryContent" Height="90vh"

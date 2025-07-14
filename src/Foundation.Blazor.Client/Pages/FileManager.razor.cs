@@ -35,6 +35,10 @@ public partial class FileManager
     [Parameter]
     [SupplyParameterFromQuery]
     public string PatientId { get; set; }
+    
+    public string PatientName { get; set; } = string.Empty;
+    
+    public string PatientNumber { get; set; } = string.Empty;
 
     public string Path { get; set; } = string.Empty;
 
@@ -70,6 +74,8 @@ public partial class FileManager
         }
 
         Path = $"/{PatientId}/pa/";
+        
+        await GetPatientDetails();
     }
 
     public List<ToolBarItemModel> Items = new List<ToolBarItemModel>(){
@@ -254,5 +260,28 @@ public partial class FileManager
         {
             ShowSpinner = false;
         }
+    }
+    
+    
+    private async Task GetPatientDetails()
+    {
+        if (string.IsNullOrEmpty(PatientId))
+        {
+            throw new InvalidOperationException("PatientId is not supplied.");
+        }
+        
+        var patient = await PatientsAppService.GetPatientAsync(Guid.Parse(PatientId));
+        if (patient == null)
+        {
+            throw new InvalidOperationException($"Patient with ID {PatientId} not found.");
+        }
+
+        PatientName = patient.Name;
+        PatientNumber = patient.PatientNumber;
+    }
+    
+    private void NavigateToDetail()
+    {
+        NavigationManager.NavigateTo($"/Details?Patientid={PatientId}");
     }
 }
